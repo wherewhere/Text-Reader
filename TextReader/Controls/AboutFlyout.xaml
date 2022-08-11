@@ -1,0 +1,108 @@
+﻿<UserControl
+    x:Class="TextReader.Controls.AboutFlyout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:TextReader.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    mc:Ignorable="d">
+    <UserControl.Transitions>
+        <TransitionCollection>
+            <EdgeUIThemeTransition Edge="Left" />
+        </TransitionCollection>
+    </UserControl.Transitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock
+            x:Name="Header"
+            Grid.Column="1"
+            Margin="12,10,12,0"
+            Style="{ThemeResource SubtitleTextBlockStyle}" />
+        <StackPanel
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Margin="0,12,0,0"
+            Orientation="Vertical">
+            <RichTextBlock
+                x:Name="AboutContentBody"
+                MaxWidth="292"
+                Margin="12,0,12,18"
+                HorizontalAlignment="Left"
+                FontSize="{ThemeResource ContentControlFontSize}"
+                Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}">
+                <Paragraph>
+                    <Run x:Name="AboutFlyoutVersion" />
+                    <LineBreak />
+                    <Run x:Name="AboutControlCopyrightRun" />
+                </Paragraph>
+            </RichTextBlock>
+            <HyperlinkButton
+                x:Name="AboutFlyoutEULA"
+                Margin="12,0,12,6"
+                NavigateUri="https://go.microsoft.com/fwlink/?LinkID=529064"
+                ToolTipService.ToolTip="https://go.microsoft.com/fwlink/?LinkID=529064"
+                Visibility="Collapsed">
+                <TextBlock
+                    x:Uid="/AboutFlyout/AboutFlyoutEULA"
+                    FontSize="{ThemeResource ContentControlFontSize}"
+                    TextWrapping="Wrap" />
+            </HyperlinkButton>
+            <HyperlinkButton
+                Margin="12,0,12,6"
+                NavigateUri="https://go.microsoft.com/fwlink/?LinkID=822631"
+                ToolTipService.ToolTip="https://go.microsoft.com/fwlink/?LinkID=822631"
+                Visibility="Collapsed">
+                <TextBlock
+                    x:Uid="/AboutFlyout/AboutControlServicesAgreement"
+                    FontSize="{ThemeResource ContentControlFontSize}"
+                    TextWrapping="Wrap" />
+            </HyperlinkButton>
+            <HyperlinkButton
+                Margin="12,0,12,6"
+                NavigateUri="https://github.com/wherewhere/Text-Reader/blob/main/Privacy.md"
+                ToolTipService.ToolTip="https://github.com/wherewhere/Text-Reader/blob/main/Privacy.md">
+                <TextBlock
+                    x:Uid="/AboutFlyout/AboutControlPrivacyStatement"
+                    FontSize="{ThemeResource ContentControlFontSize}"
+                    TextWrapping="Wrap" />
+            </HyperlinkButton>
+            <Button
+                x:Name="FeedbackButton"
+                x:Uid="/AboutFlyout/FeedbackButton"
+                MinWidth="120"
+                Margin="12,12,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Click="FeedbackButton_Click" />
+
+        </StackPanel>
+        <RichTextBlock
+            x:Name="AboutFlyoutContribute"
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            Margin="12,18,12,6"
+            HorizontalAlignment="Left"
+            FontSize="{ThemeResource ContentControlFontSize}"
+            Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}"
+            TextWrapping="Wrap">
+            <Paragraph>
+                <Run x:Name="ContributeRunBeforeLink" />
+                <Hyperlink NavigateUri="https://github.com/wherewhere/Text-Reader" ToolTipService.ToolTip="https://github.com/wherewhere/Text-Reader">
+                    <Run x:Name="ContributeRunLink" />
+                </Hyperlink>
+                <Run x:Name="ContributeRunAfterLink" />
+            </Paragraph>
+        </RichTextBlock>
+    </Grid>
+</UserControl>
