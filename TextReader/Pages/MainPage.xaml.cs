@@ -5,8 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TextReader.Controls;
+using TextReader.Helpers;
 using TextReader.ViewModels;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.Resources;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -31,20 +34,34 @@ namespace TextReader.Pages
     {
         private MainViewModel Provider;
 
-        public MainPage() => InitializeComponent();
+        private Thickness StackPanelMargin => UIHelper.StackPanelMargin;
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        public MainPage()
         {
-            base.OnNavigatedTo(e);
+            InitializeComponent();
+            AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
+            CoreApplicationViewTitleBar TitleBar = CoreApplication.GetCurrentView().TitleBar;
+            TitleBar.ExtendViewIntoTitleBar = true;
+            UpdateTitleBarLayout(TitleBar);
             Provider = new MainViewModel();
-            DataContext = Provider;
+            if (SettingsHelper.WindowsVersion >= 22000)
+            {
+                CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right;
+            }
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+            Clipboard.ContentChanged += Clipboard_ContentChanged;
+            Window.Current.SetTitleBar(CustomTitleBar);
+            Clipboard_ContentChanged(null, null);
+            DataContext = Provider;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             switch ((sender as FrameworkElement).Tag as string)
             {
+                case "Paste":
+                    _ = Provider.DropFile(Clipboard.GetContent());
+                    break;
                 case "Finnsh":
                     _ = ClipFinnsh();
                     break;
@@ -101,6 +118,12 @@ namespace TextReader.Pages
             e.Handled = true;
         }
 
+        private void UpdateTitleBarLayout(CoreApplicationViewTitleBar TitleBar)
+        {
+            Thickness TitleMargin = CustomTitleBar.Margin;
+            CustomTitleBar.Margin = new Thickness(0, TitleMargin.Top, TitleBar.SystemOverlayRightInset, TitleMargin.Bottom);
+        }
+
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
             if (args.EventType.ToString().Contains("Down"))
@@ -117,6 +140,11 @@ namespace TextReader.Pages
                 }
             }
             args.Handled = true;
+        }
+
+        private void Clipboard_ContentChanged(object sender, object e)
+        {
+            _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
         }
     }
 

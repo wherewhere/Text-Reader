@@ -106,6 +106,24 @@ namespace TextReader.ViewModels
             }
         }
 
+        private bool profileLanguage;
+        public bool ProfileLanguage
+        {
+            get => profileLanguage;
+            set
+            {
+                if (profileLanguage != value)
+                {
+                    profileLanguage = value;
+                    RaisePropertyChangedEvent();
+                    if (SoftwareImage != null)
+                    {
+                        _ = ReadText(SoftwareImage);
+                    }
+                }
+            }
+        }
+
         private bool showCropper;
         public bool ShowCropper
         {
@@ -191,6 +209,31 @@ namespace TextReader.ViewModels
             }
         }
 
+        public async Task<bool> CheckData(DataPackageView data)
+        {
+            if (data.Contains(StandardDataFormats.Bitmap))
+            {
+                return true;
+            }
+            else if (data.Contains(StandardDataFormats.StorageItems))
+            {
+                IReadOnlyList<IStorageItem> items = await data.GetStorageItemsAsync();
+                IEnumerable<IStorageItem> images = items.Where(i => i is StorageFile).Where(i =>
+                {
+                    foreach (string type in ImageTypes)
+                    {
+                        if (i.Name.EndsWith(type, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                if (images.Any()) { return true; }
+            }
+            return false;
+        }
+
         public async Task ReadFile(StorageFile file)
         {
             using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
@@ -226,7 +269,7 @@ namespace TextReader.ViewModels
         {
             StringBuilder text = new StringBuilder();
 
-            var ocrEngine = OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
+            var ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
             var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
             foreach (var line in ocrResult.Lines) text.AppendLine(line.Text);

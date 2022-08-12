@@ -5,6 +5,7 @@
     xmlns:controls="using:TextReader.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:globalization="using:Windows.Globalization"
+    xmlns:helpers="using:TextReader.Helpers"
     xmlns:local="using:TextReader.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TextReader.ViewModels"
@@ -17,202 +18,304 @@
             <Setter Property="AutomationProperties.AccessibilityView" Value="Raw" />
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
         </Style>
+        <MenuFlyout x:Name="ImageMenuFlyout">
+            <MenuFlyoutItem
+                Click="Button_Click"
+                Tag="Copy"
+                Text="Copy"
+                Visibility="{Binding Image, Converter={StaticResource EmptyObjectToVisibilityConverter}}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8C8;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                Click="Button_Click"
+                Tag="Paste"
+                Text="Paste"
+                x:Name="Paste"
+                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77F;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
+            <MenuFlyoutItem
+                Click="Button_Click"
+                Tag="PickImage"
+                Text="Pick Image"
+                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                Click="Button_Click"
+                Tag="TakePhoto"
+                Text="Take Photo"
+                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
         <local:BoolToTwoPaneViewTallModeConfigurationConverter x:Key="BoolToTwoPaneViewTallModeConfigurationConverter" />
         <local:BoolToTwoPaneViewWideModeConfigurationConverter x:Key="BoolToTwoPaneViewWideModeConfigurationConverter" />
     </Page.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <controls:TwoPaneView
-            x:Name="TwoPaneView"
-            Grid.Row="0"
-            MinTallModeHeight="NaN"
-            MinWideModeWidth="NaN"
-            Pane1Length="*"
-            Pane2Length="*"
-            TallModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewTallModeConfigurationConverter}}"
-            WideModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewWideModeConfigurationConverter}}">
-            <controls:TwoPaneView.Pane1>
-                <Grid
-                    Margin="16"
-                    AllowDrop="{Binding ShowCropper, Converter={StaticResource BoolNegationConverter}}"
-                    Background="Transparent"
-                    DragOver="Grid_DragOver"
-                    Drop="Grid_Drop">
+        <Grid
+            x:Name="CustomTitleBar"
+            Height="48"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            Canvas.ZIndex="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Image
+                x:Name="Icon"
+                MaxWidth="16"
+                MaxHeight="16"
+                Margin="16,0"
+                VerticalAlignment="Center"
+                Source="/Assets/StoreLogo.scale-400.png" />
+            <TextBlock
+                x:Name="AppTitle"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                MaxLines="1"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="酷安 Lite"
+                TextTrimming="CharacterEllipsis" />
+        </Grid>
+        <Grid Padding="{x:Bind StackPanelMargin}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <controls:TwoPaneView
+                x:Name="TwoPaneView"
+                Grid.Row="0"
+                MinTallModeHeight="NaN"
+                MinWideModeWidth="NaN"
+                Pane1Length="*"
+                Pane2Length="*"
+                TallModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewTallModeConfigurationConverter}}"
+                WideModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewWideModeConfigurationConverter}}">
+                <controls:TwoPaneView.Pane1>
                     <Grid
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        BorderBrush="{StaticResource LayerFillColorDefaultBrush}"
-                        BorderThickness="4"
-                        CornerRadius="8"
-                        Visibility="{Binding Image, Converter={StaticResource EmptyObjectToVisibilityConverter}, ConverterParameter='true'}">
-                        <StackPanel
-                            Margin="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
-                            <FontIcon
-                                FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                FontSize="100"
-                                Glyph="&#xE8B9;" />
-                            <Border Margin="0,4" CornerRadius="4">
-                                <Button
-                                    HorizontalAlignment="Stretch"
-                                    Click="Button_Click"
-                                    Content="Pick Image"
-                                    Tag="PickImage" />
-                            </Border>
-                            <Border Margin="0,4" CornerRadius="4">
-                                <Button
-                                    HorizontalAlignment="Stretch"
-                                    Click="Button_Click"
-                                    Content="Take Photo" />
-                            </Border>
-                        </StackPanel>
-                    </Grid>
-                    <Image
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        CanDrag="True"
-                        Source="{Binding Image}"
-                        Stretch="Uniform"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
-                    <controls:ImageCropper
-                        x:Name="ImageCropper"
-                        CropShape="Rectangular"
-                        MinCroppedPixelLength="0"
-                        MinSelectedLength="0"
-                        Source="{Binding CropperImage}"
-                        ThumbPlacement="All"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}" />
-                </Grid>
-            </controls:TwoPaneView.Pane1>
-            <controls:TwoPaneView.Pane2>
-                <Grid
-                    Margin="16"
-                    Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
-                    CornerRadius="8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Grid Margin="8" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ComboBox
-                            Grid.Column="0"
-                            Margin="4,0"
-                            HorizontalAlignment="Left"
-                            ItemsSource="{Binding Languages}"
-                            SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding DisplayName}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button
-                            Grid.Column="1"
-                            Width="32"
-                            Margin="0"
-                            Padding="0"
-                            HorizontalAlignment="Right"
+                        Margin="16"
+                        helpers:UIElementHelper.ContextFlyout="{StaticResource ImageMenuFlyout}"
+                        AllowDrop="{Binding ShowCropper, Converter={StaticResource BoolNegationConverter}}"
+                        Background="Transparent"
+                        DragOver="Grid_DragOver"
+                        Drop="Grid_Drop">
+                        <Grid
+                            HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Click="Button_Click"
-                            Content="&#xE72C;"
-                            FontFamily="{StaticResource SymbolThemeFontFamily}"
-                            Tag="Refresh" />
-                    </Grid>
-                    <ScrollViewer
-                        Grid.Row="1"
-                        Padding="8"
-                        HorizontalScrollBarVisibility="Disabled"
-                        VerticalScrollBarVisibility="Auto"
-                        Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}">
-                        <TextBlock
+                            BorderBrush="{StaticResource LayerFillColorDefaultBrush}"
+                            BorderThickness="4"
+                            CornerRadius="8"
+                            Visibility="{Binding Image, Converter={StaticResource EmptyObjectToVisibilityConverter}, ConverterParameter='true'}">
+                            <StackPanel
+                                Margin="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                                <FontIcon
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    FontSize="100"
+                                    Glyph="&#xE8B9;" />
+                                <Border
+                                    Margin="0,4"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="4">
+                                    <Button
+                                        HorizontalAlignment="Stretch"
+                                        helpers:UIElementHelper.CornerRadius="4"
+                                        Click="Button_Click"
+                                        Content="Pick Image"
+                                        Tag="PickImage" />
+                                </Border>
+                                <Border
+                                    Margin="0,4"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="4">
+                                    <Button
+                                        HorizontalAlignment="Stretch"
+                                        helpers:UIElementHelper.CornerRadius="4"
+                                        Click="Button_Click"
+                                        Content="Take Photo" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                        <Image
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
                             CanDrag="True"
-                            IsTextSelectionEnabled="True"
-                            Text="{Binding Result}"
+                            Source="{Binding Image}"
+                            Stretch="Uniform"
+                            Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
+                        <controls:ImageCropper
+                            x:Name="ImageCropper"
+                            CropShape="Rectangular"
+                            MinCroppedPixelLength="0"
+                            MinSelectedLength="0"
+                            Source="{Binding CropperImage}"
+                            ThumbPlacement="All"
+                            Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </Grid>
+                </controls:TwoPaneView.Pane1>
+                <controls:TwoPaneView.Pane2>
+                    <Grid
+                        Margin="16"
+                        Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Margin="8" HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border
+                                Grid.Column="0"
+                                Margin="4,0"
+                                HorizontalAlignment="Left"
+                                CornerRadius="4">
+                                <ComboBox
+                                    helpers:UIElementHelper.CornerRadius="4"
+                                    IsEnabled="{Binding ProfileLanguage, Converter={StaticResource BoolNegationConverter}}"
+                                    ItemsSource="{Binding Languages}"
+                                    SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayName}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Border>
+                            <Border
+                                Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Stretch"
+                                CornerRadius="4">
+                                <Button
+                                    Grid.Column="1"
+                                    Width="32"
+                                    Height="32"
+                                    Margin="0"
+                                    Padding="0"
+                                    VerticalAlignment="Stretch"
+                                    helpers:UIElementHelper.CornerRadius="4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Click="Button_Click"
+                                    Content="&#xE72C;"
+                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                    Tag="Refresh" />
+                            </Border>
+                        </Grid>
+                        <ScrollViewer
+                            Grid.Row="1"
+                            Padding="8"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto"
+                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}">
+                            <TextBlock
+                                CanDrag="True"
+                                IsTextSelectionEnabled="True"
+                                Text="{Binding Result}"
+                                TextWrapping="Wrap"
+                                Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}" />
+                        </ScrollViewer>
+                        <TextBlock
+                            Grid.Row="1"
+                            Margin="8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="No Results"
                             TextWrapping="Wrap"
-                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}" />
-                    </ScrollViewer>
-                    <TextBlock
-                        Grid.Row="1"
-                        Margin="8"
-                        HorizontalAlignment="Center"
+                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true'}" />
+                    </Grid>
+                </controls:TwoPaneView.Pane2>
+            </controls:TwoPaneView>
+            <CommandBar
+                x:Name="CommandBar"
+                Grid.Row="1"
+                VerticalAlignment="Bottom">
+                <CommandBar.Background>
+                    <SolidColorBrush Opacity="0.5" Color="{StaticResource SystemChromeMediumColor}" />
+                </CommandBar.Background>
+                <CommandBar.Content>
+                    <ToggleSwitch
+                        Margin="8,4"
                         VerticalAlignment="Center"
-                        Style="{StaticResource SubtitleTextBlockStyle}"
-                        Text="No Results"
-                        TextWrapping="Wrap"
-                        Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true'}" />
-                </Grid>
-            </controls:TwoPaneView.Pane2>
-        </controls:TwoPaneView>
-        <CommandBar Grid.Row="1" VerticalAlignment="Bottom">
-            <CommandBar.Background>
-                <SolidColorBrush Opacity="0.8" Color="{StaticResource SystemChromeMediumColor}" />
-            </CommandBar.Background>
-            <AppBarButton
-                Click="Button_Click"
-                Label="Finnsh"
-                Tag="Finnsh"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton
-                Click="Button_Click"
-                Label="Cancel"
-                Tag="Cancel"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton
-                Click="Button_Click"
-                Label="Clip Image"
-                Tag="ClipImage"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE924;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarSeparator />
-            <AppBarButton
-                Click="Button_Click"
-                Label="Pick Image"
-                Tag="PickImage"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton
-                Click="Button_Click"
-                Label="Take Photo"
-                Tag="TakePhoto"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton Label="About">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
-                </AppBarButton.Icon>
-                <AppBarButton.Flyout>
-                    <Flyout x:Name="AboutPageFlyout" FlyoutPresenterStyle="{StaticResource AboutFlyoutPresenterStyle}">
-                        <controls:AboutFlyout x:Name="AboutPage" />
-                    </Flyout>
-                </AppBarButton.Flyout>
-            </AppBarButton>
-        </CommandBar>
+                        IsOn="{Binding ProfileLanguage, Mode=TwoWay}"
+                        OffContent="Custom Language"
+                        OnContent="System Language" />
+                </CommandBar.Content>
+                <AppBarButton
+                    Click="Button_Click"
+                    Label="Finnsh"
+                    Tag="Finnsh"
+                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    Click="Button_Click"
+                    Label="Cancel"
+                    Tag="Cancel"
+                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    Click="Button_Click"
+                    Label="Clip Image"
+                    Tag="ClipImage"
+                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE924;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton
+                    Click="Button_Click"
+                    Label="Pick Image"
+                    Tag="PickImage"
+                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    Click="Button_Click"
+                    Label="Take Photo"
+                    Tag="TakePhoto"
+                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="About">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <Flyout x:Name="AboutPageFlyout" FlyoutPresenterStyle="{StaticResource AboutFlyoutPresenterStyle}">
+                            <controls:AboutFlyout x:Name="AboutPage" />
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+            </CommandBar>
+        </Grid>
     </Grid>
 </Page>
