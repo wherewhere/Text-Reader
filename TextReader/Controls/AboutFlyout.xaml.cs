@@ -50,8 +50,9 @@ namespace TextReader.Controls
 
         private void InitializeContributeTextBlock()
         {
-            var resProvider = ResourceLoader.GetForCurrentView("AboutFlyout");
-            string contributeHyperlinkText = resProvider.GetString("AboutFlyoutContribute");
+            ResourceLoader resProvider = ResourceLoader.GetForCurrentView("AboutFlyout");
+            string appName = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "Text Reader";
+            string contributeHyperlinkText = string.Format(resProvider.GetString("AboutFlyoutContribute"), appName);
 
             // The resource string has the 'GitHub' hyperlink wrapped with '%HL%'.
             // Break the string and assign pieces appropriately.

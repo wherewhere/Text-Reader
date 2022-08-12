@@ -117,24 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AboutButton.Content" xml:space="preserve">
-    <value>关于</value>
-    <comment>The text that shows in the dropdown navigation control to open About panel</comment>
+  <data name="CancelAppBarButton.Label" xml:space="preserve">
+    <value>取消</value>
   </data>
-  <data name="AboutControlCopyright" xml:space="preserve">
-    <value>© {0} wherewhere。保留所有权利。</value>
-    <comment>{Locked={0}}. Copyright statement, displayed on the About panel. {0} = the current year (4 digits)</comment>
+  <data name="ClipImageAppBarButton.Label" xml:space="preserve">
+    <value>裁剪图片</value>
   </data>
-  <data name="AboutFlyoutContribute" xml:space="preserve">
-    <value>若要了解如何参与{0}，请在 %HL%GitHub%HL% 上查看该项目。</value>
-    <comment>{Locked="%HL%GitHub%HL%"}. GitHub link, Displayed on the About panel</comment>
+  <data name="CopyMenuFlyoutItem.Text" xml:space="preserve">
+    <value>复制</value>
   </data>
-  <data name="AboutFlyoutEULA.Text" xml:space="preserve">
-    <value>软件许可条款</value>
-    <comment>Displayed on a link to the Software License Terms on the About panel</comment>
+  <data name="FinnshAppBarButton.Label" xml:space="preserve">
+    <value>完成</value>
   </data>
-  <data name="FeedbackButton.Content" xml:space="preserve">
-    <value>发送反馈</value>
-    <comment>The text that shows in the dropdown navigation control to give the user the option to send feedback about the app and it launches Windows Feedback app</comment>
+  <data name="ImageOnlyAppBarButton.Label" xml:space="preserve">
+    <value>只看图片</value>
+  </data>
+  <data name="NoResultsTextBlock.Text" xml:space="preserve">
+    <value>没有结果</value>
+  </data>
+  <data name="PasteMenuFlyoutItem.Text" xml:space="preserve">
+    <value>粘贴</value>
+  </data>
+  <data name="PickImageAppBarButton.Label" xml:space="preserve">
+    <value>选取图片</value>
+  </data>
+  <data name="PickImageButton.Content" xml:space="preserve">
+    <value>选取图片</value>
+  </data>
+  <data name="PickImageMenuFlyoutItem.Text" xml:space="preserve">
+    <value>选取图片</value>
+  </data>
+  <data name="ResultOnlyAppBarButton.Label" xml:space="preserve">
+    <value>只看结果</value>
+  </data>
+  <data name="SystemLanguageCheckBox.Content" xml:space="preserve">
+    <value>系统语言</value>
+  </data>
+  <data name="TakePhotoAppBarButton.Label" xml:space="preserve">
+    <value>拍摄照片</value>
+  </data>
+  <data name="TakePhotoButton.Content" xml:space="preserve">
+    <value>拍摄照片</value>
+  </data>
+  <data name="TakePhotoMenuFlyoutItem.Text" xml:space="preserve">
+    <value>拍摄照片</value>
+  </data>
+  <data name="TwoPanelAppBarButton.Label" xml:space="preserve">
+    <value>双屏显示</value>
   </data>
 </root>

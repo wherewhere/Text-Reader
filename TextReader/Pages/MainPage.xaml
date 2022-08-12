@@ -20,19 +20,19 @@
         </Style>
         <MenuFlyout x:Name="ImageMenuFlyout">
             <MenuFlyoutItem
+                x:Uid="/MainPage/CopyMenuFlyoutItem"
                 Click="Button_Click"
                 Tag="Copy"
-                Text="Copy"
-                Visibility="{Binding Image, Converter={StaticResource EmptyObjectToVisibilityConverter}}">
+                Visibility="Collapsed">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8C8;" />
                 </helpers:UIElementHelper.Icon>
             </MenuFlyoutItem>
             <MenuFlyoutItem
+                x:Name="Paste"
+                x:Uid="/MainPage/PasteMenuFlyoutItem"
                 Click="Button_Click"
                 Tag="Paste"
-                Text="Paste"
-                x:Name="Paste"
                 Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77F;" />
@@ -40,18 +40,18 @@
             </MenuFlyoutItem>
             <MenuFlyoutSeparator Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
             <MenuFlyoutItem
+                x:Uid="/MainPage/PickImageMenuFlyoutItem"
                 Click="Button_Click"
                 Tag="PickImage"
-                Text="Pick Image"
                 Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
                 </helpers:UIElementHelper.Icon>
             </MenuFlyoutItem>
             <MenuFlyoutItem
+                x:Uid="/MainPage/TakePhotoMenuFlyoutItem"
                 Click="Button_Click"
                 Tag="TakePhoto"
-                Text="Take Photo"
                 Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
@@ -87,7 +87,7 @@
                 VerticalAlignment="Center"
                 MaxLines="1"
                 Style="{StaticResource CaptionTextBlockStyle}"
-                Text="酷安 Lite"
+                Text="Text Reader"
                 TextTrimming="CharacterEllipsis" />
         </Grid>
         <Grid Padding="{x:Bind StackPanelMargin}">
@@ -102,6 +102,7 @@
                 MinWideModeWidth="NaN"
                 Pane1Length="*"
                 Pane2Length="*"
+                PanePriority="{Binding PanePriority}"
                 TallModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewTallModeConfigurationConverter}}"
                 WideModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewWideModeConfigurationConverter}}">
                 <controls:TwoPaneView.Pane1>
@@ -132,10 +133,10 @@
                                     HorizontalAlignment="Stretch"
                                     CornerRadius="4">
                                     <Button
+                                        x:Uid="/MainPage/PickImageButton"
                                         HorizontalAlignment="Stretch"
                                         helpers:UIElementHelper.CornerRadius="4"
                                         Click="Button_Click"
-                                        Content="Pick Image"
                                         Tag="PickImage" />
                                 </Border>
                                 <Border
@@ -143,10 +144,11 @@
                                     HorizontalAlignment="Stretch"
                                     CornerRadius="4">
                                     <Button
+                                        x:Uid="/MainPage/TakePhotoButton"
                                         HorizontalAlignment="Stretch"
                                         helpers:UIElementHelper.CornerRadius="4"
                                         Click="Button_Click"
-                                        Content="Take Photo" />
+                                        Tag="TakePhoto" />
                                 </Border>
                             </StackPanel>
                         </Grid>
@@ -233,12 +235,12 @@
                                 Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}" />
                         </ScrollViewer>
                         <TextBlock
+                            x:Uid="/MainPage/NoResultsTextBlock"
                             Grid.Row="1"
                             Margin="8"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="No Results"
                             TextWrapping="Wrap"
                             Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true'}" />
                     </Grid>
@@ -252,69 +254,100 @@
                     <SolidColorBrush Opacity="0.5" Color="{StaticResource SystemChromeMediumColor}" />
                 </CommandBar.Background>
                 <CommandBar.Content>
-                    <ToggleSwitch
+                    <CheckBox
+                        x:Uid="/MainPage/SystemLanguageCheckBox"
+                        MinWidth="0"
                         Margin="8,4"
                         VerticalAlignment="Center"
-                        IsOn="{Binding ProfileLanguage, Mode=TwoWay}"
-                        OffContent="Custom Language"
-                        OnContent="System Language" />
+                        IsChecked="{Binding ProfileLanguage, Mode=TwoWay}" />
                 </CommandBar.Content>
-                <AppBarButton
-                    Click="Button_Click"
-                    Label="Finnsh"
-                    Tag="Finnsh"
-                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton
-                    Click="Button_Click"
-                    Label="Cancel"
-                    Tag="Cancel"
-                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton
-                    Click="Button_Click"
-                    Label="Clip Image"
-                    Tag="ClipImage"
-                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE924;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarSeparator />
-                <AppBarButton
-                    Click="Button_Click"
-                    Label="Pick Image"
-                    Tag="PickImage"
-                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton
-                    Click="Button_Click"
-                    Label="Take Photo"
-                    Tag="TakePhoto"
-                    Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton Label="About">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
-                    </AppBarButton.Icon>
-                    <AppBarButton.Flyout>
-                        <Flyout x:Name="AboutPageFlyout" FlyoutPresenterStyle="{StaticResource AboutFlyoutPresenterStyle}">
-                            <controls:AboutFlyout x:Name="AboutPage" />
-                        </Flyout>
-                    </AppBarButton.Flyout>
-                </AppBarButton>
+                <CommandBar.PrimaryCommands>
+                    <AppBarButton
+                        x:Uid="/MainPage/FinnshAppBarButton"
+                        Click="Button_Click"
+                        Tag="Finnsh"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="/MainPage/CancelAppBarButton"
+                        Click="Button_Click"
+                        Tag="Cancel"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="/MainPage/ClipImageAppBarButton"
+                        Click="Button_Click"
+                        Tag="ClipImage"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE924;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarSeparator />
+                    <AppBarButton
+                        x:Uid="/MainPage/PickImageAppBarButton"
+                        Click="Button_Click"
+                        Tag="PickImage"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="/MainPage/TakePhotoAppBarButton"
+                        Click="Button_Click"
+                        Tag="TakePhoto"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Label="About">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
+                        </AppBarButton.Icon>
+                        <AppBarButton.Flyout>
+                            <Flyout x:Name="AboutPageFlyout" FlyoutPresenterStyle="{StaticResource AboutFlyoutPresenterStyle}">
+                                <controls:AboutFlyout x:Name="AboutPage" />
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                    <AppBarButton
+                        x:Uid="/MainPage/TwoPanelAppBarButton"
+                        Click="Button_Click"
+                        Tag="TwoPanel"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA61;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="/MainPage/ImageOnlyAppBarButton"
+                        Click="Button_Click"
+                        Tag="ImageOnly"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB9F;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="/MainPage/ResultOnlyAppBarButton"
+                        Click="Button_Click"
+                        Tag="ResultOnly"
+                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar.SecondaryCommands>
             </CommandBar>
         </Grid>
     </Grid>

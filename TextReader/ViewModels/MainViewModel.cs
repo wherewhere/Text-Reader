@@ -18,6 +18,7 @@ using TextReader.Controls;
 using Windows.Storage.Streams;
 using Windows.Globalization;
 using Windows.ApplicationModel.DataTransfer;
+using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 
 namespace TextReader.ViewModels
 {
@@ -106,6 +107,20 @@ namespace TextReader.ViewModels
             }
         }
 
+        private TwoPaneViewPriority panePriority = TwoPaneViewPriority.Pane1;
+        public TwoPaneViewPriority PanePriority
+        {
+            get => panePriority;
+            set
+            {
+                if (panePriority != value)
+                {
+                    panePriority = value;
+                    RaisePropertyChangedEvent();
+                }
+            }
+        }
+
         private bool profileLanguage;
         public bool ProfileLanguage
         {
@@ -135,6 +150,7 @@ namespace TextReader.ViewModels
                     showCropper = value;
                     IsSinglePane = value;
                     RaisePropertyChangedEvent();
+                    if (value) { PanePriority = TwoPaneViewPriority.Pane1; }
                 }
             }
         }
@@ -234,6 +250,25 @@ namespace TextReader.ViewModels
             return false;
         }
 
+        public async Task CopyImage()
+        {
+            using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
+            {
+                // Create an encoder with the desired format
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
+
+                // Set the software bitmap
+                encoder.SetSoftwareBitmap(SoftwareImage);
+                await encoder.FlushAsync();
+
+                RandomAccessStreamReference bitmap = RandomAccessStreamReference.CreateFromStream(stream);
+                DataPackage dataPackage = new DataPackage();
+                dataPackage.SetBitmap(bitmap);
+                Clipboard.SetContentWithOptions(dataPackage, null);
+                await Task.Delay(1000);
+            }
+        }
+
         public async Task ReadFile(StorageFile file)
         {
             using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
@@ -248,8 +283,12 @@ namespace TextReader.ViewModels
             SoftwareImage = await ImageDecoder.GetSoftwareBitmapAsync();
             CropperImage = null;
             var WriteableImage = new WriteableBitmap(1, 1);
-            await WriteableImage.SetSourceAsync(stream);
-            CropperImage = WriteableImage;
+            try
+            {
+                await WriteableImage.SetSourceAsync(stream);
+                CropperImage = WriteableImage;
+            }
+            catch { CropperImage = null; }
         }
 
         public async Task SetImage(SoftwareBitmap softwareBitmap)

@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 using TwoPaneViewTallModeConfiguration = TextReader.Controls.TwoPaneViewTallModeConfiguration;
 using TwoPaneViewWideModeConfiguration = TextReader.Controls.TwoPaneViewWideModeConfiguration;
 
@@ -59,6 +60,9 @@ namespace TextReader.Pages
         {
             switch ((sender as FrameworkElement).Tag as string)
             {
+                case "Copy":
+                    _ = Provider.CopyImage();
+                    break;
                 case "Paste":
                     _ = Provider.DropFile(Clipboard.GetContent());
                     break;
@@ -79,6 +83,18 @@ namespace TextReader.Pages
                     break;
                 case "Refresh":
                     _ = Provider.ReadText(Provider.SoftwareImage);
+                    break;
+                case "TwoPanel":
+                    Provider.IsSinglePane = false;
+                    Provider.PanePriority = TwoPaneViewPriority.Pane1;
+                    break;
+                case "ImageOnly":
+                    Provider.IsSinglePane = true;
+                    Provider.PanePriority = TwoPaneViewPriority.Pane1;
+                    break;
+                case "ResultOnly":
+                    Provider.IsSinglePane = true;
+                    Provider.PanePriority = TwoPaneViewPriority.Pane2;
                     break;
             }
         }

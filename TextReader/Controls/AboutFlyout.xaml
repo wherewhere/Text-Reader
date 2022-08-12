@@ -50,30 +50,10 @@
             <HyperlinkButton
                 x:Name="AboutFlyoutEULA"
                 Margin="12,0,12,6"
-                NavigateUri="https://go.microsoft.com/fwlink/?LinkID=529064"
-                ToolTipService.ToolTip="https://go.microsoft.com/fwlink/?LinkID=529064"
-                Visibility="Collapsed">
-                <TextBlock
-                    x:Uid="/AboutFlyout/AboutFlyoutEULA"
-                    FontSize="{ThemeResource ContentControlFontSize}"
-                    TextWrapping="Wrap" />
-            </HyperlinkButton>
-            <HyperlinkButton
-                Margin="12,0,12,6"
-                NavigateUri="https://go.microsoft.com/fwlink/?LinkID=822631"
-                ToolTipService.ToolTip="https://go.microsoft.com/fwlink/?LinkID=822631"
-                Visibility="Collapsed">
-                <TextBlock
-                    x:Uid="/AboutFlyout/AboutControlServicesAgreement"
-                    FontSize="{ThemeResource ContentControlFontSize}"
-                    TextWrapping="Wrap" />
-            </HyperlinkButton>
-            <HyperlinkButton
-                Margin="12,0,12,6"
                 NavigateUri="https://github.com/wherewhere/Text-Reader/blob/main/Privacy.md"
                 ToolTipService.ToolTip="https://github.com/wherewhere/Text-Reader/blob/main/Privacy.md">
                 <TextBlock
-                    x:Uid="/AboutFlyout/AboutControlPrivacyStatement"
+                    x:Uid="/AboutFlyout/AboutFlyoutEULA"
                     FontSize="{ThemeResource ContentControlFontSize}"
                     TextWrapping="Wrap" />
             </HyperlinkButton>
