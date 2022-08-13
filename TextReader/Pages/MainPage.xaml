@@ -152,13 +152,19 @@
                                 </Border>
                             </StackPanel>
                         </Grid>
-                        <Image
+                        <Viewbox
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            CanDrag="True"
-                            Source="{Binding Image}"
                             Stretch="Uniform"
-                            Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
+                            Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                            <Grid>
+                                <Image CanDrag="True" Source="{Binding Image}" />
+                                <Path
+                                    Data="{Binding ResultGeometry}"
+                                    Fill="{StaticResource SystemAccentColor}"
+                                    Opacity="0.3" />
+                            </Grid>
+                        </Viewbox>
                         <controls:ImageCropper
                             x:Name="ImageCropper"
                             CropShape="Rectangular"

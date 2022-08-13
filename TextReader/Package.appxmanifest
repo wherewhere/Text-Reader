@@ -10,12 +10,12 @@
   <Identity
     Name="18184wherewhere.OCRTextReader"
     Publisher="CN=2C3A37C0-35FC-4839-B08C-751C1C1AFBF5"
-    Version="0.0.0.0" />
+    Version="0.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="4654707c-a15c-4f40-bcfe-d9af768050d8" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>文本读取器</DisplayName>
+    <DisplayName>文字识别</DisplayName>
     <PublisherDisplayName>wherewhere</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>

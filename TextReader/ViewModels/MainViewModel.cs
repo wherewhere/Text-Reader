@@ -19,6 +19,7 @@ using Windows.Storage.Streams;
 using Windows.Globalization;
 using Windows.ApplicationModel.DataTransfer;
 using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
+using Windows.UI.Xaml;
 
 namespace TextReader.ViewModels
 {
@@ -169,6 +170,20 @@ namespace TextReader.ViewModels
             }
         }
 
+        private GeometryGroup resultGeometry;
+        public GeometryGroup ResultGeometry
+        {
+            get => resultGeometry;
+            set
+            {
+                if (resultGeometry != value)
+                {
+                    resultGeometry = value;
+                    RaisePropertyChangedEvent();
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void RaisePropertyChangedEvent([System.Runtime.CompilerServices.CallerMemberName] string name = null)
@@ -311,9 +326,18 @@ namespace TextReader.ViewModels
             var ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
             var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
-            foreach (var line in ocrResult.Lines) text.AppendLine(line.Text);
+            GeometryGroup GeometryGroup = new GeometryGroup();
+            foreach (OcrLine line in ocrResult.Lines)
+            {
+                text.AppendLine(line.Text);
+                foreach (OcrWord word in line.Words)
+                {
+                    GeometryGroup.Children.Add(new RectangleGeometry { Rect = word.BoundingRect });
+                }
+            }
 
             Result = text.ToString();
+            ResultGeometry = GeometryGroup;
         }
     }
 }
