@@ -124,7 +124,7 @@ namespace TextReader.Controls
             {
                 // Return the bounds of the simulated window
                 FrameworkElement window = DisplayRegionHelper.WindowElement() as FrameworkElement;
-                Rect rc = new(
+                Rect rc = new Rect(
                     0, 0,
                     window.ActualWidth,
                     window.ActualHeight);

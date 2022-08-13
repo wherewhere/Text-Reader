@@ -193,7 +193,7 @@ namespace TextReader.ViewModels
 
         public async Task PickImage()
         {
-            FileOpenPicker FileOpen = new();
+            FileOpenPicker FileOpen = new FileOpenPicker();
             FileOpen.FileTypeFilter.Add(".jpg");
             FileOpen.FileTypeFilter.Add(".jpeg");
             FileOpen.FileTypeFilter.Add(".png");

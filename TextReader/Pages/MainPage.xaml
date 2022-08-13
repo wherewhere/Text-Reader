@@ -68,7 +68,8 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
             Background="Transparent"
-            Canvas.ZIndex="1">
+            Canvas.ZIndex="1"
+            Visibility="{x:Bind HasStatusBar, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -159,10 +160,11 @@
                             Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                             <Grid>
                                 <Image CanDrag="True" Source="{Binding Image}" />
-                                <Path
-                                    Data="{Binding ResultGeometry}"
-                                    Fill="{StaticResource SystemAccentColor}"
-                                    Opacity="0.3" />
+                                <Path Data="{Binding ResultGeometry}" Opacity="0.3">
+                                    <Path.Fill>
+                                        <SolidColorBrush Opacity="0.3" Color="{StaticResource SystemAccentColor}" />
+                                    </Path.Fill>
+                                </Path>
                             </Grid>
                         </Viewbox>
                         <controls:ImageCropper

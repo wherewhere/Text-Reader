@@ -35,6 +35,7 @@ namespace TextReader.Pages
     {
         private MainViewModel Provider;
 
+        private bool HasStatusBar => UIHelper.HasStatusBar;
         private Thickness StackPanelMargin => UIHelper.StackPanelMargin;
 
         public MainPage()
