@@ -320,33 +320,40 @@
                     </AppBarButton>
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
-                    <AppBarButton
+                    <AppBarToggleButton
+                        x:Name="TwoPanelAppBarButton"
                         x:Uid="/MainPage/TwoPanelAppBarButton"
                         Click="Button_Click"
-                        Tag="TwoPanel"
+                        Tag="TwoPanel"                     
+                        IsEnabled="{Binding ElementName=TwoPanelAppBarButton,Path=IsChecked,Converter={StaticResource BoolNegationConverter}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                        <AppBarButton.Icon>
+                        <AppBarToggleButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA61;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
-                    <AppBarButton
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
+                    <AppBarToggleButton
+                        x:Name="ImageOnlyAppBarButton"
                         x:Uid="/MainPage/ImageOnlyAppBarButton"
                         Click="Button_Click"
                         Tag="ImageOnly"
+                        IsChecked="True"
+                        IsEnabled="{Binding ElementName=ImageOnlyAppBarButton,Path=IsChecked,Converter={StaticResource BoolNegationConverter}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                        <AppBarButton.Icon>
+                        <AppBarToggleButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB9F;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
-                    <AppBarButton
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
+                    <AppBarToggleButton
+                        x:Name="ResultOnlyAppBarButton"
                         x:Uid="/MainPage/ResultOnlyAppBarButton"
-                        Click="Button_Click"
+                        Click="Button_Click"                     
                         Tag="ResultOnly"
+                        IsEnabled="{Binding ElementName=ResultOnlyAppBarButton,Path=IsChecked,Converter={StaticResource BoolNegationConverter}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                        <AppBarButton.Icon>
+                        <AppBarToggleButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
                 </CommandBar.SecondaryCommands>
             </CommandBar>
         </Grid>

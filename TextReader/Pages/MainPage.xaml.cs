@@ -86,14 +86,20 @@ namespace TextReader.Pages
                     break;
                 case "TwoPanel":
                     Provider.IsSinglePane = false;
+                    ResultOnlyAppBarButton.IsChecked = false;
+                    ImageOnlyAppBarButton.IsChecked = false;
                     Provider.PanePriority = TwoPaneViewPriority.Pane1;
                     break;
                 case "ImageOnly":
                     Provider.IsSinglePane = true;
+                    TwoPanelAppBarButton.IsChecked = false;
+                    ResultOnlyAppBarButton.IsChecked = false;
                     Provider.PanePriority = TwoPaneViewPriority.Pane1;
                     break;
                 case "ResultOnly":
                     Provider.IsSinglePane = true;
+                    TwoPanelAppBarButton.IsChecked = false;
+                    ImageOnlyAppBarButton.IsChecked = false;
                     Provider.PanePriority = TwoPaneViewPriority.Pane2;
                     break;
             }
