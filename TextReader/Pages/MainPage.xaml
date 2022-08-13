@@ -160,9 +160,9 @@
                             Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                             <Grid>
                                 <Image CanDrag="True" Source="{Binding Image}" />
-                                <Path Data="{Binding ResultGeometry}" Opacity="0.3">
+                                <Path Data="{Binding ResultGeometry}" StrokeThickness="0">
                                     <Path.Fill>
-                                        <SolidColorBrush Opacity="0.3" Color="{StaticResource SystemAccentColor}" />
+                                        <SolidColorBrush Opacity="0.5" Color="{StaticResource SystemAccentColor}" />
                                     </Path.Fill>
                                 </Path>
                             </Grid>
@@ -316,7 +316,7 @@
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Label="About">
+                    <AppBarButton x:Uid="/MainPage/AboutAppBarButton">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
                         </AppBarButton.Icon>
