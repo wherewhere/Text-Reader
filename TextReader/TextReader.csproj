@@ -155,6 +155,7 @@
     <Compile Include="Helpers\UIElementHelper.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Helpers\ValueConverters\EmptyObjectToVisibilityConverter.cs" />
+    <Compile Include="Pages\Interfaces.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

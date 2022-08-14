@@ -186,6 +186,15 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+                        <TextBlock
+                            x:Uid="/MainPage/NoResultsTextBlock"
+                            Grid.RowSpan="2"
+                            Margin="8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true'}" />
                         <Grid Margin="8" HorizontalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -242,15 +251,6 @@
                                 TextWrapping="Wrap"
                                 Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}" />
                         </ScrollViewer>
-                        <TextBlock
-                            x:Uid="/MainPage/NoResultsTextBlock"
-                            Grid.Row="1"
-                            Margin="8"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            TextWrapping="Wrap"
-                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true'}" />
                     </Grid>
                 </controls:TwoPaneView.Pane2>
             </controls:TwoPaneView>
@@ -358,5 +358,12 @@
                 </CommandBar.SecondaryCommands>
             </CommandBar>
         </Grid>
+        <ProgressBar
+            x:Name="ProgressBar"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            IsIndeterminate="False"
+            Visibility="Collapsed" />
     </Grid>
 </Page>

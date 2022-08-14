@@ -15,6 +15,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -31,9 +32,10 @@ namespace TextReader.Pages
     /// <summary>
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Page, IHaveTitleBar
     {
         private MainViewModel Provider;
+        public Frame MainFrame => Frame;
 
         private bool HasStatusBar => UIHelper.HasStatusBar;
         private Thickness StackPanelMargin => UIHelper.StackPanelMargin;
@@ -163,6 +165,64 @@ namespace TextReader.Pages
         {
             _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
         }
+        
+        #region 进度条
+
+        public void ShowProgressBar()
+        {
+            ProgressBar.Visibility = Visibility.Visible;
+            ProgressBar.IsIndeterminate = true;
+            ProgressBar.ShowError = false;
+            ProgressBar.ShowPaused = false;
+        }
+
+        public void ShowProgressBar(double value)
+        {
+            ProgressBar.Visibility = Visibility.Visible;
+            ProgressBar.IsIndeterminate = false;
+            ProgressBar.ShowError = false;
+            ProgressBar.ShowPaused = false;
+            ProgressBar.Value = value;
+        }
+
+        public void PausedProgressBar()
+        {
+            ProgressBar.Visibility = Visibility.Visible;
+            ProgressBar.IsIndeterminate = true;
+            ProgressBar.ShowError = false;
+            ProgressBar.ShowPaused = true;
+        }
+
+        public void ErrorProgressBar()
+        {
+            ProgressBar.Visibility = Visibility.Visible;
+            ProgressBar.IsIndeterminate = true;
+            ProgressBar.ShowPaused = false;
+            ProgressBar.ShowError = true;
+        }
+
+        public void HideProgressBar()
+        {
+            ProgressBar.Visibility = Visibility.Collapsed;
+            ProgressBar.IsIndeterminate = false;
+            ProgressBar.ShowError = false;
+            ProgressBar.ShowPaused = false;
+            ProgressBar.Value = 0;
+        }
+
+        public void ShowMessage(string message = null)
+        {
+            if (CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar)
+            {
+                AppTitle.Text = message ?? ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
+            }
+            else
+            {
+                ApplicationView.GetForCurrentView().Title = message ?? string.Empty;
+            }
+        }
+
+        #endregion
     }
 
     public class BoolToTwoPaneViewTallModeConfigurationConverter : BoolToObjectConverter

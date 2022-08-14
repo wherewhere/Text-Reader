@@ -20,6 +20,8 @@ using Windows.Globalization;
 using Windows.ApplicationModel.DataTransfer;
 using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 using Windows.UI.Xaml;
+using TextReader.Helpers;
+using Windows.ApplicationModel.Resources;
 
 namespace TextReader.ViewModels
 {
@@ -324,6 +326,14 @@ namespace TextReader.ViewModels
             StringBuilder text = new StringBuilder();
 
             var ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
+
+            if (ocrEngine == null)
+            {
+                Result = string.Empty;
+                UIHelper.ShowMessage(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
+                return;
+            }
+
             var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
             GeometryGroup GeometryGroup = new GeometryGroup();
