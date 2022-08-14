@@ -10,12 +10,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ms-appx:///Themes/Color.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            
             <FontFamily x:Key="SymbolThemeFontFamily">Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol</FontFamily>
+            
             <converters:StringFormatConverter x:Key="StringFormatConverter" />
             <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
             <converters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
+            
+            <valueconverters:EmptyObjectToBoolConverter x:Key="EmptyObjectToBoolConverter" />
             <valueconverters:EmptyObjectToVisibilityConverter x:Key="EmptyObjectToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>

@@ -135,6 +135,12 @@
   <data name="ImageOnlyAppBarButton.Label" xml:space="preserve">
     <value>Image Only</value>
   </data>
+  <data name="ImageSaved" xml:space="preserve">
+    <value>Image saved at {0}</value>
+  </data>
+  <data name="ImageSaveError" xml:space="preserve">
+    <value>Image save failed ({0})</value>
+  </data>
   <data name="NoResultsTextBlock.Text" xml:space="preserve">
     <value>No Results</value>
   </data>
@@ -152,6 +158,9 @@
   </data>
   <data name="ResultOnlyAppBarButton.Label" xml:space="preserve">
     <value>Result Only</value>
+  </data>
+  <data name="SaveMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Save As</value>
   </data>
   <data name="SystemLanguageCheckBox.Content" xml:space="preserve">
     <value>System Language</value>

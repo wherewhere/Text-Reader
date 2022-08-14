@@ -20,15 +20,6 @@
         </Style>
         <MenuFlyout x:Name="ImageMenuFlyout">
             <MenuFlyoutItem
-                x:Uid="/MainPage/CopyMenuFlyoutItem"
-                Click="Button_Click"
-                Tag="Copy"
-                Visibility="Collapsed">
-                <helpers:UIElementHelper.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8C8;" />
-                </helpers:UIElementHelper.Icon>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem
                 x:Name="Paste"
                 x:Uid="/MainPage/PasteMenuFlyoutItem"
                 Click="Button_Click"
@@ -36,6 +27,16 @@
                 Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77F;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                x:Uid="/MainPage/SaveMenuFlyoutItem"
+                Click="Button_Click"
+                IsEnabled="{Binding Image, Converter={StaticResource EmptyObjectToBoolConverter}}"
+                Tag="Save"
+                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74E;" />
                 </helpers:UIElementHelper.Icon>
             </MenuFlyoutItem>
             <MenuFlyoutSeparator Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
@@ -129,28 +130,20 @@
                                     FontFamily="{StaticResource SymbolThemeFontFamily}"
                                     FontSize="100"
                                     Glyph="&#xE8B9;" />
-                                <Border
+                                <Button
+                                    x:Uid="/MainPage/PickImageButton"
                                     Margin="0,4"
                                     HorizontalAlignment="Stretch"
-                                    CornerRadius="4">
-                                    <Button
-                                        x:Uid="/MainPage/PickImageButton"
-                                        HorizontalAlignment="Stretch"
-                                        helpers:UIElementHelper.CornerRadius="4"
-                                        Click="Button_Click"
-                                        Tag="PickImage" />
-                                </Border>
-                                <Border
+                                    helpers:UIElementHelper.CornerRadius="4"
+                                    Click="Button_Click"
+                                    Tag="PickImage" />
+                                <Button
+                                    x:Uid="/MainPage/TakePhotoButton"
                                     Margin="0,4"
                                     HorizontalAlignment="Stretch"
-                                    CornerRadius="4">
-                                    <Button
-                                        x:Uid="/MainPage/TakePhotoButton"
-                                        HorizontalAlignment="Stretch"
-                                        helpers:UIElementHelper.CornerRadius="4"
-                                        Click="Button_Click"
-                                        Tag="TakePhoto" />
-                                </Border>
+                                    helpers:UIElementHelper.CornerRadius="4"
+                                    Click="Button_Click"
+                                    Tag="TakePhoto" />
                             </StackPanel>
                         </Grid>
                         <Viewbox
@@ -200,43 +193,34 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border
+                            <ComboBox
                                 Grid.Column="0"
-                                Margin="4,0"
                                 HorizontalAlignment="Left"
-                                CornerRadius="4">
-                                <ComboBox
-                                    helpers:UIElementHelper.CornerRadius="4"
-                                    IsEnabled="{Binding ProfileLanguage, Converter={StaticResource BoolNegationConverter}}"
-                                    ItemsSource="{Binding Languages}"
-                                    SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding DisplayName}" />
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                            </Border>
-                            <Border
+                                helpers:UIElementHelper.CornerRadius="4"
+                                IsEnabled="{Binding ProfileLanguage, Converter={StaticResource BoolNegationConverter}}"
+                                ItemsSource="{Binding Languages}"
+                                SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button
                                 Grid.Column="1"
+                                Width="32"
+                                Height="32"
+                                Margin="0"
+                                Padding="0"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Stretch"
-                                CornerRadius="4">
-                                <Button
-                                    Grid.Column="1"
-                                    Width="32"
-                                    Height="32"
-                                    Margin="0"
-                                    Padding="0"
-                                    VerticalAlignment="Stretch"
-                                    helpers:UIElementHelper.CornerRadius="4"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Click="Button_Click"
-                                    Content="&#xE72C;"
-                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                    Tag="Refresh" />
-                            </Border>
+                                helpers:UIElementHelper.CornerRadius="4"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="Button_Click"
+                                Content="&#xE72C;"
+                                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                Tag="Refresh" />
                         </Grid>
                         <ScrollViewer
                             Grid.Row="1"

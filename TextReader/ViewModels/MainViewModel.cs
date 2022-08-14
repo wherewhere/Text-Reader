@@ -4,30 +4,26 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Graphics.Imaging;
-using Windows.Media.Ocr;
-using Windows.Storage.Pickers;
-using Windows.Storage;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Media;
-using Windows.Foundation;
-using Windows.Media.Capture;
-using System.IO;
-using TextReader.Controls;
-using Windows.Storage.Streams;
-using Windows.Globalization;
-using Windows.ApplicationModel.DataTransfer;
-using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
-using Windows.UI.Xaml;
 using TextReader.Helpers;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
+using Windows.Foundation.Metadata;
+using Windows.Globalization;
+using Windows.Graphics.Imaging;
+using Windows.Media.Capture;
+using Windows.Media.Ocr;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
+using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 
 namespace TextReader.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        public static string[] ImageTypes = new string[] { ".jpg", ".jpeg", ".png", ".bmp" };
+        public static string[] ImageTypes = new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
         private string result;
@@ -267,22 +263,115 @@ namespace TextReader.ViewModels
             return false;
         }
 
-        public async Task CopyImage()
+        public async Task SaveImage()
         {
-            using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
+            ResourceLoader loader = ResourceLoader.GetForCurrentView("MainPage");
+
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            fileSavePicker.FileTypeChoices.Add($"JPEG {loader.GetString("Files")}", new List<string> { ".jpeg", ".jpg" });
+            fileSavePicker.FileTypeChoices.Add($"PNG {loader.GetString("Files")}", new List<string> { ".png" });
+            fileSavePicker.FileTypeChoices.Add($"BMP {loader.GetString("Files")}", new List<string> { ".bmp" });
+            fileSavePicker.FileTypeChoices.Add($"TIFF {loader.GetString("Files")}", new List<string> { ".tiff", ".tif" });
+            fileSavePicker.FileTypeChoices.Add($"GIF {loader.GetString("Files")}", new List<string> { ".gif" });
+            fileSavePicker.FileTypeChoices.Add($"HEIF {loader.GetString("Files")}", new List<string> { ".heif", ".heic" });
+            fileSavePicker.SuggestedFileName = $"TextReader_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}";
+
+            var outputFile = await fileSavePicker.PickSaveFileAsync();
+
+            if (outputFile == null)
             {
+                // The user cancelled the picking operation
+                return;
+            }
+
+            UIHelper.ShowProgressBar();
+            try
+            {
+                await SaveSoftwareBitmapToFile(SoftwareImage, outputFile);
+                UIHelper.ShowMessage(string.Format(loader.GetString("ImageSaved"), outputFile.Path));
+            }
+            catch (Exception ex)
+            {
+                UIHelper.ShowMessage(string.Format(loader.GetString("ImageSaveError"), ex.Message));
+                await outputFile.DeleteAsync();
+            }
+            UIHelper.HideProgressBar();
+        }
+
+        private async Task SaveSoftwareBitmapToFile(SoftwareBitmap softwareBitmap, StorageFile outputFile)
+        {
+            using (IRandomAccessStream stream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                Guid bitmapEncoderGuid;
+                switch (outputFile.FileType.ToLower())
+                {
+                    case "jpeg":
+                    case "jpg":
+                        bitmapEncoderGuid = BitmapEncoder.JpegEncoderId;
+                        break;
+                    case "png":
+                        bitmapEncoderGuid = BitmapEncoder.PngEncoderId;
+                        break;
+                    case "bmp":
+                        bitmapEncoderGuid = BitmapEncoder.BmpEncoderId;
+                        break;
+                    case "tiff":
+                    case "tif":
+                        bitmapEncoderGuid = BitmapEncoder.TiffEncoderId;
+                        break;
+                    case "gif":
+                        bitmapEncoderGuid = BitmapEncoder.GifEncoderId;
+                        break;
+                    case "heif":
+                    case "heic":
+                        if (ApiInformation.IsPropertyPresent("Windows.Graphics.Imaging.BitmapEncoder", "HeifEncoderId"))
+                        {
+                            bitmapEncoderGuid = BitmapEncoder.HeifEncoderId;
+                        }
+                        else
+                        {
+                            bitmapEncoderGuid = BitmapEncoder.JpegEncoderId;
+                        }
+                        break;
+                    default:
+                        bitmapEncoderGuid = BitmapEncoder.JpegEncoderId;
+                        break;
+                }
+
                 // Create an encoder with the desired format
-                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(bitmapEncoderGuid, stream);
 
                 // Set the software bitmap
-                encoder.SetSoftwareBitmap(SoftwareImage);
-                await encoder.FlushAsync();
+                encoder.SetSoftwareBitmap(softwareBitmap);
 
-                RandomAccessStreamReference bitmap = RandomAccessStreamReference.CreateFromStream(stream);
-                DataPackage dataPackage = new DataPackage();
-                dataPackage.SetBitmap(bitmap);
-                Clipboard.SetContentWithOptions(dataPackage, null);
-                await Task.Delay(1000);
+
+                // Set additional encoding parameters, if needed
+                encoder.IsThumbnailGenerated = true;
+
+                try
+                {
+                    await encoder.FlushAsync();
+                }
+                catch (Exception err)
+                {
+                    const int WINCODEC_ERR_UNSUPPORTEDOPERATION = unchecked((int)0x88982F81);
+                    switch (err.HResult)
+                    {
+                        case WINCODEC_ERR_UNSUPPORTEDOPERATION:
+                            // If the encoder does not support writing a thumbnail, then try again
+                            // but disable thumbnail generation.
+                            encoder.IsThumbnailGenerated = false;
+                            break;
+                        default:
+                            throw;
+                    }
+                }
+
+                if (encoder.IsThumbnailGenerated == false)
+                {
+                    await encoder.FlushAsync();
+                }
             }
         }
 
@@ -299,13 +388,31 @@ namespace TextReader.ViewModels
             BitmapDecoder ImageDecoder = await BitmapDecoder.CreateAsync(stream);
             SoftwareImage = await ImageDecoder.GetSoftwareBitmapAsync();
             CropperImage = null;
-            var WriteableImage = new WriteableBitmap(1, 1);
             try
             {
+                WriteableBitmap WriteableImage = new WriteableBitmap((int)ImageDecoder.PixelWidth, (int)ImageDecoder.PixelHeight);
                 await WriteableImage.SetSourceAsync(stream);
                 CropperImage = WriteableImage;
             }
-            catch { CropperImage = null; }
+            catch
+            {
+                try
+                {
+                    using (InMemoryRandomAccessStream random = new InMemoryRandomAccessStream())
+                    {
+                        BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, random);
+                        encoder.SetSoftwareBitmap(SoftwareImage);
+                        await encoder.FlushAsync();
+                        WriteableBitmap WriteableImage = new WriteableBitmap((int)ImageDecoder.PixelWidth, (int)ImageDecoder.PixelHeight);
+                        await WriteableImage.SetSourceAsync(random);
+                        CropperImage = WriteableImage;
+                    }
+                }
+                catch
+                {
+                    CropperImage = null;
+                }
+            }
         }
 
         public async Task SetImage(SoftwareBitmap softwareBitmap)
@@ -323,6 +430,7 @@ namespace TextReader.ViewModels
 
         public async Task ReadText(SoftwareBitmap softwareBitmap)
         {
+            UIHelper.ShowProgressBar();
             StringBuilder text = new StringBuilder();
 
             var ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
@@ -331,6 +439,7 @@ namespace TextReader.ViewModels
             {
                 Result = string.Empty;
                 UIHelper.ShowMessage(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
+                UIHelper.HideProgressBar();
                 return;
             }
 
@@ -348,6 +457,7 @@ namespace TextReader.ViewModels
 
             Result = text.ToString();
             ResultGeometry = GeometryGroup;
+            UIHelper.HideProgressBar();
         }
     }
 }

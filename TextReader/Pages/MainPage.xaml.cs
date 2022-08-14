@@ -43,6 +43,7 @@ namespace TextReader.Pages
         public MainPage()
         {
             InitializeComponent();
+            UIHelper.AppTitle = this;
             AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
             CoreApplicationViewTitleBar TitleBar = CoreApplication.GetCurrentView().TitleBar;
             TitleBar.ExtendViewIntoTitleBar = true;
@@ -63,8 +64,8 @@ namespace TextReader.Pages
         {
             switch ((sender as FrameworkElement).Tag as string)
             {
-                case "Copy":
-                    _ = Provider.CopyImage();
+                case "Save":
+                    _ = Provider.SaveImage();
                     break;
                 case "Paste":
                     _ = Provider.DropFile(Clipboard.GetContent());
