@@ -68,7 +68,14 @@ namespace TextReader.Helpers
             IsShowingProgressBar = true;
             if (HasStatusBar)
             {
-                await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
+                if (IsShowingMessage)
+                {
+                    StatusBar.GetForCurrentView().ProgressIndicator.ProgressValue = 0;
+                }
+                else
+                {
+                    await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
+                }
             }
             AppTitle?.PausedProgressBar();
         }
@@ -78,7 +85,14 @@ namespace TextReader.Helpers
             IsShowingProgressBar = true;
             if (HasStatusBar)
             {
-                await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
+                if (IsShowingMessage)
+                {
+                    StatusBar.GetForCurrentView().ProgressIndicator.ProgressValue = 0;
+                }
+                else
+                {
+                    await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
+                }
             }
             AppTitle?.ErrorProgressBar();
         }
@@ -88,7 +102,14 @@ namespace TextReader.Helpers
             IsShowingProgressBar = false;
             if (HasStatusBar)
             {
-                await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
+                if (IsShowingMessage)
+                {
+                    StatusBar.GetForCurrentView().ProgressIndicator.ProgressValue = 0;
+                }
+                else
+                {
+                    await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
+                }
             }
             AppTitle?.HideProgressBar();
         }
@@ -112,7 +133,11 @@ namespace TextReader.Helpers
                             await Task.Delay(3000);
                         }
                         MessageList.RemoveAt(0);
-                        if (MessageList.Count == 0 && !IsShowingProgressBar) { await statusBar.ProgressIndicator.HideAsync(); }
+                        if (MessageList.Count == 0 && !IsShowingProgressBar)
+                        {
+                            IsShowingMessage = false;
+                            await statusBar.ProgressIndicator.HideAsync();
+                        }
                         statusBar.ProgressIndicator.Text = string.Empty;
                     }
                     else if (AppTitle != null)
@@ -126,6 +151,7 @@ namespace TextReader.Helpers
                         MessageList.RemoveAt(0);
                         if (MessageList.Count == 0)
                         {
+                            IsShowingMessage = false;
                             AppTitle.ShowMessage();
                         }
                     }
