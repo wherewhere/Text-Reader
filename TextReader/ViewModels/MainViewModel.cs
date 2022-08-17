@@ -116,6 +116,7 @@ namespace TextReader.ViewModels
                 {
                     panePriority = value;
                     RaisePropertyChangedEvent();
+                    SetEnable();
                 }
             }
         }
@@ -164,6 +165,35 @@ namespace TextReader.ViewModels
                 {
                     isSinglePane = value;
                     RaisePropertyChangedEvent();
+                    SetEnable();
+                }
+            }
+        }
+
+        private bool isImageOnlyEnable = false;
+        public bool IsImageOnlyEnable
+        {
+            get => isImageOnlyEnable;
+            set
+            {
+                if (isImageOnlyEnable != value)
+                {
+                    isImageOnlyEnable = value;
+                    RaisePropertyChangedEvent();
+                }
+            }
+        }
+
+        private bool isResultOnlyEnable = true;
+        public bool IsResultOnlyEnable
+        {
+            get => isResultOnlyEnable;
+            set
+            {
+                if (isResultOnlyEnable != value)
+                {
+                    isResultOnlyEnable = value;
+                    RaisePropertyChangedEvent();
                 }
             }
         }
@@ -187,6 +217,23 @@ namespace TextReader.ViewModels
         private void RaisePropertyChangedEvent([System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
             if (name != null) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+        }
+
+        public async Task SetIndex(string Language)
+        {
+            await Task.Run(async () =>
+            {
+                Language LocalLanguage = new Language(Language);
+                for (int i = 0; i < Languages.Count; i++)
+                {
+                    Language language = Languages[i];
+                    if (language.DisplayName == LocalLanguage.DisplayName)
+                    {
+                        await DispatcherHelper.ExecuteOnUIThreadAsync(() => LanguageIndex = i);
+                        return;
+                    }
+                }
+            });
         }
 
         public async Task PickImage()
@@ -458,6 +505,24 @@ namespace TextReader.ViewModels
             Result = text.ToString();
             ResultGeometry = GeometryGroup;
             UIHelper.HideProgressBar();
+        }
+
+        private void SetEnable()
+        {
+            if (!IsSinglePane)
+            {
+                IsImageOnlyEnable = IsResultOnlyEnable = true;
+            }
+            else if (PanePriority == TwoPaneViewPriority.Pane1)
+            {
+                IsImageOnlyEnable = false;
+                IsResultOnlyEnable = true;
+            }
+            else if (PanePriority == TwoPaneViewPriority.Pane2)
+            {
+                IsImageOnlyEnable = true;
+                IsResultOnlyEnable = false;
+            }
         }
     }
 }

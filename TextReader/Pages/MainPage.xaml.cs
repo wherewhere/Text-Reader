@@ -6,10 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using TextReader.Controls;
 using TextReader.Helpers;
+using TextReader.Helpers.ValueConverters;
 using TextReader.ViewModels;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
+using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -58,6 +60,11 @@ namespace TextReader.Pages
             Window.Current.SetTitleBar(CustomTitleBar);
             Clipboard_ContentChanged(null, null);
             DataContext = Provider;
+        }
+
+        private void ComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            _ = Provider.SetIndex(Language);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -166,7 +173,7 @@ namespace TextReader.Pages
         {
             _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
         }
-        
+
         #region 进度条
 
         public void ShowProgressBar()

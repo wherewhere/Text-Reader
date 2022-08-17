@@ -1,13 +1,12 @@
 ﻿<Page
     x:Class="TextReader.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:TextReader.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:globalization="using:Windows.Globalization"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:TextReader.Controls"
     xmlns:helpers="using:TextReader.Helpers"
     xmlns:local="using:TextReader.Pages"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TextReader.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Background="{StaticResource SolidBackgroundFillColorBaseWindowBrush}"
@@ -201,6 +200,7 @@
                                 helpers:UIElementHelper.CornerRadius="4"
                                 IsEnabled="{Binding ProfileLanguage, Converter={StaticResource BoolNegationConverter}}"
                                 ItemsSource="{Binding Languages}"
+                                Loaded="ComboBox_Loaded"
                                 SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -277,6 +277,7 @@
                     <AppBarButton
                         x:Uid="/MainPage/ClipImageAppBarButton"
                         Click="Button_Click"
+                        IsEnabled="{Binding CropperImage, Converter={StaticResource EmptyObjectToBoolConverter}}"
                         Tag="ClipImage"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
@@ -317,6 +318,7 @@
                     <AppBarButton
                         x:Uid="/MainPage/TwoPanelAppBarButton"
                         Click="Button_Click"
+                        IsEnabled="{Binding IsSinglePane}"
                         Tag="TwoPanel"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
@@ -326,6 +328,7 @@
                     <AppBarButton
                         x:Uid="/MainPage/ImageOnlyAppBarButton"
                         Click="Button_Click"
+                        IsEnabled="{Binding IsImageOnlyEnable}"
                         Tag="ImageOnly"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
@@ -335,6 +338,7 @@
                     <AppBarButton
                         x:Uid="/MainPage/ResultOnlyAppBarButton"
                         Click="Button_Click"
+                        IsEnabled="{Binding IsResultOnlyEnable}"
                         Tag="ResultOnly"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>

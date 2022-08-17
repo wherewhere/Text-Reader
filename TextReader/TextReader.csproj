@@ -154,8 +154,11 @@
     <Compile Include="Helpers\ThemeHelper.cs" />
     <Compile Include="Helpers\UIElementHelper.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
+    <Compile Include="Helpers\ValueConverters\ConverterTools.cs" />
     <Compile Include="Helpers\ValueConverters\EmptyObjectToBoolConverter.cs" />
     <Compile Include="Helpers\ValueConverters\EmptyObjectToVisibilityConverter.cs" />
+    <Compile Include="Helpers\ValueConverters\IsEqualToBoolConverter.cs" />
+    <Compile Include="Helpers\ValueConverters\IsEqualToObjectConverter.cs" />
     <Compile Include="Pages\Interfaces.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -278,7 +281,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MicaForUWP">
-      <Version>0.0.6</Version>
+      <Version>0.0.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
