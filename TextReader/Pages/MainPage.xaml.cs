@@ -161,12 +161,15 @@ namespace TextReader.Pages
                     switch (args.VirtualKey)
                     {
                         case VirtualKey.V:
-                            _ = Provider.DropFile(Clipboard.GetContent());
+                            if (Paste.IsEnabled)
+                            {
+                                _ = Provider.DropFile(Clipboard.GetContent());
+                                args.Handled = true;
+                            }
                             break;
                     }
                 }
             }
-            args.Handled = true;
         }
 
         private void Clipboard_ContentChanged(object sender, object e)

@@ -78,7 +78,7 @@ namespace TextReader.Helpers.ValueConverters
             }
 
             // If they are the same type but fail with Equals check, don't bother with conversion.
-            if (value1 is not null && value2 is not null && convertType
+            if (value1 != null && value2 != null && convertType
                 && value1.GetType() != value2.GetType())
             {
                 // Try the conversion in both ways:
