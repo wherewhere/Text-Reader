@@ -22,10 +22,10 @@ namespace TextReader.Controls
     {
         private static void AnimateUIElementOffset(Point to, TimeSpan duration, UIElement target)
         {
-            var targetVisual = ElementCompositionPreview.GetElementVisual(target);
-            var compositor = targetVisual.Compositor;
-            var linear = compositor.CreateLinearEasingFunction();
-            var offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
+            Visual targetVisual = ElementCompositionPreview.GetElementVisual(target);
+            Compositor compositor = targetVisual.Compositor;
+            LinearEasingFunction linear = compositor.CreateLinearEasingFunction();
+            Vector3KeyFrameAnimation offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
             offsetAnimation.Duration = duration;
             offsetAnimation.Target = nameof(Visual.Offset);
             offsetAnimation.InsertKeyFrame(1.0f, new Vector3((float)to.X, (float)to.Y, 0), linear);
@@ -34,10 +34,10 @@ namespace TextReader.Controls
 
         private static void AnimateUIElementScale(double to, TimeSpan duration, UIElement target)
         {
-            var targetVisual = ElementCompositionPreview.GetElementVisual(target);
-            var compositor = targetVisual.Compositor;
-            var linear = compositor.CreateLinearEasingFunction();
-            var scaleAnimation = compositor.CreateVector3KeyFrameAnimation();
+            Visual targetVisual = ElementCompositionPreview.GetElementVisual(target);
+            Compositor compositor = targetVisual.Compositor;
+            LinearEasingFunction linear = compositor.CreateLinearEasingFunction();
+            Vector3KeyFrameAnimation scaleAnimation = compositor.CreateVector3KeyFrameAnimation();
             scaleAnimation.Duration = duration;
             scaleAnimation.Target = nameof(Visual.Scale);
             scaleAnimation.InsertKeyFrame(1.0f, new Vector3((float)to), linear);
@@ -46,7 +46,7 @@ namespace TextReader.Controls
 
         private static DoubleAnimation CreateDoubleAnimation(double to, TimeSpan duration, DependencyObject target, string propertyName, bool enableDependentAnimation)
         {
-            var animation = new DoubleAnimation()
+            DoubleAnimation animation = new DoubleAnimation()
             {
                 To = to,
                 Duration = duration,
@@ -61,7 +61,7 @@ namespace TextReader.Controls
 
         private static PointAnimation CreatePointAnimation(Point to, TimeSpan duration, DependencyObject target, string propertyName, bool enableDependentAnimation)
         {
-            var animation = new PointAnimation()
+            PointAnimation animation = new PointAnimation()
             {
                 To = to,
                 Duration = duration,
@@ -76,14 +76,14 @@ namespace TextReader.Controls
 
         private static ObjectAnimationUsingKeyFrames CreateRectangleAnimation(Rect to, TimeSpan duration, RectangleGeometry rectangle, bool enableDependentAnimation)
         {
-            var animation = new ObjectAnimationUsingKeyFrames
+            ObjectAnimationUsingKeyFrames animation = new ObjectAnimationUsingKeyFrames
             {
                 Duration = duration,
                 EnableDependentAnimation = enableDependentAnimation
             };
 
-            var frames = GetRectKeyframes(rectangle.Rect, to, duration);
-            foreach (var item in frames)
+            List<DiscreteObjectKeyFrame> frames = GetRectKeyframes(rectangle.Rect, to, duration);
+            foreach (DiscreteObjectKeyFrame item in frames)
             {
                 animation.KeyFrames.Add(item);
             }
@@ -96,21 +96,21 @@ namespace TextReader.Controls
 
         private static List<DiscreteObjectKeyFrame> GetRectKeyframes(Rect from, Rect to, TimeSpan duration)
         {
-            var rectKeyframes = new List<DiscreteObjectKeyFrame>();
-            var step = TimeSpan.FromMilliseconds(10);
-            var startPointFrom = new Point(from.X, from.Y);
-            var endPointFrom = new Point(from.X + from.Width, from.Y + from.Height);
-            var startPointTo = new Point(to.X, to.Y);
-            var endPointTo = new Point(to.X + to.Width, to.Y + to.Height);
-            for (var time = default(TimeSpan); time < duration; time += step)
+            List<DiscreteObjectKeyFrame> rectKeyframes = new List<DiscreteObjectKeyFrame>();
+            TimeSpan step = TimeSpan.FromMilliseconds(10);
+            Point startPointFrom = new Point(from.X, from.Y);
+            Point endPointFrom = new Point(from.X + from.Width, from.Y + from.Height);
+            Point startPointTo = new Point(to.X, to.Y);
+            Point endPointTo = new Point(to.X + to.Width, to.Y + to.Height);
+            for (TimeSpan time = default; time < duration; time += step)
             {
-                var progress = time.TotalMilliseconds / duration.TotalMilliseconds;
-                var startPoint = new Point
+                double progress = time.TotalMilliseconds / duration.TotalMilliseconds;
+                Point startPoint = new Point
                 {
                     X = startPointFrom.X + (progress * (startPointTo.X - startPointFrom.X)),
                     Y = startPointFrom.Y + (progress * (startPointTo.Y - startPointFrom.Y)),
                 };
-                var endPoint = new Point
+                Point endPoint = new Point
                 {
                     X = endPointFrom.X + (progress * (endPointTo.X - endPointFrom.X)),
                     Y = endPointFrom.Y + (progress * (endPointTo.Y - endPointFrom.Y)),

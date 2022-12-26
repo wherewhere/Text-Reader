@@ -17,7 +17,7 @@ namespace TextReader.Controls
 
         public AboutFlyout()
         {
-            var resourceLoader = ResourceLoader.GetForCurrentView("AboutFlyout");
+            ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("AboutFlyout");
 
             this.InitializeComponent();
 
@@ -25,7 +25,7 @@ namespace TextReader.Controls
 
             Header.Text = resourceLoader.GetString("AboutButton/Content");
 
-            var copyrightText = string.Format( resourceLoader.GetString("AboutControlCopyright"), BUILD_YEAR);
+            string copyrightText = string.Format(resourceLoader.GetString("AboutControlCopyright"), BUILD_YEAR);
             AboutControlCopyrightRun.Text = copyrightText;
 
             InitializeContributeTextBlock();
@@ -65,9 +65,9 @@ namespace TextReader.Controls
             int hyperlinkTextLength = secondSplitPosition - (firstSplitPosition + delimiterLength);
 
             // Assign pieces.
-            var contributeTextBeforeHyperlink = contributeHyperlinkText.Substring(0, firstSplitPosition);
-            var contributeTextLink = contributeHyperlinkText.Substring(firstSplitPosition + delimiterLength, hyperlinkTextLength);
-            var contributeTextAfterHyperlink = contributeHyperlinkText.Substring(secondSplitPosition + delimiterLength);
+            string contributeTextBeforeHyperlink = contributeHyperlinkText.Substring(0, firstSplitPosition);
+            string contributeTextLink = contributeHyperlinkText.Substring(firstSplitPosition + delimiterLength, hyperlinkTextLength);
+            string contributeTextAfterHyperlink = contributeHyperlinkText.Substring(secondSplitPosition + delimiterLength);
 
             ContributeRunBeforeLink.Text = contributeTextBeforeHyperlink;
             ContributeRunLink.Text = contributeTextLink;

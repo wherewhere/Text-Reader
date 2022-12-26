@@ -1,17 +1,14 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Converters;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TextReader.Controls;
 using TextReader.Helpers;
-using TextReader.Helpers.ValueConverters;
 using TextReader.ViewModels;
+using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
-using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -20,8 +17,6 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 using TwoPaneViewTallModeConfiguration = TextReader.Controls.TwoPaneViewTallModeConfiguration;
@@ -48,18 +43,53 @@ namespace TextReader.Pages
             UIHelper.AppTitle = this;
             AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
             CoreApplicationViewTitleBar TitleBar = CoreApplication.GetCurrentView().TitleBar;
-            TitleBar.ExtendViewIntoTitleBar = true;
             UpdateTitleBarLayout(TitleBar);
             Provider = new MainViewModel();
             if (SettingsHelper.WindowsVersion >= 22000)
             {
                 CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right;
             }
+            DataContext = Provider;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            Window.Current.SetTitleBar(CustomTitleBar);
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
             Clipboard.ContentChanged += Clipboard_ContentChanged;
-            Window.Current.SetTitleBar(CustomTitleBar);
             Clipboard_ContentChanged(null, null);
-            DataContext = Provider;
+            if (e.Parameter is IActivatedEventArgs args)
+            {
+                switch (args?.Kind)
+                {
+                    case ActivationKind.File:
+                        IFileActivatedEventArgs FileEventArgs = args as IFileActivatedEventArgs;
+                        foreach (IStorageItem file in FileEventArgs.Files)
+                        {
+                            if (file is IStorageFile storageFile && MainViewModel.ImageTypes.Contains($".{storageFile.FileType.ToLowerInvariant()}"))
+                            {
+                                _ = Provider.ReadFile(storageFile);
+                                break;
+                            }
+                        }
+                        break;
+                    case ActivationKind.ShareTarget:
+                        IShareTargetActivatedEventArgs ShareTargetEventArgs = args as IShareTargetActivatedEventArgs;
+                        _ = Provider.DropFile(ShareTargetEventArgs.ShareOperation.Data);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            Window.Current.SetTitleBar(null);
+            Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+            Clipboard.ContentChanged -= Clipboard_ContentChanged;
         }
 
         private void ComboBox_Loaded(object sender, RoutedEventArgs e)

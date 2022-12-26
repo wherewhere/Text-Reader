@@ -14,7 +14,7 @@ namespace TextReader.Controls
         private static DisplayRegionHelper Instance;
 
         // TODO: Remove once ApplicationViewMode::Spanning is available in the SDK
-        const int c_ApplicationViewModeSpanning = 2;
+        private const int c_ApplicationViewModeSpanning = 2;
 
         public static DisplayRegionHelper GetDisplayRegionHelperInstance()
         {
@@ -27,7 +27,7 @@ namespace TextReader.Controls
 
         public static DisplayRegionHelperInfo GetRegionInfo()
         {
-            var instance = GetDisplayRegionHelperInstance();
+            DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
 
             DisplayRegionHelperInfo info = new DisplayRegionHelperInfo();
             info.Mode = TwoPaneViewMode.SinglePane;
@@ -95,7 +95,7 @@ namespace TextReader.Controls
         /* static */
         public static UIElement WindowElement()
         {
-            var instance = GetDisplayRegionHelperInstance();
+            DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
 
             if (instance.m_simulateDisplayRegions)
             {
@@ -118,7 +118,7 @@ namespace TextReader.Controls
         /* static */
         public static Rect WindowRect()
         {
-            var instance = GetDisplayRegionHelperInstance();
+            DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
 
             if (instance.m_simulateDisplayRegions)
             {
@@ -141,12 +141,12 @@ namespace TextReader.Controls
         {
             get
             {
-                var instance = GetDisplayRegionHelperInstance();
+                DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
                 return instance.m_simulateDisplayRegions;
             }
             set
             {
-                var instance = GetDisplayRegionHelperInstance();
+                DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
                 instance.m_simulateDisplayRegions = value;
             }
         }
@@ -156,22 +156,21 @@ namespace TextReader.Controls
         {
             get
             {
-                var instance = GetDisplayRegionHelperInstance();
+                DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
                 return instance.m_simulateMode;
             }
             set
             {
-                var instance = GetDisplayRegionHelperInstance();
+                DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
                 instance.m_simulateMode = value;
             }
         }
 
-        bool m_simulateDisplayRegions = false;
-        TwoPaneViewMode m_simulateMode = TwoPaneViewMode.SinglePane;
-
-        static Rect m_simulateWide0 = new Rect(0, 0, 300, 400);
-        static Rect m_simulateWide1 = new Rect(312, 0, 300, 400);
-        static Rect m_simulateTall0 = new Rect(0, 0, 400, 300);
-        static Rect m_simulateTall1 = new Rect(0, 312, 400, 300);
+        private bool m_simulateDisplayRegions = false;
+        private TwoPaneViewMode m_simulateMode = TwoPaneViewMode.SinglePane;
+        private static Rect m_simulateWide0 = new Rect(0, 0, 300, 400);
+        private static Rect m_simulateWide1 = new Rect(312, 0, 300, 400);
+        private static Rect m_simulateTall0 = new Rect(0, 0, 400, 300);
+        private static Rect m_simulateTall1 = new Rect(0, 312, 400, 300);
     }
 }

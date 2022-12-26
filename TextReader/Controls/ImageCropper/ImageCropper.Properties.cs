@@ -32,7 +32,7 @@ namespace TextReader.Controls
 
         private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            ImageCropper target = (ImageCropper)d;
             if (e.NewValue is WriteableBitmap bitmap)
             {
                 if (bitmap.PixelWidth < target.MinCropSize.Width || bitmap.PixelHeight < target.MinCropSize.Height)
@@ -50,14 +50,14 @@ namespace TextReader.Controls
         private static void OnAspectRatioChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            ImageCropper target = (ImageCropper)d;
             target.UpdateAspectRatio(true);
         }
 
         private static void OnCropShapeChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            ImageCropper target = (ImageCropper)d;
             target.UpdateCropShape();
             target.UpdateThumbsVisibility();
             target.UpdateAspectRatio();
@@ -67,7 +67,7 @@ namespace TextReader.Controls
         private static void OnThumbPlacementChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            ImageCropper target = (ImageCropper)d;
             target.UpdateThumbsVisibility();
         }
 

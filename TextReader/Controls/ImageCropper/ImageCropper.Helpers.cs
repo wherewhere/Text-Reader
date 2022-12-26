@@ -29,15 +29,15 @@ namespace TextReader.Controls
         {
             croppedRect.X = Math.Max(croppedRect.X, 0);
             croppedRect.Y = Math.Max(croppedRect.Y, 0);
-            var x = (uint)Math.Floor(croppedRect.X);
-            var y = (uint)Math.Floor(croppedRect.Y);
-            var width = (uint)Math.Floor(croppedRect.Width);
-            var height = (uint)Math.Floor(croppedRect.Height);
-            using (var sourceStream = writeableBitmap.PixelBuffer.AsStream())
+            uint x = (uint)Math.Floor(croppedRect.X);
+            uint y = (uint)Math.Floor(croppedRect.Y);
+            uint width = (uint)Math.Floor(croppedRect.Width);
+            uint height = (uint)Math.Floor(croppedRect.Height);
+            using (System.IO.Stream sourceStream = writeableBitmap.PixelBuffer.AsStream())
             {
-                var buffer = new byte[sourceStream.Length];
+                byte[] buffer = new byte[sourceStream.Length];
                 await sourceStream.ReadAsync(buffer, 0, buffer.Length);
-                var bitmapEncoder = await BitmapEncoder.CreateAsync(GetEncoderId(bitmapFileFormat), stream);
+                BitmapEncoder bitmapEncoder = await BitmapEncoder.CreateAsync(GetEncoderId(bitmapFileFormat), stream);
                 bitmapEncoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint)writeableBitmap.PixelWidth, (uint)writeableBitmap.PixelHeight, 96.0, 96.0, buffer);
                 bitmapEncoder.BitmapTransform.Bounds = new BitmapBounds
                 {
@@ -52,31 +52,31 @@ namespace TextReader.Controls
 
         private static async Task CropImageWithShapeAsync(WriteableBitmap writeableBitmap, IRandomAccessStream stream, Rect croppedRect, BitmapFileFormat bitmapFileFormat, CropShape cropShape)
         {
-            var device = CanvasDevice.GetSharedDevice();
-            var clipGeometry = CreateClipGeometry(device, cropShape, new Size(croppedRect.Width, croppedRect.Height));
+            CanvasDevice device = CanvasDevice.GetSharedDevice();
+            CanvasGeometry clipGeometry = CreateClipGeometry(device, cropShape, new Size(croppedRect.Width, croppedRect.Height));
             if (clipGeometry == null)
             {
                 return;
             }
 
             CanvasBitmap sourceBitmap = null;
-            using (var randomAccessStream = new InMemoryRandomAccessStream())
+            using (InMemoryRandomAccessStream randomAccessStream = new InMemoryRandomAccessStream())
             {
                 await CropImageAsync(writeableBitmap, randomAccessStream, croppedRect, bitmapFileFormat);
                 sourceBitmap = await CanvasBitmap.LoadAsync(device, randomAccessStream);
             }
 
-            using (var offScreen = new CanvasRenderTarget(device, (float)croppedRect.Width, (float)croppedRect.Height, 96f))
+            using (CanvasRenderTarget offScreen = new CanvasRenderTarget(device, (float)croppedRect.Width, (float)croppedRect.Height, 96f))
             {
-                using (var drawingSession = offScreen.CreateDrawingSession())
-                using (var markCommandList = new CanvasCommandList(device))
+                using (CanvasDrawingSession drawingSession = offScreen.CreateDrawingSession())
+                using (CanvasCommandList markCommandList = new CanvasCommandList(device))
                 {
-                    using (var markDrawingSession = markCommandList.CreateDrawingSession())
+                    using (CanvasDrawingSession markDrawingSession = markCommandList.CreateDrawingSession())
                     {
                         markDrawingSession.FillGeometry(clipGeometry, Colors.Black);
                     }
 
-                    var alphaMaskEffect = new AlphaMaskEffect
+                    AlphaMaskEffect alphaMaskEffect = new AlphaMaskEffect
                     {
                         Source = sourceBitmap,
                         AlphaMask = markCommandList
@@ -87,8 +87,8 @@ namespace TextReader.Controls
 
                 clipGeometry.Dispose();
                 sourceBitmap.Dispose();
-                var pixelBytes = offScreen.GetPixelBytes();
-                var bitmapEncoder = await BitmapEncoder.CreateAsync(GetEncoderId(bitmapFileFormat), stream);
+                byte[] pixelBytes = offScreen.GetPixelBytes();
+                BitmapEncoder bitmapEncoder = await BitmapEncoder.CreateAsync(GetEncoderId(bitmapFileFormat), stream);
                 bitmapEncoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, offScreen.SizeInPixels.Width, offScreen.SizeInPixels.Height, 96.0, 96.0, pixelBytes);
                 await bitmapEncoder.FlushAsync();
             }
@@ -101,9 +101,9 @@ namespace TextReader.Controls
                 case CropShape.Rectangular:
                     break;
                 case CropShape.Circular:
-                    var radiusX = croppedSize.Width / 2;
-                    var radiusY = croppedSize.Height / 2;
-                    var center = new Point(radiusX, radiusY);
+                    double radiusX = croppedSize.Width / 2;
+                    double radiusY = croppedSize.Height / 2;
+                    Point center = new Point(radiusX, radiusY);
                     return CanvasGeometry.CreateEllipse(resourceCreator, center.ToVector2(), (float)radiusX, (float)radiusY);
             }
 
@@ -139,7 +139,7 @@ namespace TextReader.Controls
         /// <returns>A point within a rectangle.</returns>
         private static Point GetSafePoint(Rect targetRect, Point point)
         {
-            var safePoint = new Point(point.X, point.Y);
+            Point safePoint = new Point(point.X, point.Y);
             if (safePoint.X < targetRect.X)
             {
                 safePoint.X = targetRect.X;
@@ -172,27 +172,9 @@ namespace TextReader.Controls
         /// <returns>bool</returns>
         private static bool IsSafePoint(Rect targetRect, Point point)
         {
-            if (point.X - targetRect.X < -ThresholdValue)
-            {
-                return false;
-            }
-
-            if (point.X - (targetRect.X + targetRect.Width) > ThresholdValue)
-            {
-                return false;
-            }
-
-            if (point.Y - targetRect.Y < -ThresholdValue)
-            {
-                return false;
-            }
-
-            if (point.Y - (targetRect.Y + targetRect.Height) > ThresholdValue)
-            {
-                return false;
-            }
-
-            return true;
+            return point.X - targetRect.X >= -ThresholdValue
+&& point.X - (targetRect.X + targetRect.Width) <= ThresholdValue
+&& point.Y - targetRect.Y >= -ThresholdValue && point.Y - (targetRect.Y + targetRect.Height) <= ThresholdValue;
         }
 
         /// <summary>
@@ -204,7 +186,7 @@ namespace TextReader.Controls
         /// <returns>bool</returns>
         private static bool IsSafeRect(Point startPoint, Point endPoint, Size minSize)
         {
-            var checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
+            Point checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
             return checkPoint.X - endPoint.X < ThresholdValue
                    && checkPoint.Y - endPoint.Y < ThresholdValue;
         }
@@ -219,7 +201,7 @@ namespace TextReader.Controls
         /// <returns>The right rectangle.</returns>
         private static Rect GetSafeRect(Point startPoint, Point endPoint, Size minSize, ThumbPosition position)
         {
-            var checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
+            Point checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
             switch (position)
             {
                 case ThumbPosition.Top:
@@ -311,9 +293,9 @@ namespace TextReader.Controls
         /// <returns>The right rectangle.</returns>
         private static Rect GetUniformRect(Rect targetRect, double aspectRatio)
         {
-            var ratio = targetRect.Width / targetRect.Height;
-            var cx = targetRect.X + (targetRect.Width / 2);
-            var cy = targetRect.Y + (targetRect.Height / 2);
+            double ratio = targetRect.Width / targetRect.Height;
+            double cx = targetRect.X + (targetRect.Width / 2);
+            double cy = targetRect.Y + (targetRect.Height / 2);
             double width, height;
             if (aspectRatio > ratio)
             {
@@ -336,10 +318,10 @@ namespace TextReader.Controls
 
         private static Point GetSafeSizeChangeWhenKeepAspectRatio(Rect targetRect, ThumbPosition thumbPosition, Rect selectedRect, Point originSizeChange, double aspectRatio)
         {
-            var safeWidthChange = originSizeChange.X;
-            var safeHeightChange = originSizeChange.Y;
-            var maxWidthChange = 0d;
-            var maxHeightChange = 0d;
+            double safeWidthChange = originSizeChange.X;
+            double safeHeightChange = originSizeChange.Y;
+            double maxWidthChange = 0d;
+            double maxHeightChange = 0d;
             switch (thumbPosition)
             {
                 case ThumbPosition.Top:

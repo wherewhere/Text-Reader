@@ -322,9 +322,9 @@ namespace TextReader.ViewModels
             fileSavePicker.FileTypeChoices.Add($"TIFF {loader.GetString("Files")}", new List<string> { ".tiff", ".tif" });
             fileSavePicker.FileTypeChoices.Add($"GIF {loader.GetString("Files")}", new List<string> { ".gif" });
             fileSavePicker.FileTypeChoices.Add($"HEIF {loader.GetString("Files")}", new List<string> { ".heif", ".heic" });
-            fileSavePicker.SuggestedFileName = $"TextReader_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}";
+            fileSavePicker.SuggestedFileName = $"TextReader_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
 
-            var outputFile = await fileSavePicker.PickSaveFileAsync();
+            StorageFile outputFile = await fileSavePicker.PickSaveFileAsync();
 
             if (outputFile == null)
             {
@@ -372,14 +372,9 @@ namespace TextReader.ViewModels
                         break;
                     case "heif":
                     case "heic":
-                        if (ApiInformation.IsPropertyPresent("Windows.Graphics.Imaging.BitmapEncoder", "HeifEncoderId"))
-                        {
-                            bitmapEncoderGuid = BitmapEncoder.HeifEncoderId;
-                        }
-                        else
-                        {
-                            bitmapEncoderGuid = BitmapEncoder.JpegEncoderId;
-                        }
+                        bitmapEncoderGuid = ApiInformation.IsPropertyPresent("Windows.Graphics.Imaging.BitmapEncoder", "HeifEncoderId")
+                            ? BitmapEncoder.HeifEncoderId
+                            : BitmapEncoder.JpegEncoderId;
                         break;
                     default:
                         bitmapEncoderGuid = BitmapEncoder.JpegEncoderId;
@@ -422,7 +417,7 @@ namespace TextReader.ViewModels
             }
         }
 
-        public async Task ReadFile(StorageFile file)
+        public async Task ReadFile(IStorageFile file)
         {
             using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
             {
@@ -470,7 +465,7 @@ namespace TextReader.ViewModels
                 softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             }
 
-            var source = new SoftwareBitmapSource();
+            SoftwareBitmapSource source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(softwareBitmap);
             Image = source;
         }
@@ -480,7 +475,7 @@ namespace TextReader.ViewModels
             UIHelper.ShowProgressBar();
             StringBuilder text = new StringBuilder();
 
-            var ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
+            OcrEngine ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
 
             if (ocrEngine == null)
             {
@@ -490,7 +485,7 @@ namespace TextReader.ViewModels
                 return;
             }
 
-            var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+            OcrResult ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
             GeometryGroup GeometryGroup = new GeometryGroup();
             foreach (OcrLine line in ocrResult.Lines)

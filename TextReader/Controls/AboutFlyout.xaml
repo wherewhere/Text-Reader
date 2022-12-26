@@ -10,7 +10,7 @@
     mc:Ignorable="d">
     <UserControl.Transitions>
         <TransitionCollection>
-            <EdgeUIThemeTransition Edge="Left" />
+            <ReorderThemeTransition />
         </TransitionCollection>
     </UserControl.Transitions>
     <Grid>

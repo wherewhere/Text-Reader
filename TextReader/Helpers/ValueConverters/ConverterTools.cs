@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Reflection;
 using Windows.UI.Xaml.Markup;
 
@@ -17,7 +16,7 @@ namespace TextReader.Helpers.ValueConverters
         /// <returns>Bool value or false if cast failed</returns>
         internal static bool TryParseBool(object parameter)
         {
-            var parsed = false;
+            bool parsed = false;
             if (parameter != null)
             {
                 bool.TryParse(parameter.ToString(), out parsed);
@@ -34,14 +33,7 @@ namespace TextReader.Helpers.ValueConverters
         /// <returns>The converted value</returns>
         internal static object Convert(object value, Type targetType)
         {
-            if (targetType.IsInstanceOfType(value))
-            {
-                return value;
-            }
-            else
-            {
-                return XamlBindingHelper.ConvertValue(targetType, value);
-            }
+            return targetType.IsInstanceOfType(value) ? value : XamlBindingHelper.ConvertValue(targetType, value);
         }
     }
 }

@@ -19,13 +19,13 @@ namespace TextReader.Controls
     {
         private void ImageCropperThumb_KeyDown(object sender, KeyRoutedEventArgs e)
         {
-            var changed = false;
-            var diffPos = default(Point);
+            bool changed = false;
+            Point diffPos = default;
             if (e.Key == VirtualKey.Left)
             {
                 diffPos.X--;
-                var upKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Up);
-                var downKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Down);
+                CoreVirtualKeyStates upKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Up);
+                CoreVirtualKeyStates downKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Down);
                 if (upKeyState == CoreVirtualKeyStates.Down)
                 {
                     diffPos.Y--;
@@ -41,8 +41,8 @@ namespace TextReader.Controls
             else if (e.Key == VirtualKey.Right)
             {
                 diffPos.X++;
-                var upKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Up);
-                var downKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Down);
+                CoreVirtualKeyStates upKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Up);
+                CoreVirtualKeyStates downKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Down);
                 if (upKeyState == CoreVirtualKeyStates.Down)
                 {
                     diffPos.Y--;
@@ -58,8 +58,8 @@ namespace TextReader.Controls
             else if (e.Key == VirtualKey.Up)
             {
                 diffPos.Y--;
-                var leftKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Left);
-                var rightKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Right);
+                CoreVirtualKeyStates leftKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Left);
+                CoreVirtualKeyStates rightKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Right);
                 if (leftKeyState == CoreVirtualKeyStates.Down)
                 {
                     diffPos.X--;
@@ -75,8 +75,8 @@ namespace TextReader.Controls
             else if (e.Key == VirtualKey.Down)
             {
                 diffPos.Y++;
-                var leftKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Left);
-                var rightKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Right);
+                CoreVirtualKeyStates leftKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Left);
+                CoreVirtualKeyStates rightKeyState = Window.Current.CoreWindow.GetAsyncKeyState(VirtualKey.Right);
                 if (leftKeyState == CoreVirtualKeyStates.Down)
                 {
                     diffPos.X--;
@@ -92,15 +92,15 @@ namespace TextReader.Controls
 
             if (changed)
             {
-                var imageCropperThumb = (ImageCropperThumb)sender;
+                ImageCropperThumb imageCropperThumb = (ImageCropperThumb)sender;
                 UpdateCroppedRect(imageCropperThumb.Position, diffPos);
             }
         }
 
         private void ImageCropperThumb_KeyUp(object sender, KeyRoutedEventArgs e)
         {
-            var selectedRect = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
-            var croppedRect = _inverseImageTransform.TransformBounds(selectedRect);
+            Rect selectedRect = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
+            Rect croppedRect = _inverseImageTransform.TransformBounds(selectedRect);
             if (croppedRect.Width > MinCropSize.Width && croppedRect.Height > MinCropSize.Height)
             {
                 croppedRect.Intersect(_restrictedCropRect);
@@ -112,8 +112,8 @@ namespace TextReader.Controls
 
         private void ImageCropperThumb_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
-            var selectedRect = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
-            var croppedRect = _inverseImageTransform.TransformBounds(selectedRect);
+            Rect selectedRect = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
+            Rect croppedRect = _inverseImageTransform.TransformBounds(selectedRect);
             if (croppedRect.Width > MinCropSize.Width && croppedRect.Height > MinCropSize.Height)
             {
                 croppedRect.Intersect(_restrictedCropRect);
@@ -125,41 +125,31 @@ namespace TextReader.Controls
 
         private void ImageCropperThumb_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            var imageCropperThumb = (ImageCropperThumb)sender;
-            var currentPointerPosition = new Point(
+            ImageCropperThumb imageCropperThumb = (ImageCropperThumb)sender;
+            Point currentPointerPosition = new Point(
                 imageCropperThumb.X + e.Position.X + e.Delta.Translation.X - (imageCropperThumb.ActualWidth / 2),
                 imageCropperThumb.Y + e.Position.Y + e.Delta.Translation.Y - (imageCropperThumb.ActualHeight / 2));
-            var safePosition = GetSafePoint(_restrictedSelectRect, currentPointerPosition);
-            var safeDiffPoint = new Point(safePosition.X - imageCropperThumb.X, safePosition.Y - imageCropperThumb.Y);
+            Point safePosition = GetSafePoint(_restrictedSelectRect, currentPointerPosition);
+            Point safeDiffPoint = new Point(safePosition.X - imageCropperThumb.X, safePosition.Y - imageCropperThumb.Y);
             UpdateCroppedRect(imageCropperThumb.Position, safeDiffPoint);
         }
 
         private void SourceImage_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            var offsetX = -e.Delta.Translation.X;
-            var offsetY = -e.Delta.Translation.Y;
-            if (offsetX > 0)
-            {
-                offsetX = Math.Min(offsetX, _restrictedSelectRect.X + _restrictedSelectRect.Width - _endX);
-            }
-            else
-            {
-                offsetX = Math.Max(offsetX, _restrictedSelectRect.X - _startX);
-            }
+            double offsetX = -e.Delta.Translation.X;
+            double offsetY = -e.Delta.Translation.Y;
+            offsetX = offsetX > 0
+                ? Math.Min(offsetX, _restrictedSelectRect.X + _restrictedSelectRect.Width - _endX)
+                : Math.Max(offsetX, _restrictedSelectRect.X - _startX);
 
-            if (offsetY > 0)
-            {
-                offsetY = Math.Min(offsetY, _restrictedSelectRect.Y + _restrictedSelectRect.Height - _endY);
-            }
-            else
-            {
-                offsetY = Math.Max(offsetY, _restrictedSelectRect.Y - _startY);
-            }
+            offsetY = offsetY > 0
+                ? Math.Min(offsetY, _restrictedSelectRect.Y + _restrictedSelectRect.Height - _endY)
+                : Math.Max(offsetY, _restrictedSelectRect.Y - _startY);
 
-            var selectedRect = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
+            Rect selectedRect = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
             selectedRect.X += offsetX;
             selectedRect.Y += offsetY;
-            var croppedRect = _inverseImageTransform.TransformBounds(selectedRect);
+            Rect croppedRect = _inverseImageTransform.TransformBounds(selectedRect);
             croppedRect.Intersect(_restrictedCropRect);
             _currentCroppedRect = croppedRect;
             UpdateImageLayout();

@@ -55,7 +55,7 @@ namespace TextReader.Controls
         private static void OnXChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropperThumb)d;
+            ImageCropperThumb target = (ImageCropperThumb)d;
             target.UpdatePosition();
         }
 
@@ -71,7 +71,7 @@ namespace TextReader.Controls
         private static void OnYChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropperThumb)d;
+            ImageCropperThumb target = (ImageCropperThumb)d;
             target.UpdatePosition();
         }
 

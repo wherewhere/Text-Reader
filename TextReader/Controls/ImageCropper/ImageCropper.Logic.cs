@@ -45,7 +45,7 @@ namespace TextReader.Controls
         {
             if (Source != null && IsValidRect(CanvasRect))
             {
-                var uniformSelectedRect = GetUniformRect(CanvasRect, _currentCroppedRect.Width / _currentCroppedRect.Height);
+                Rect uniformSelectedRect = GetUniformRect(CanvasRect, _currentCroppedRect.Width / _currentCroppedRect.Height);
                 UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect, animate);
             }
         }
@@ -63,17 +63,17 @@ namespace TextReader.Controls
                 return;
             }
 
-            var imageScale = viewport.Width / viewportImageRect.Width;
+            double imageScale = viewport.Width / viewportImageRect.Width;
             _imageTransform.ScaleX = _imageTransform.ScaleY = imageScale;
             _imageTransform.TranslateX = viewport.X - (viewportImageRect.X * imageScale);
             _imageTransform.TranslateY = viewport.Y - (viewportImageRect.Y * imageScale);
             _inverseImageTransform.ScaleX = _inverseImageTransform.ScaleY = 1 / imageScale;
             _inverseImageTransform.TranslateX = -_imageTransform.TranslateX / imageScale;
             _inverseImageTransform.TranslateY = -_imageTransform.TranslateY / imageScale;
-            var selectedRect = _imageTransform.TransformBounds(_currentCroppedRect);
+            Rect selectedRect = _imageTransform.TransformBounds(_currentCroppedRect);
             _restrictedSelectRect = _imageTransform.TransformBounds(_restrictedCropRect);
-            var startPoint = GetSafePoint(_restrictedSelectRect, new Point(selectedRect.X, selectedRect.Y));
-            var endPoint = GetSafePoint(_restrictedSelectRect, new Point(
+            Point startPoint = GetSafePoint(_restrictedSelectRect, new Point(selectedRect.X, selectedRect.Y));
+            Point endPoint = GetSafePoint(_restrictedSelectRect, new Point(
                 selectedRect.X + selectedRect.Width,
                 selectedRect.Y + selectedRect.Height));
             if (animate)
@@ -83,7 +83,7 @@ namespace TextReader.Controls
             }
             else
             {
-                var targetVisual = ElementCompositionPreview.GetElementVisual(_sourceImage);
+                Windows.UI.Composition.Visual targetVisual = ElementCompositionPreview.GetElementVisual(_sourceImage);
                 targetVisual.Offset = new Vector3((float)_imageTransform.TranslateX, (float)_imageTransform.TranslateY, 0);
                 targetVisual.Scale = new Vector3((float)imageScale);
             }
@@ -98,7 +98,7 @@ namespace TextReader.Controls
         /// <param name="diffPos">Position offset</param>
         private void UpdateCroppedRect(ThumbPosition position, Point diffPos)
         {
-            if (diffPos == default(Point) || !IsValidRect(CanvasRect))
+            if (diffPos == default || !IsValidRect(CanvasRect))
             {
                 return;
             }
@@ -110,16 +110,16 @@ namespace TextReader.Controls
                 diffPointRadian = Math.Atan(diffPos.X / diffPos.Y);
             }
 
-            var startPoint = new Point(_startX, _startY);
-            var endPoint = new Point(_endX, _endY);
-            var currentSelectedRect = startPoint.ToRect(endPoint);
+            Point startPoint = new Point(_startX, _startY);
+            Point endPoint = new Point(_endX, _endY);
+            Rect currentSelectedRect = startPoint.ToRect(endPoint);
             switch (position)
             {
                 case ThumbPosition.Top:
                     if (KeepAspectRatio)
                     {
-                        var originSizeChange = new Point(-diffPos.Y * UsedAspectRatio, -diffPos.Y);
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        Point originSizeChange = new Point(-diffPos.Y * UsedAspectRatio, -diffPos.Y);
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         startPoint.X += -safeChange.X / 2;
                         endPoint.X += safeChange.X / 2;
                         startPoint.Y += -safeChange.Y;
@@ -133,8 +133,8 @@ namespace TextReader.Controls
                 case ThumbPosition.Bottom:
                     if (KeepAspectRatio)
                     {
-                        var originSizeChange = new Point(diffPos.Y * UsedAspectRatio, diffPos.Y);
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        Point originSizeChange = new Point(diffPos.Y * UsedAspectRatio, diffPos.Y);
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         startPoint.X += -safeChange.X / 2;
                         endPoint.X += safeChange.X / 2;
                         endPoint.Y += safeChange.Y;
@@ -148,8 +148,8 @@ namespace TextReader.Controls
                 case ThumbPosition.Left:
                     if (KeepAspectRatio)
                     {
-                        var originSizeChange = new Point(-diffPos.X, -diffPos.X / UsedAspectRatio);
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        Point originSizeChange = new Point(-diffPos.X, -diffPos.X / UsedAspectRatio);
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         startPoint.Y += -safeChange.Y / 2;
                         endPoint.Y += safeChange.Y / 2;
                         startPoint.X += -safeChange.X;
@@ -163,8 +163,8 @@ namespace TextReader.Controls
                 case ThumbPosition.Right:
                     if (KeepAspectRatio)
                     {
-                        var originSizeChange = new Point(diffPos.X, diffPos.X / UsedAspectRatio);
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        Point originSizeChange = new Point(diffPos.X, diffPos.X / UsedAspectRatio);
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         startPoint.Y += -safeChange.Y / 2;
                         endPoint.Y += safeChange.Y / 2;
                         endPoint.X += safeChange.X;
@@ -178,9 +178,9 @@ namespace TextReader.Controls
                 case ThumbPosition.UpperLeft:
                     if (KeepAspectRatio)
                     {
-                        var effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
-                        var originSizeChange = new Point(-effectiveLength * Math.Sin(radian), -effectiveLength * Math.Cos(radian));
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        double effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        Point originSizeChange = new Point(-effectiveLength * Math.Sin(radian), -effectiveLength * Math.Cos(radian));
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         diffPos.X = -safeChange.X;
                         diffPos.Y = -safeChange.Y;
                     }
@@ -192,9 +192,9 @@ namespace TextReader.Controls
                     if (KeepAspectRatio)
                     {
                         diffPointRadian = -diffPointRadian;
-                        var effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
-                        var originSizeChange = new Point(-effectiveLength * Math.Sin(radian), -effectiveLength * Math.Cos(radian));
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        double effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        Point originSizeChange = new Point(-effectiveLength * Math.Sin(radian), -effectiveLength * Math.Cos(radian));
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         diffPos.X = safeChange.X;
                         diffPos.Y = -safeChange.Y;
                     }
@@ -206,9 +206,9 @@ namespace TextReader.Controls
                     if (KeepAspectRatio)
                     {
                         diffPointRadian = -diffPointRadian;
-                        var effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
-                        var originSizeChange = new Point(effectiveLength * Math.Sin(radian), effectiveLength * Math.Cos(radian));
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        double effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        Point originSizeChange = new Point(effectiveLength * Math.Sin(radian), effectiveLength * Math.Cos(radian));
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         diffPos.X = -safeChange.X;
                         diffPos.Y = safeChange.Y;
                     }
@@ -219,9 +219,9 @@ namespace TextReader.Controls
                 case ThumbPosition.LowerRight:
                     if (KeepAspectRatio)
                     {
-                        var effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
-                        var originSizeChange = new Point(effectiveLength * Math.Sin(radian), effectiveLength * Math.Cos(radian));
-                        var safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
+                        double effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        Point originSizeChange = new Point(effectiveLength * Math.Sin(radian), effectiveLength * Math.Cos(radian));
+                        Point safeChange = GetSafeSizeChangeWhenKeepAspectRatio(_restrictedSelectRect, position, currentSelectedRect, originSizeChange, UsedAspectRatio);
                         diffPos.X = safeChange.X;
                         diffPos.Y = safeChange.Y;
                     }
@@ -243,16 +243,16 @@ namespace TextReader.Controls
                 }
                 else
                 {
-                    var safeRect = GetSafeRect(startPoint, endPoint, MinSelectSize, position);
+                    Rect safeRect = GetSafeRect(startPoint, endPoint, MinSelectSize, position);
                     safeRect.Intersect(_restrictedSelectRect);
                     startPoint = new Point(safeRect.X, safeRect.Y);
                     endPoint = new Point(safeRect.X + safeRect.Width, safeRect.Y + safeRect.Height);
                 }
             }
 
-            var isEffectiveRegion = IsSafePoint(_restrictedSelectRect, startPoint) &&
+            bool isEffectiveRegion = IsSafePoint(_restrictedSelectRect, startPoint) &&
                                     IsSafePoint(_restrictedSelectRect, endPoint);
-            var selectedRect = startPoint.ToRect(endPoint);
+            Rect selectedRect = startPoint.ToRect(endPoint);
             if (!isEffectiveRegion)
             {
                 if (!IsCornerThumb(position) && TryGetContainedRect(_restrictedSelectRect, ref selectedRect))
@@ -269,11 +269,11 @@ namespace TextReader.Controls
             selectedRect.Union(CanvasRect);
             if (selectedRect != CanvasRect)
             {
-                var croppedRect = _inverseImageTransform.TransformBounds(startPoint.ToRect(endPoint));
+                Rect croppedRect = _inverseImageTransform.TransformBounds(startPoint.ToRect(endPoint));
                 croppedRect.Intersect(_restrictedCropRect);
                 _currentCroppedRect = croppedRect;
-                var viewportRect = GetUniformRect(CanvasRect, selectedRect.Width / selectedRect.Height);
-                var viewportImgRect = _inverseImageTransform.TransformBounds(selectedRect);
+                Rect viewportRect = GetUniformRect(CanvasRect, selectedRect.Width / selectedRect.Height);
+                Rect viewportImgRect = _inverseImageTransform.TransformBounds(selectedRect);
                 UpdateImageLayoutWithViewport(viewportRect, viewportImgRect);
             }
             else
@@ -294,8 +294,8 @@ namespace TextReader.Controls
             _startY = startPoint.Y;
             _endX = endPoint.X;
             _endY = endPoint.Y;
-            var centerX = ((_endX - _startX) / 2) + _startX;
-            var centerY = ((_endY - _startY) / 2) + _startY;
+            double centerX = ((_endX - _startX) / 2) + _startX;
+            double centerY = ((_endY - _startY) / 2) + _startY;
             Storyboard storyboard = null;
             if (animate)
             {
@@ -460,10 +460,10 @@ namespace TextReader.Controls
                 case CropShape.Rectangular:
                     if (_innerGeometry is RectangleGeometry rectangleGeometry)
                     {
-                        var to = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
+                        Rect to = new Point(_startX, _startY).ToRect(new Point(_endX, _endY));
                         if (animate)
                         {
-                            var storyboard = new Storyboard();
+                            Storyboard storyboard = new Storyboard();
                             storyboard.Children.Add(CreateRectangleAnimation(to, _animationDuration, rectangleGeometry, true));
                             storyboard.Begin();
                         }
@@ -477,12 +477,12 @@ namespace TextReader.Controls
                 case CropShape.Circular:
                     if (_innerGeometry is EllipseGeometry ellipseGeometry)
                     {
-                        var center = new Point(((_endX - _startX) / 2) + _startX, ((_endY - _startY) / 2) + _startY);
-                        var radiusX = (_endX - _startX) / 2;
-                        var radiusY = (_endY - _startY) / 2;
+                        Point center = new Point(((_endX - _startX) / 2) + _startX, ((_endY - _startY) / 2) + _startY);
+                        double radiusX = (_endX - _startX) / 2;
+                        double radiusY = (_endY - _startY) / 2;
                         if (animate)
                         {
-                            var storyboard = new Storyboard();
+                            Storyboard storyboard = new Storyboard();
                             storyboard.Children.Add(CreatePointAnimation(center, _animationDuration, ellipseGeometry, nameof(EllipseGeometry.Center), true));
                             storyboard.Children.Add(CreateDoubleAnimation(radiusX, _animationDuration, ellipseGeometry, nameof(EllipseGeometry.RadiusX), true));
                             storyboard.Children.Add(CreateDoubleAnimation(radiusY, _animationDuration, ellipseGeometry, nameof(EllipseGeometry.RadiusY), true));
@@ -512,12 +512,12 @@ namespace TextReader.Controls
         {
             if (KeepAspectRatio && Source != null && IsValidRect(_restrictedSelectRect))
             {
-                var centerX = ((_endX - _startX) / 2) + _startX;
-                var centerY = ((_endY - _startY) / 2) + _startY;
-                var restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
-                var maxSelectedLength = Math.Max(_endX - _startX, _endY - _startY);
-                var viewRect = new Rect(centerX - (maxSelectedLength / 2), centerY - (maxSelectedLength / 2), maxSelectedLength, maxSelectedLength);
-                var uniformSelectedRect = GetUniformRect(viewRect, UsedAspectRatio);
+                double centerX = ((_endX - _startX) / 2) + _startX;
+                double centerY = ((_endY - _startY) / 2) + _startY;
+                double restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
+                double maxSelectedLength = Math.Max(_endX - _startX, _endY - _startY);
+                Rect viewRect = new Rect(centerX - (maxSelectedLength / 2), centerY - (maxSelectedLength / 2), maxSelectedLength, maxSelectedLength);
+                Rect uniformSelectedRect = GetUniformRect(viewRect, UsedAspectRatio);
                 if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
                 {
                     uniformSelectedRect = GetUniformRect(_restrictedSelectRect, UsedAspectRatio);
@@ -525,7 +525,7 @@ namespace TextReader.Controls
 
                 if (uniformSelectedRect.Width < restrictedMinLength || uniformSelectedRect.Height < restrictedMinLength)
                 {
-                    var scale = restrictedMinLength / Math.Min(uniformSelectedRect.Width, uniformSelectedRect.Height);
+                    double scale = restrictedMinLength / Math.Min(uniformSelectedRect.Width, uniformSelectedRect.Height);
                     uniformSelectedRect.Width *= scale;
                     uniformSelectedRect.Height *= scale;
                     if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
@@ -547,15 +547,15 @@ namespace TextReader.Controls
 
                 if ((_restrictedSelectRect.X + _restrictedSelectRect.Width) < (uniformSelectedRect.X + uniformSelectedRect.Width))
                 {
-                    uniformSelectedRect.X += (_restrictedSelectRect.X + _restrictedSelectRect.Width) - (uniformSelectedRect.X + uniformSelectedRect.Width);
+                    uniformSelectedRect.X += _restrictedSelectRect.X + _restrictedSelectRect.Width - (uniformSelectedRect.X + uniformSelectedRect.Width);
                 }
 
                 if ((_restrictedSelectRect.Y + _restrictedSelectRect.Height) < (uniformSelectedRect.Y + uniformSelectedRect.Height))
                 {
-                    uniformSelectedRect.Y += (_restrictedSelectRect.Y + _restrictedSelectRect.Height) - (uniformSelectedRect.Y + uniformSelectedRect.Height);
+                    uniformSelectedRect.Y += _restrictedSelectRect.Y + _restrictedSelectRect.Height - (uniformSelectedRect.Y + uniformSelectedRect.Height);
                 }
 
-                var croppedRect = _inverseImageTransform.TransformBounds(uniformSelectedRect);
+                Rect croppedRect = _inverseImageTransform.TransformBounds(uniformSelectedRect);
                 croppedRect.Intersect(_restrictedCropRect);
                 _currentCroppedRect = croppedRect;
                 UpdateImageLayout(animate);
@@ -567,8 +567,8 @@ namespace TextReader.Controls
         /// </summary>
         private void UpdateThumbsVisibility()
         {
-            var cornerThumbsVisibility = Visibility.Visible;
-            var otherThumbsVisibility = Visibility.Visible;
+            Visibility cornerThumbsVisibility = Visibility.Visible;
+            Visibility otherThumbsVisibility = Visibility.Visible;
             switch (ThumbPlacement)
             {
                 case ThumbPlacement.All:

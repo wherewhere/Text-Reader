@@ -77,7 +77,7 @@ namespace TextReader.Controls
         {
             get
             {
-                var aspectRatio = AspectRatio;
+                double? aspectRatio = AspectRatio;
                 switch (CropShape)
                 {
                     case CropShape.Rectangular:
@@ -98,8 +98,8 @@ namespace TextReader.Controls
         {
             get
             {
-                var aspectRatio = KeepAspectRatio ? UsedAspectRatio : 1;
-                var size = new Size(MinCroppedPixelLength, MinCroppedPixelLength);
+                double aspectRatio = KeepAspectRatio ? UsedAspectRatio : 1;
+                Size size = new Size(MinCroppedPixelLength, MinCroppedPixelLength);
                 if (aspectRatio >= 1)
                 {
                     size.Width = size.Height * aspectRatio;
@@ -120,12 +120,12 @@ namespace TextReader.Controls
         {
             get
             {
-                var realMinSelectSize = _imageTransform.TransformBounds(MinCropSize.ToRect());
-                var minLength = Math.Min(realMinSelectSize.Width, realMinSelectSize.Height);
+                Rect realMinSelectSize = _imageTransform.TransformBounds(MinCropSize.ToRect());
+                double minLength = Math.Min(realMinSelectSize.Width, realMinSelectSize.Height);
                 if (minLength < MinSelectedLength)
                 {
-                    var aspectRatio = KeepAspectRatio ? UsedAspectRatio : 1;
-                    var minSelectSize = new Size(MinSelectedLength, MinSelectedLength);
+                    double aspectRatio = KeepAspectRatio ? UsedAspectRatio : 1;
+                    Size minSelectSize = new Size(MinSelectedLength, MinSelectedLength);
                     if (aspectRatio >= 1)
                     {
                         minSelectSize.Width = minSelectSize.Height * aspectRatio;
@@ -373,8 +373,8 @@ namespace TextReader.Controls
         /// <returns>Task</returns>
         public async Task LoadImageFromFile(StorageFile imageFile)
         {
-            var writeableBitmap = new WriteableBitmap(1, 1);
-            using (var stream = await imageFile.OpenReadAsync())
+            WriteableBitmap writeableBitmap = new WriteableBitmap(1, 1);
+            using (IRandomAccessStreamWithContentType stream = await imageFile.OpenReadAsync())
             {
                 await writeableBitmap.SetSourceAsync(stream);
             }

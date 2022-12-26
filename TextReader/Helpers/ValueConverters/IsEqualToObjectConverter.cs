@@ -91,14 +91,7 @@ namespace TextReader.Helpers.ValueConverters
         private static bool ConvertTypeEquals(object value1, object value2)
         {
             // Let's see if we can convert:
-            if (value2 is Enum)
-            {
-                value1 = ConvertToEnum(value2.GetType(), value1);
-            }
-            else
-            {
-                value1 = ConverterTools.Convert(value1, value2.GetType());
-            }
+            value1 = value2 is Enum ? ConvertToEnum(value2.GetType(), value1) : ConverterTools.Convert(value1, value2.GetType());
 
             return value2.Equals(value1);
         }
