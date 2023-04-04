@@ -10,7 +10,7 @@
     <RootNamespace>TextReader</RootNamespace>
     <AssemblyName>TextReader</AssemblyName>
     <DefaultLanguage>zh-CN</DefaultLanguage>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
@@ -153,20 +153,18 @@
     <Compile Include="Controls\TwoPaneView\TwoPaneView.cs" />
     <Compile Include="Controls\TwoPaneView\TwoPaneView.Enum.cs" />
     <Compile Include="Controls\TwoPaneView\TwoPaneView.Properties.cs" />
-    <Compile Include="Helpers\DispatcherHelper.cs" />
-    <Compile Include="Helpers\Exceptions\ExceptionHandlingSynchronizationContext.cs" />
+    <Compile Include="Helpers\ExceptionHandling.cs" />
     <Compile Include="Helpers\PointExtensions.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Helpers\SizeExtensions.cs" />
     <Compile Include="Helpers\ThemeHelper.cs" />
     <Compile Include="Helpers\UIElementHelper.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
-    <Compile Include="Helpers\ValueConverters\ConverterTools.cs" />
-    <Compile Include="Helpers\ValueConverters\EmptyObjectToBoolConverter.cs" />
-    <Compile Include="Helpers\ValueConverters\EmptyObjectToVisibilityConverter.cs" />
-    <Compile Include="Helpers\ValueConverters\IsEqualToBoolConverter.cs" />
-    <Compile Include="Helpers\ValueConverters\IsEqualToObjectConverter.cs" />
-    <Compile Include="Pages\Interfaces.cs" />
+    <Compile Include="Helpers\Converters\ConverterTools.cs" />
+    <Compile Include="Helpers\Converters\EmptyObjectToBoolConverter.cs" />
+    <Compile Include="Helpers\Converters\EmptyObjectToVisibilityConverter.cs" />
+    <Compile Include="Helpers\Converters\IsEqualToBoolConverter.cs" />
+    <Compile Include="Helpers\Converters\IsEqualToObjectConverter.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -226,7 +224,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
@@ -287,8 +284,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MetroLog">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="MicaForUWP">
-      <Version>0.0.7</Version>
+      <Version>0.1.9</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>

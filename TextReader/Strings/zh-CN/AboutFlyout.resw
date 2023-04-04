@@ -133,6 +133,9 @@
     <value>软件许可条款</value>
     <comment>Displayed on a link to the Software License Terms on the About panel</comment>
   </data>
+  <data name="AboutFlyoutLog.Text" xml:space="preserve">
+    <value>查看日志</value>
+  </data>
   <data name="FeedbackButton.Content" xml:space="preserve">
     <value>发送反馈</value>
     <comment>The text that shows in the dropdown navigation control to give the user the option to send feedback about the app and it launches Windows Feedback app</comment>

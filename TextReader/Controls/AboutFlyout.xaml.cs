@@ -1,6 +1,7 @@
 ﻿using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Resources;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -13,7 +14,7 @@ namespace TextReader.Controls
     {
         // CSHARP_MIGRATION: TODO:
         // BUILD_YEAR was a C++/CX macro and may update the value from the pipeline
-        private const string BUILD_YEAR = "2022";
+        private const string BUILD_YEAR = "2023";
 
         public AboutFlyout()
         {
@@ -34,6 +35,11 @@ namespace TextReader.Controls
         private void FeedbackButton_Click(object sender, RoutedEventArgs e)
         {
             _ = Launcher.LaunchUriAsync(new Uri("https://github.com/wherewhere/Text-Reader/issues/new"));
+        }
+
+        private async void AboutFlyoutLog_Click(object sender, RoutedEventArgs e)
+        {
+            _ = Launcher.LaunchFolderAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("MetroLogs", CreationCollisionOption.OpenIfExists));
         }
 
         private void SetVersionString()

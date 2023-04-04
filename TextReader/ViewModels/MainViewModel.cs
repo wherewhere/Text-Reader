@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -340,6 +341,7 @@ namespace TextReader.ViewModels
             }
             catch (Exception ex)
             {
+                SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Error(ex.ExceptionToMessage(), ex);
                 UIHelper.ShowMessage(string.Format(loader.GetString("ImageSaveError"), ex.Message));
                 await outputFile.DeleteAsync();
             }
@@ -397,6 +399,7 @@ namespace TextReader.ViewModels
                 }
                 catch (Exception err)
                 {
+                    SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Warn(err.ExceptionToMessage(), err);
                     const int WINCODEC_ERR_UNSUPPORTEDOPERATION = unchecked((int)0x88982F81);
                     switch (err.HResult)
                     {
@@ -436,8 +439,9 @@ namespace TextReader.ViewModels
                 await WriteableImage.SetSourceAsync(stream);
                 CropperImage = WriteableImage;
             }
-            catch
+            catch(Exception e)
             {
+                SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Warn(e.ExceptionToMessage(), e);
                 try
                 {
                     using (InMemoryRandomAccessStream random = new InMemoryRandomAccessStream())
@@ -450,8 +454,9 @@ namespace TextReader.ViewModels
                         CropperImage = WriteableImage;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Error(ex.ExceptionToMessage(), ex);
                     CropperImage = null;
                 }
             }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Converters;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI.Converters;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.System.Profile;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -29,26 +31,22 @@ namespace TextReader.Pages
     /// <summary>
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>
-    public sealed partial class MainPage : Page, IHaveTitleBar
+    public sealed partial class MainPage : Page
     {
-        private MainViewModel Provider;
+        private readonly MainViewModel Provider;
         public Frame MainFrame => Frame;
-
-        private bool HasStatusBar => UIHelper.HasStatusBar;
-        private Thickness StackPanelMargin => UIHelper.StackPanelMargin;
 
         public MainPage()
         {
             InitializeComponent();
-            UIHelper.AppTitle = this;
-            AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
-            CoreApplicationViewTitleBar TitleBar = CoreApplication.GetCurrentView().TitleBar;
-            UpdateTitleBarLayout(TitleBar);
+            UIHelper.MainPage = this;
+            UIHelper.ShellDispatcher = Dispatcher;
+            AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "酷安 Lite";
+            if (!(AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop"))
+            { UpdateTitleBarLayout(false); }
+            if (SystemInformation.OperatingSystemVersion.Build >= 22000)
+            { CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right; }
             Provider = new MainViewModel();
-            if (SettingsHelper.WindowsVersion >= 22000)
-            {
-                CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right;
-            }
             DataContext = Provider;
         }
 
@@ -56,31 +54,15 @@ namespace TextReader.Pages
         {
             base.OnNavigatedTo(e);
             Window.Current.SetTitleBar(CustomTitleBar);
+            CoreApplicationViewTitleBar TitleBar = CoreApplication.GetCurrentView().TitleBar;
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+            TitleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
+            TitleBar.IsVisibleChanged += TitleBar_IsVisibleChanged;
             Clipboard.ContentChanged += Clipboard_ContentChanged;
             Clipboard_ContentChanged(null, null);
             if (e.Parameter is IActivatedEventArgs args)
             {
-                switch (args?.Kind)
-                {
-                    case ActivationKind.File:
-                        IFileActivatedEventArgs FileEventArgs = args as IFileActivatedEventArgs;
-                        foreach (IStorageItem file in FileEventArgs.Files)
-                        {
-                            if (file is IStorageFile storageFile && MainViewModel.ImageTypes.Contains($".{storageFile.FileType.ToLowerInvariant()}"))
-                            {
-                                _ = Provider.ReadFile(storageFile);
-                                break;
-                            }
-                        }
-                        break;
-                    case ActivationKind.ShareTarget:
-                        IShareTargetActivatedEventArgs ShareTargetEventArgs = args as IShareTargetActivatedEventArgs;
-                        _ = Provider.DropFile(ShareTargetEventArgs.ShareOperation.Data);
-                        break;
-                    default:
-                        break;
-                }
+                OpenActivatedEventArgs(args);
             }
         }
 
@@ -88,8 +70,35 @@ namespace TextReader.Pages
         {
             base.OnNavigatedFrom(e);
             Window.Current.SetTitleBar(null);
+            CoreApplicationViewTitleBar TitleBar = CoreApplication.GetCurrentView().TitleBar;
             Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+            TitleBar.LayoutMetricsChanged -= TitleBar_LayoutMetricsChanged;
+            TitleBar.IsVisibleChanged -= TitleBar_IsVisibleChanged;
             Clipboard.ContentChanged -= Clipboard_ContentChanged;
+        }
+
+        public void OpenActivatedEventArgs(IActivatedEventArgs args)
+        {
+            switch (args?.Kind)
+            {
+                case ActivationKind.File:
+                    IFileActivatedEventArgs FileEventArgs = args as IFileActivatedEventArgs;
+                    foreach (IStorageItem file in FileEventArgs.Files)
+                    {
+                        if (file is IStorageFile storageFile && MainViewModel.ImageTypes.Contains($".{storageFile.FileType.ToLowerInvariant()}"))
+                        {
+                            _ = Provider.ReadFile(storageFile);
+                            break;
+                        }
+                    }
+                    break;
+                case ActivationKind.ShareTarget:
+                    IShareTargetActivatedEventArgs ShareTargetEventArgs = args as IShareTargetActivatedEventArgs;
+                    _ = Provider.DropFile(ShareTargetEventArgs.ShareOperation.Data);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void ComboBox_Loaded(object sender, RoutedEventArgs e)
@@ -107,8 +116,8 @@ namespace TextReader.Pages
                 case "Paste":
                     _ = Provider.DropFile(Clipboard.GetContent());
                     break;
-                case "Finnsh":
-                    _ = ClipFinnsh();
+                case "Finnish":
+                    _ = ClipFinnish();
                     break;
                 case "Cancel":
                     ClipCancel();
@@ -140,7 +149,7 @@ namespace TextReader.Pages
             }
         }
 
-        public async Task ClipFinnsh()
+        public async Task ClipFinnish()
         {
             using (InMemoryRandomAccessStream random = new InMemoryRandomAccessStream())
             {
@@ -177,8 +186,14 @@ namespace TextReader.Pages
 
         private void UpdateTitleBarLayout(CoreApplicationViewTitleBar TitleBar)
         {
-            Thickness TitleMargin = CustomTitleBar.Margin;
-            CustomTitleBar.Margin = new Thickness(0, TitleMargin.Top, TitleBar.SystemOverlayRightInset, TitleMargin.Bottom);
+            CustomTitleBar.Height = TitleBar.Height;
+            LeftPaddingColumn.Width = new GridLength(TitleBar.SystemOverlayLeftInset);
+            RightPaddingColumn.Width = new GridLength(TitleBar.SystemOverlayRightInset);
+        }
+
+        private void UpdateTitleBarLayout(bool IsVisible)
+        {
+            CustomTitleBar.Visibility = IsVisible && !UIHelper.HasStatusBar && !UIHelper.HasTitleBar ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -202,10 +217,11 @@ namespace TextReader.Pages
             }
         }
 
-        private void Clipboard_ContentChanged(object sender, object e)
-        {
-            _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
-        }
+        private void Clipboard_ContentChanged(object sender, object e) => _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
+
+        private void TitleBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarLayout(sender.IsVisible);
+
+        private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarLayout(sender);
 
         #region 进度条
 

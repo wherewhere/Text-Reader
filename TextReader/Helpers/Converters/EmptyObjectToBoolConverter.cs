@@ -1,6 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Converters;
 
-namespace TextReader.Helpers.ValueConverters
+namespace TextReader.Helpers.Converters
 {
     /// <summary>
     /// This class converts a object value into a Boolean value (if the value is null or empty returns a false value).

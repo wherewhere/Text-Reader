@@ -7,23 +7,23 @@
     </ResourceDictionary.MergedDictionaries>
     <media:BackdropMicaBrush
         x:Key="SolidBackgroundFillColorBaseElementBrush"
-        BackgroundSource="MicaBackdrop"
+        BackgroundSource="WallpaperBackdrop"
         FallbackColor="{ThemeResource SolidBackgroundFillColorBase}"
         TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
     <media:BackdropMicaBrush
         x:Key="SolidBackgroundFillColorBaseWindowBrush"
-        BackgroundSource="MicaBackdrop"
+        BackgroundSource="WallpaperBackdrop"
         FallbackColor="{ThemeResource SolidBackgroundFillColorBase}"
         TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
 
     <media:BackdropMicaBrush
         x:Key="SystemChromeMediumLowColorElementBrush"
-        BackgroundSource="MicaBackdrop"
+        BackgroundSource="WallpaperBackdrop"
         FallbackColor="{ThemeResource SystemChromeMediumLowColor}"
         TintColor="{ThemeResource SystemChromeMediumLowColor}" />
     <media:BackdropMicaBrush
         x:Key="SystemChromeMediumLowColorWindowBrush"
-        BackgroundSource="MicaBackdrop"
+        BackgroundSource="WallpaperBackdrop"
         FallbackColor="{ThemeResource SystemChromeMediumLowColor}"
         TintColor="{ThemeResource SystemChromeMediumLowColor}" />
 </ResourceDictionary>

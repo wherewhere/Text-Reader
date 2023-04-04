@@ -1,4 +1,6 @@
-﻿using Windows.UI;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using Windows.ApplicationModel.Core;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -23,15 +25,24 @@ namespace TextReader.Helpers
         {
             get
             {
-                if (Window.Current.Content is FrameworkElement rootElement)
+                if (CurrentApplicationWindow?.Dispatcher?.HasThreadAccess == true)
                 {
-                    if (rootElement.RequestedTheme != ElementTheme.Default)
-                    {
-                        return rootElement.RequestedTheme;
-                    }
+                    return CurrentApplicationWindow?.Content is FrameworkElement rootElement
+                        && rootElement.RequestedTheme != ElementTheme.Default
+                        ? rootElement.RequestedTheme
+                        : SettingsHelper.Get<ElementTheme>(SettingsHelper.SelectedAppTheme);
                 }
-
-                return SettingsHelper.Get<ElementTheme>(SettingsHelper.SelectedAppTheme);
+                else
+                {
+                    return UIHelper.AwaitByTaskCompleteSource(() =>
+                        CurrentApplicationWindow?.Dispatcher?.AwaitableRunAsync(() =>
+                        {
+                            return CurrentApplicationWindow?.Content is FrameworkElement rootElement
+                                && rootElement.RequestedTheme != ElementTheme.Default
+                                ? rootElement.RequestedTheme
+                                : SettingsHelper.Get<ElementTheme>(SettingsHelper.SelectedAppTheme);
+                        }, CoreDispatcherPriority.High));
+                }
             }
         }
 
@@ -42,14 +53,29 @@ namespace TextReader.Helpers
         {
             get
             {
-                return Window.Current.Content is FrameworkElement rootElement ? rootElement.RequestedTheme : ElementTheme.Default;
+                if (CurrentApplicationWindow == null) { return ElementTheme.Default; }
+                if (CurrentApplicationWindow.Dispatcher.HasThreadAccess)
+                {
+                    return CurrentApplicationWindow.Content is FrameworkElement rootElement ? rootElement.RequestedTheme : ElementTheme.Default;
+                }
+                else
+                {
+                    return UIHelper.AwaitByTaskCompleteSource(() =>
+                        CurrentApplicationWindow.Dispatcher.AwaitableRunAsync(() =>
+                        {
+                            return CurrentApplicationWindow.Content is FrameworkElement rootElement ? rootElement.RequestedTheme : ElementTheme.Default;
+                        }, CoreDispatcherPriority.High));
+                }
             }
             set
             {
-                if (Window.Current.Content is FrameworkElement rootElement)
+                _ = CurrentApplicationWindow?.Dispatcher?.AwaitableRunAsync(() =>
                 {
-                    rootElement.RequestedTheme = value;
-                }
+                    if (CurrentApplicationWindow?.Content is FrameworkElement rootElement)
+                    {
+                        rootElement.RequestedTheme = value;
+                    }
+                });
 
                 SettingsHelper.Set(SettingsHelper.SelectedAppTheme, (int)value);
                 UpdateSystemCaptionButtonColors();
@@ -59,55 +85,104 @@ namespace TextReader.Helpers
         public static void Initialize()
         {
             // Save reference as this might be null when the user is in another app
-            CurrentApplicationWindow = Window.Current;
+            CurrentApplicationWindow = Window.Current ?? App.MainWindow;
             RootTheme = SettingsHelper.Get<ElementTheme>(SettingsHelper.SelectedAppTheme);
 
             // Registering to color changes, thus we notice when user changes theme system wide
             UISettings = new UISettings();
-            UISettings.ColorValuesChanged += UiSettings_ColorValuesChanged;
+            UISettings.ColorValuesChanged += UISettings_ColorValuesChanged;
         }
 
-        private static void UiSettings_ColorValuesChanged(UISettings sender, object args)
+        public static void Initialize(Window window)
         {
-            // Make sure we have a reference to our window so we dispatch a UI change
-            if (CurrentApplicationWindow != null)
+            if (window?.Content is FrameworkElement rootElement)
             {
-                // Dispatch on UI thread so that we have a current appbar to access and change
-                _ = CurrentApplicationWindow.Dispatcher.AwaitableRunAsync(() =>
-                {
-                    UpdateSystemCaptionButtonColors();
-                }, CoreDispatcherPriority.High);
+                rootElement.RequestedTheme = ActualTheme;
             }
+            UpdateSystemCaptionButtonColors(window);
+        }
+
+        private static void UISettings_ColorValuesChanged(UISettings sender, object args)
+        {
+            UpdateSystemCaptionButtonColors();
         }
 
         public static bool IsDarkTheme()
         {
-            return RootTheme == ElementTheme.Default
-                ? Application.Current.RequestedTheme == ApplicationTheme.Dark
-                : RootTheme == ElementTheme.Dark;
+            return Window.Current != null
+                ? ActualTheme == ElementTheme.Default
+                    ? Application.Current.RequestedTheme == ApplicationTheme.Dark
+                    : ActualTheme == ElementTheme.Dark
+                : ActualTheme == ElementTheme.Default
+                    ? UISettings.GetColorValue(UIColorType.Background) == Colors.Black
+                    : ActualTheme == ElementTheme.Dark;
+        }
+
+        public static bool IsDarkTheme(ElementTheme ActualTheme)
+        {
+            return Window.Current != null
+                ? ActualTheme == ElementTheme.Default
+                    ? Application.Current.RequestedTheme == ApplicationTheme.Dark
+                    : ActualTheme == ElementTheme.Dark
+                : ActualTheme == ElementTheme.Default
+                    ? UISettings.GetColorValue(UIColorType.Background) == Colors.Black
+                    : ActualTheme == ElementTheme.Dark;
         }
 
         public static void UpdateSystemCaptionButtonColors()
         {
             bool IsDark = IsDarkTheme();
+            bool IsHighContrast = new AccessibilitySettings().HighContrast;
 
-            Color ForegroundColor = IsDark ? Colors.White : Colors.Black;
-            Color BackgroundColor = new AccessibilitySettings().HighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
+            Color ForegroundColor = IsDark || IsHighContrast ? Colors.White : Colors.Black;
+            Color BackgroundColor = IsHighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
 
-            if (UIHelper.HasStatusBar)
+            _ = CurrentApplicationWindow?.Dispatcher?.AwaitableRunAsync(() =>
             {
-                StatusBar StatusBar = StatusBar.GetForCurrentView();
-                StatusBar.ForegroundColor = ForegroundColor;
-                StatusBar.BackgroundColor = BackgroundColor;
-                StatusBar.BackgroundOpacity = 0; // 透明度
-            }
-            else
+                if (UIHelper.HasStatusBar)
+                {
+                    StatusBar StatusBar = StatusBar.GetForCurrentView();
+                    StatusBar.ForegroundColor = ForegroundColor;
+                    StatusBar.BackgroundColor = BackgroundColor;
+                    StatusBar.BackgroundOpacity = 0; // 透明度
+                }
+                else
+                {
+                    bool ExtendViewIntoTitleBar = CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
+                    ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+                    TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
+                    TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
+                    TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
+                }
+            });
+        }
+
+        public static void UpdateSystemCaptionButtonColors(Window window)
+        {
+            _ = window.Dispatcher.AwaitableRunAsync(() =>
             {
-                ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
-                TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
-                TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = UIHelper.HasTitleBar ? BackgroundColor : Colors.Transparent;
-            }
+                bool IsDark = window?.Content is FrameworkElement rootElement ? IsDarkTheme(rootElement.RequestedTheme) : IsDarkTheme();
+                bool IsHighContrast = new AccessibilitySettings().HighContrast;
+
+                Color ForegroundColor = IsDark || IsHighContrast ? Colors.White : Colors.Black;
+                Color BackgroundColor = IsHighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
+
+                if (UIHelper.HasStatusBar)
+                {
+                    StatusBar StatusBar = StatusBar.GetForCurrentView();
+                    StatusBar.ForegroundColor = ForegroundColor;
+                    StatusBar.BackgroundColor = BackgroundColor;
+                    StatusBar.BackgroundOpacity = 0; // 透明度
+                }
+                else
+                {
+                    bool ExtendViewIntoTitleBar = CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
+                    ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+                    TitleBar.ForegroundColor = TitleBar.ButtonForegroundColor = ForegroundColor;
+                    TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
+                    TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
+                }
+            });
         }
     }
 }

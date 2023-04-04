@@ -3,7 +3,7 @@ using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
-namespace TextReader.Helpers.ValueConverters
+namespace TextReader.Helpers.Converters
 {
     /// <summary>
     /// This class converts a value is equal to another value into an other object.

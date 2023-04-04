@@ -48,6 +48,16 @@
                 </Paragraph>
             </RichTextBlock>
             <HyperlinkButton
+                x:Name="AboutFlyoutLog"
+                Margin="12,0,12,6"
+                Click="AboutFlyoutLog_Click"
+                FontSize="{ThemeResource ContentControlFontSize}">
+                <TextBlock
+                    x:Uid="/AboutFlyout/AboutFlyoutLog"
+                    FontSize="{ThemeResource ContentControlFontSize}"
+                    TextWrapping="Wrap" />
+            </HyperlinkButton>
+            <HyperlinkButton
                 x:Name="AboutFlyoutEULA"
                 Margin="12,0,12,6"
                 NavigateUri="https://github.com/wherewhere/Text-Reader/blob/main/Privacy.md"
@@ -64,8 +74,8 @@
                 Margin="12,12,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Click="FeedbackButton_Click" />
-
+                Click="FeedbackButton_Click"
+                ToolTipService.ToolTip="https://github.com/wherewhere/Text-Reader/issues/new" />
         </StackPanel>
         <RichTextBlock
             x:Name="AboutFlyoutContribute"

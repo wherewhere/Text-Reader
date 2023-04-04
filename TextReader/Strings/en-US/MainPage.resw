@@ -129,8 +129,8 @@
   <data name="CopyMenuFlyoutItem.Text" xml:space="preserve">
     <value>Copy</value>
   </data>
-  <data name="FinnshAppBarButton.Label" xml:space="preserve">
-    <value>Finnsh</value>
+  <data name="FinnishAppBarButton.Label" xml:space="preserve">
+    <value>Finnish</value>
   </data>
   <data name="ImageOnlyAppBarButton.Label" xml:space="preserve">
     <value>Image Only</value>

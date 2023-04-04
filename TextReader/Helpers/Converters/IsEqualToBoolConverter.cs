@@ -1,4 +1,4 @@
-﻿namespace TextReader.Helpers.ValueConverters
+﻿namespace TextReader.Helpers.Converters
 {
     /// <summary>
     /// This class converts a value is equal to another value into a Boolean value

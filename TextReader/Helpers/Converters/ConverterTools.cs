@@ -2,7 +2,7 @@
 using System.Reflection;
 using Windows.UI.Xaml.Markup;
 
-namespace TextReader.Helpers.ValueConverters
+namespace TextReader.Helpers.Converters
 {
     /// <summary>
     /// Static class used to provide internal tools

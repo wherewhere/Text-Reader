@@ -133,8 +133,11 @@
     <value>Software License Terms</value>
     <comment>Displayed on a link to the Software License Terms on the About panel</comment>
   </data>
+  <data name="AboutFlyoutLog.Text" xml:space="preserve">
+    <value>Read Logs</value>
+  </data>
   <data name="FeedbackButton.Content" xml:space="preserve">
-    <value>Send feedback</value>
+    <value>Send Feedback</value>
     <comment>The text that shows in the dropdown navigation control to give the user the option to send feedback about the app and it launches Windows Feedback app</comment>
   </data>
 </root>

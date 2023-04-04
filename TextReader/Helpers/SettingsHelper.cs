@@ -1,5 +1,5 @@
-﻿using Windows.Storage;
-using Windows.System.Profile;
+﻿using MetroLog;
+using Windows.Storage;
 using Windows.UI.Xaml;
 
 namespace TextReader.Helpers
@@ -23,9 +23,8 @@ namespace TextReader.Helpers
 
     internal static partial class SettingsHelper
     {
-        public static ulong version = ulong.Parse(AnalyticsInfo.VersionInfo.DeviceFamilyVersion);
+        public static readonly ILogManager LogManager = LogManagerFactory.CreateLogManager();
         private static readonly ApplicationDataContainer LocalSettings = ApplicationData.Current.LocalSettings;
-        public static double WindowsVersion = double.Parse($"{(ushort)((version & 0x00000000FFFF0000L) >> 16)}.{(ushort)(version & 0x000000000000FFFFL)}");
 
         static SettingsHelper()
         {

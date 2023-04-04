@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TextReader.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
-    Background="{StaticResource SolidBackgroundFillColorBaseWindowBrush}"
+    Background="{ThemeResource SolidBackgroundFillColorBaseWindowBrush}"
     mc:Ignorable="d">
     <Page.Resources>
         <Style x:Key="AboutFlyoutPresenterStyle" TargetType="FlyoutPresenter">
@@ -62,28 +62,64 @@
         <local:BoolToTwoPaneViewWideModeConfigurationConverter x:Key="BoolToTwoPaneViewWideModeConfigurationConverter" />
     </Page.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <Grid
             x:Name="CustomTitleBar"
-            Height="48"
+            Height="32"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
             Background="Transparent"
-            Canvas.ZIndex="1"
-            Visibility="{x:Bind HasStatusBar, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+            Canvas.ZIndex="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="LeftPaddingColumn" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="RightPaddingColumn" />
             </Grid.ColumnDefinitions>
-            <Image
+            <Viewbox
                 x:Name="Icon"
+                Grid.Column="1"
                 MaxWidth="16"
                 MaxHeight="16"
                 Margin="16,0"
-                VerticalAlignment="Center"
-                Source="/Assets/StoreLogo.scale-400.png" />
+                VerticalAlignment="Center">
+                <Grid Width="512" Height="512">
+                    <Rectangle
+                        Width="472"
+                        Height="472"
+                        Margin="20,20,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        RadiusX="70"
+                        RadiusY="70"
+                        Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
+                        StrokeThickness="40" />
+                    <Rectangle
+                        Width="243"
+                        Height="40"
+                        Margin="134,134,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Fill="{ThemeResource ApplicationForegroundThemeBrush}"
+                        RadiusX="20"
+                        RadiusY="20" />
+                    <Rectangle
+                        Width="40"
+                        Height="244"
+                        Margin="236,154,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Fill="{ThemeResource ApplicationForegroundThemeBrush}"
+                        RadiusX="20"
+                        RadiusY="20" />
+                </Grid>
+            </Viewbox>
             <TextBlock
                 x:Name="AppTitle"
-                Grid.Column="1"
+                Grid.Column="2"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 MaxLines="1"
@@ -91,7 +127,7 @@
                 Text="Text Reader"
                 TextTrimming="CharacterEllipsis" />
         </Grid>
-        <Grid Padding="{x:Bind StackPanelMargin}">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
@@ -117,7 +153,7 @@
                         <Grid
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            BorderBrush="{StaticResource LayerFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource LayerFillColorDefaultBrush}"
                             BorderThickness="4"
                             CornerRadius="8"
                             Visibility="{Binding Image, Converter={StaticResource EmptyObjectToVisibilityConverter}, ConverterParameter='true'}">
@@ -154,7 +190,7 @@
                                 <Image CanDrag="True" Source="{Binding Image}" />
                                 <Path Data="{Binding ResultGeometry}" StrokeThickness="0">
                                     <Path.Fill>
-                                        <SolidColorBrush Opacity="0.5" Color="{StaticResource SystemAccentColor}" />
+                                        <SolidColorBrush Opacity="0.5" Color="{ThemeResource SystemAccentColor}" />
                                     </Path.Fill>
                                 </Path>
                             </Grid>
@@ -172,8 +208,8 @@
                 <controls:TwoPaneView.Pane2>
                     <Grid
                         Margin="16"
-                        Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{StaticResource CardBorderBrush}"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                         <Grid.RowDefinitions>
@@ -245,7 +281,7 @@
                 Grid.Row="1"
                 VerticalAlignment="Bottom">
                 <CommandBar.Background>
-                    <SolidColorBrush Opacity="0.5" Color="{StaticResource SystemChromeMediumColor}" />
+                    <SolidColorBrush Opacity="0.5" Color="{ThemeResource SystemChromeMediumColor}" />
                 </CommandBar.Background>
                 <CommandBar.Content>
                     <CheckBox
@@ -257,9 +293,9 @@
                 </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
                     <AppBarButton
-                        x:Uid="/MainPage/FinnshAppBarButton"
+                        x:Uid="/MainPage/FinnishAppBarButton"
                         Click="Button_Click"
-                        Tag="Finnsh"
+                        Tag="Finnish"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
@@ -350,6 +386,7 @@
         </Grid>
         <ProgressBar
             x:Name="ProgressBar"
+            Grid.RowSpan="2"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
             Background="Transparent"

@@ -1,6 +1,5 @@
 ﻿using System;
 using TextReader.Helpers;
-using TextReader.Helpers.Exceptions;
 using TextReader.Pages;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -54,12 +53,20 @@ namespace TextReader
 
         private void EnsureWindow(IActivatedEventArgs e)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
+            if (MainWindow == null)
+            {
+                AddBrushResource();
+                RegisterExceptionHandlingSynchronizationContext();
+
+                MainWindow = Window.Current;
+            }
 
             // 不要在窗口已包含内容时重复应用程序初始化，
             // 只需确保窗口处于活动状态
-            if (rootFrame == null)
+            if (!(MainWindow.Content is Frame rootFrame))
             {
+                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+
                 // 创建要充当导航上下文的框架，并导航到第一页
                 rootFrame = new Frame();
 
@@ -72,43 +79,36 @@ namespace TextReader
 
                 // 将框架放在当前窗口中
                 Window.Current.Content = rootFrame;
+
+                ThemeHelper.Initialize();
             }
 
             if (e is LaunchActivatedEventArgs args)
             {
-                if (args.PrelaunchActivated == false)
+                if (!args.PrelaunchActivated)
                 {
-                    if (rootFrame.Content == null)
+                    if (ApiInformation.IsMethodPresent("Windows.ApplicationModel.Core.CoreApplication", "EnablePrelaunch"))
                     {
-                        CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-                        // 当导航堆栈尚未还原时，导航到第一页，
-                        // 并通过将所需信息作为导航参数传入来配置
-                        // 参数
-                        _ = rootFrame.Navigate(typeof(MainPage), args.Arguments);
+                        CoreApplication.EnablePrelaunch(true);
                     }
-                    ThemeHelper.Initialize();
-                    // 确保当前窗口处于活动状态
-                    Window.Current.Activate();
                 }
-                else
-                {
-                    return;
-                }
+                else { return; }
             }
-            else if (rootFrame.Content == null)
-            {
-                AddBrushResource();
-                RegisterExceptionHandlingSynchronizationContext();
 
+            if (rootFrame.Content == null)
+            {
                 // 当导航堆栈尚未还原时，导航到第一页，
                 // 并通过将所需信息作为导航参数传入来配置
                 // 参数
                 rootFrame.Navigate(typeof(MainPage), e);
-
-                ThemeHelper.Initialize();
-                // 确保当前窗口处于活动状态
-                Window.Current.Activate();
             }
+            else
+            {
+                UIHelper.MainPage?.OpenActivatedEventArgs(e);
+            }
+
+            // 确保当前窗口处于活动状态
+            MainWindow.Activate();
         }
 
         /// <summary>
@@ -162,7 +162,12 @@ namespace TextReader
                 Resources.MergedDictionaries.Add(SolidBrushs);
             }
         }
-        private void Application_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e) => e.Handled = true;
+
+        private void Application_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            SettingsHelper.LogManager.GetLogger("Unhandled Exception - Application").Error(e.Exception.ExceptionToMessage(), e.Exception);
+            e.Handled = true;
+        }
 
         /// <summary>
         /// Should be called from OnActivated and OnLaunched
@@ -174,6 +179,12 @@ namespace TextReader
                 .UnhandledException += SynchronizationContext_UnhandledException;
         }
 
-        private void SynchronizationContext_UnhandledException(object sender, Helpers.Exceptions.UnhandledExceptionEventArgs e) => e.Handled = true;
+        private void SynchronizationContext_UnhandledException(object sender, Helpers.UnhandledExceptionEventArgs e)
+        {
+            SettingsHelper.LogManager.GetLogger("Unhandled Exception - SynchronizationContext").Error(e.Exception.ExceptionToMessage(), e.Exception);
+            e.Handled = true;
+        }
+
+        public static Window MainWindow { get; private set; }
     }
 }
