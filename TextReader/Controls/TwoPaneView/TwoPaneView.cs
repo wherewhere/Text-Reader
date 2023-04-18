@@ -261,6 +261,5 @@ namespace TextReader.Controls
 
             return isInMultipleRegions;
         }
-
     }
 }

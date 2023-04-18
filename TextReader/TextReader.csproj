@@ -158,6 +158,7 @@
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Helpers\SizeExtensions.cs" />
     <Compile Include="Helpers\ThemeHelper.cs" />
+    <Compile Include="Helpers\ThreadSwitcher.cs" />
     <Compile Include="Helpers\UIElementHelper.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Helpers\Converters\ConverterTools.cs" />

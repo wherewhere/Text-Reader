@@ -52,7 +52,7 @@ namespace TextReader.Controls
                     info.Regions[0] = m_simulateWide0;
                 }
             }
-            else
+            else if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.IApplicationView4"))
             {
                 // ApplicationView::GetForCurrentView throws on failure; in that case we just won't do anything.
                 ApplicationView view = null;

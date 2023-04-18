@@ -34,8 +34,6 @@ namespace TextReader
         /// <param name="e">有关启动请求和过程的详细信息。</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            AddBrushResource();
-            RegisterExceptionHandlingSynchronizationContext();
             EnsureWindow(e);
         }
 
@@ -51,7 +49,7 @@ namespace TextReader
             EnsureWindow(e);
         }
 
-        private void EnsureWindow(IActivatedEventArgs e)
+        private async void EnsureWindow(IActivatedEventArgs e)
         {
             if (MainWindow == null)
             {
@@ -59,6 +57,12 @@ namespace TextReader
                 RegisterExceptionHandlingSynchronizationContext();
 
                 MainWindow = Window.Current;
+            }
+
+            if (!MainWindow.Dispatcher.HasThreadAccess)
+            {
+                Window.Current.Close();
+                await ThreadSwitcher.ResumeForegroundAsync(MainWindow.Dispatcher);
             }
 
             // 不要在窗口已包含内容时重复应用程序初始化，
