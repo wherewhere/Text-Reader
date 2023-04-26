@@ -9,6 +9,7 @@ using TextReader.Helpers;
 using TextReader.Pages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
+using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.Globalization;
 using Windows.Graphics.Imaging;
@@ -17,6 +18,7 @@ using Windows.Media.Ocr;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
@@ -29,6 +31,37 @@ namespace TextReader.ViewModels
 
         public static string[] ImageTypes = new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
+
+        public bool IsSupportCompactOverlay { get; } = ApiInformation.IsMethodPresent("Windows.UI.ViewManagement.ApplicationView", "IsViewModeSupported")
+                                                    && ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay);
+
+        public bool? IsCompactOverlay
+        {
+            get => IsSupportCompactOverlay && ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay;
+            set
+            {
+                if (IsSupportCompactOverlay)
+                {
+                    if (value == true)
+                    {
+                        if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+                        {
+                            ViewModePreferences preferences = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                            preferences.CustomSize = new Size(500, 500);
+                            _ = ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, preferences);
+                        }
+                    }
+                    else
+                    {
+                        if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.Default))
+                        {
+                            _ = ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.Default);
+                        }
+                    }
+                }
+                RaisePropertyChangedEvent();
+            }
+        }
 
         private string result;
         public string Result

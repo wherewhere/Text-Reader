@@ -126,6 +126,9 @@
   <data name="ClipImageAppBarButton.Label" xml:space="preserve">
     <value>裁剪图片</value>
   </data>
+  <data name="CompactAppBarButton.Label" xml:space="preserve">
+    <value>画中画模式</value>
+  </data>
   <data name="CopyMenuFlyoutItem.Text" xml:space="preserve">
     <value>复制</value>
   </data>

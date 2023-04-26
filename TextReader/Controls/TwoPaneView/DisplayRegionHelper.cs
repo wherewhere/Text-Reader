@@ -29,8 +29,10 @@ namespace TextReader.Controls
         {
             DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
 
-            DisplayRegionHelperInfo info = new DisplayRegionHelperInfo();
-            info.Mode = TwoPaneViewMode.SinglePane;
+            DisplayRegionHelperInfo info = new DisplayRegionHelperInfo
+            {
+                Mode = TwoPaneViewMode.SinglePane
+            };
 
             if (instance.m_simulateDisplayRegions)
             {
@@ -52,7 +54,7 @@ namespace TextReader.Controls
                     info.Regions[0] = m_simulateWide0;
                 }
             }
-            else if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.IApplicationView4"))
+            else if (ApiInformation.IsPropertyPresent("Windows.UI.ViewManagement.ApplicationView", "GetDisplayRegions"))
             {
                 // ApplicationView::GetForCurrentView throws on failure; in that case we just won't do anything.
                 ApplicationView view = null;
@@ -64,26 +66,23 @@ namespace TextReader.Controls
 
                 if (view != null && view.ViewMode == (ApplicationViewMode)c_ApplicationViewModeSpanning)
                 {
-                    if (ApiInformation.IsMethodPresent("Windows.UI.ViewManagement.ApplicationView", "GetDisplayRegions"))
+                    IReadOnlyList<DisplayRegion> rects = view.GetDisplayRegions();
+
+                    if (rects.Count == 2)
                     {
-                        IReadOnlyList<DisplayRegion> rects = view.GetDisplayRegions();
+                        info.Regions[0] = rects[0].WorkAreaSize.ToRect(rects[0].WorkAreaOffset);
+                        info.Regions[1] = rects[1].WorkAreaSize.ToRect(rects[1].WorkAreaOffset);
 
-                        if (rects.Count == 2)
+                        // Determine orientation. If neither of these are true, default to doing nothing.
+                        if (info.Regions[0].X < info.Regions[1].X && info.Regions[0].Y == info.Regions[1].Y)
                         {
-                            info.Regions[0] = rects[0].WorkAreaSize.ToRect(rects[0].WorkAreaOffset);
-                            info.Regions[1] = rects[1].WorkAreaSize.ToRect(rects[1].WorkAreaOffset);
-
-                            // Determine orientation. If neither of these are true, default to doing nothing.
-                            if (info.Regions[0].X < info.Regions[1].X && info.Regions[0].Y == info.Regions[1].Y)
-                            {
-                                // Double portrait
-                                info.Mode = TwoPaneViewMode.Wide;
-                            }
-                            else if (info.Regions[0].X == info.Regions[1].X && info.Regions[0].Y < info.Regions[1].Y)
-                            {
-                                // Double landscape
-                                info.Mode = TwoPaneViewMode.Tall;
-                            }
+                            // Double portrait
+                            info.Mode = TwoPaneViewMode.Wide;
+                        }
+                        else if (info.Regions[0].X == info.Regions[1].X && info.Regions[0].Y < info.Regions[1].Y)
+                        {
+                            // Double landscape
+                            info.Mode = TwoPaneViewMode.Tall;
                         }
                     }
                 }
@@ -123,7 +122,7 @@ namespace TextReader.Controls
             if (instance.m_simulateDisplayRegions)
             {
                 // Return the bounds of the simulated window
-                FrameworkElement window = DisplayRegionHelper.WindowElement() as FrameworkElement;
+                FrameworkElement window = WindowElement() as FrameworkElement;
                 Rect rc = new Rect(
                     0, 0,
                     window.ActualWidth,

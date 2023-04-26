@@ -104,7 +104,7 @@ namespace TextReader.Pages
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            switch ((sender as FrameworkElement).Tag as string)
+            switch ((sender as FrameworkElement).Tag.ToString())
             {
                 case "Save":
                     _ = Provider.SaveImage();
@@ -141,6 +141,8 @@ namespace TextReader.Pages
                 case "ResultOnly":
                     Provider.IsSinglePane = true;
                     Provider.PanePriority = TwoPaneViewPriority.Pane2;
+                    break;
+                default:
                     break;
             }
         }

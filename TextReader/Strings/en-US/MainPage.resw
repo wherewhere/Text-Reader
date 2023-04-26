@@ -126,6 +126,9 @@
   <data name="ClipImageAppBarButton.Label" xml:space="preserve">
     <value>Crop Image</value>
   </data>
+  <data name="CompactAppBarButton.Label" xml:space="preserve">
+    <value>Compact Mode</value>
+  </data>
   <data name="CopyMenuFlyoutItem.Text" xml:space="preserve">
     <value>Copy</value>
   </data>

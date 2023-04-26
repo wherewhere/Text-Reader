@@ -264,10 +264,20 @@
                         IsChecked="{Binding ProfileLanguage, Mode=TwoWay}" />
                 </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
+                    <AppBarToggleButton
+                        x:Uid="/MainPage/CompactAppBarButton"
+                        IsChecked="{Binding IsCompactOverlay, Mode=TwoWay}"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
+                        Visibility="{Binding IsSupportCompactOverlay, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE744;" />
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
                     <AppBarButton
                         x:Uid="/MainPage/FinnishAppBarButton"
                         Click="Button_Click"
                         Tag="Finnish"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
@@ -277,6 +287,7 @@
                         x:Uid="/MainPage/CancelAppBarButton"
                         Click="Button_Click"
                         Tag="Cancel"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
@@ -287,6 +298,7 @@
                         Click="Button_Click"
                         IsEnabled="{Binding CropperImage, Converter={StaticResource EmptyObjectToBoolConverter}}"
                         Tag="ClipImage"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE924;" />
@@ -297,6 +309,7 @@
                         x:Uid="/MainPage/PickImageAppBarButton"
                         Click="Button_Click"
                         Tag="PickImage"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
@@ -306,12 +319,13 @@
                         x:Uid="/MainPage/TakePhotoAppBarButton"
                         Click="Button_Click"
                         Tag="TakePhoto"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton x:Uid="/MainPage/AboutAppBarButton">
+                    <AppBarButton x:Uid="/MainPage/AboutAppBarButton" ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
                         </AppBarButton.Icon>
@@ -328,6 +342,7 @@
                         Click="Button_Click"
                         IsEnabled="{Binding IsSinglePane}"
                         Tag="TwoPanel"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA61;" />
@@ -338,6 +353,7 @@
                         Click="Button_Click"
                         IsEnabled="{Binding IsImageOnlyEnable}"
                         Tag="ImageOnly"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB9F;" />
@@ -348,6 +364,7 @@
                         Click="Button_Click"
                         IsEnabled="{Binding IsResultOnlyEnable}"
                         Tag="ResultOnly"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
                         Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
