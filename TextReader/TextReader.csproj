@@ -6,6 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{96371F70-FC14-4C9D-B639-AA123C9031C6}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TextReader</RootNamespace>
     <AssemblyName>TextReader</AssemblyName>
@@ -21,7 +22,7 @@
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <GenerateTestArtifacts>False</GenerateTestArtifacts>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
@@ -133,9 +134,11 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Common\CustomResource.cs" />
     <Compile Include="Controls\AboutFlyout.xaml.cs">
       <DependentUpon>AboutFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ApplicationLogo\ApplicationLogo.cs" />
     <Compile Include="Controls\ImageCropper\BitmapFileFormat.cs" />
     <Compile Include="Controls\ImageCropper\CropShape.cs" />
     <Compile Include="Controls\ImageCropper\ImageCropper.Animations.cs" />
@@ -153,7 +156,7 @@
     <Compile Include="Controls\TwoPaneView\TwoPaneView.cs" />
     <Compile Include="Controls\TwoPaneView\TwoPaneView.Enum.cs" />
     <Compile Include="Controls\TwoPaneView\TwoPaneView.Properties.cs" />
-    <Compile Include="Helpers\ExceptionHandling.cs" />
+    <Compile Include="Common\ExceptionHandling.cs" />
     <Compile Include="Helpers\PointExtensions.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Helpers\SizeExtensions.cs" />
@@ -166,6 +169,7 @@
     <Compile Include="Helpers\Converters\EmptyObjectToVisibilityConverter.cs" />
     <Compile Include="Helpers\Converters\IsEqualToBoolConverter.cs" />
     <Compile Include="Helpers\Converters\IsEqualToObjectConverter.cs" />
+    <Compile Include="Helpers\WindowHelper.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -243,6 +247,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ApplicationLogo\ApplicationLogo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\ImageCropper\ImageCropper.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -259,19 +267,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Styles\Brushes\AcrylicBrushes.xaml">
+    <Page Include="Styles\Brushes\ThemeResources.RS3.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Styles\Brushes\BlurBrushes.xaml">
+    <Page Include="Styles\Brushes\ThemeResources.RS2.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Styles\Brushes\MicaBrushes.xaml">
+    <Page Include="Styles\Brushes\ThemeResources.21H2.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Styles\Brushes\SolidBrushes.xaml">
+    <Page Include="Styles\Brushes\ThemeResources.RS1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

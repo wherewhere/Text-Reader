@@ -1,0 +1,76 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:controls="using:TextReader.Controls">
+    <Style TargetType="controls:ApplicationLogo">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:ApplicationLogo">
+                    <Grid Width="64" Height="64">
+                        <Rectangle
+                            Width="64"
+                            Height="64"
+                            RadiusX="8"
+                            RadiusY="8"
+                            Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
+                            StrokeThickness="4">
+                            <Rectangle.Clip>
+                                <RectangleGeometry Rect="0,0,20,20" />
+                            </Rectangle.Clip>
+                        </Rectangle>
+                        <Rectangle
+                            Width="64"
+                            Height="64"
+                            RadiusX="8"
+                            RadiusY="8"
+                            Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
+                            StrokeThickness="4">
+                            <Rectangle.Clip>
+                                <RectangleGeometry Rect="44,0,64,20" />
+                            </Rectangle.Clip>
+                        </Rectangle>
+                        <Rectangle
+                            Width="64"
+                            Height="64"
+                            RadiusX="8"
+                            RadiusY="8"
+                            Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
+                            StrokeThickness="4">
+                            <Rectangle.Clip>
+                                <RectangleGeometry Rect="0,44,20,64" />
+                            </Rectangle.Clip>
+                        </Rectangle>
+                        <Rectangle
+                            Width="64"
+                            Height="64"
+                            RadiusX="8"
+                            RadiusY="8"
+                            Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
+                            StrokeThickness="4">
+                            <Rectangle.Clip>
+                                <RectangleGeometry Rect="44,44,64,64" />
+                            </Rectangle.Clip>
+                        </Rectangle>
+                        <Rectangle
+                            Width="28"
+                            Height="4"
+                            Margin="0,19,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Fill="{ThemeResource ApplicationForegroundThemeBrush}"
+                            RadiusX="2"
+                            RadiusY="2"
+                            StrokeThickness="0" />
+                        <Rectangle
+                            Width="4"
+                            Height="26"
+                            Margin="0,21,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Fill="{ThemeResource ApplicationForegroundThemeBrush}"
+                            RadiusX="2"
+                            RadiusY="2"
+                            StrokeThickness="0" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

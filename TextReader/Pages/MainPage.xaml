@@ -9,7 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TextReader.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
-    Background="{ThemeResource SolidBackgroundFillColorBaseWindowBrush}"
+    Background="{ThemeResource ApplicationPageBackgroundBrush}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d">
     <Page.Resources>
         <Style x:Key="AboutFlyoutPresenterStyle" TargetType="FlyoutPresenter">
@@ -80,42 +81,13 @@
                 <ColumnDefinition x:Name="RightPaddingColumn" />
             </Grid.ColumnDefinitions>
             <Viewbox
-                x:Name="Icon"
+                x:Name="AppTitleIcon"
                 Grid.Column="1"
                 MaxWidth="16"
                 MaxHeight="16"
                 Margin="16,0"
                 VerticalAlignment="Center">
-                <Grid Width="512" Height="512">
-                    <Rectangle
-                        Width="472"
-                        Height="472"
-                        Margin="20,20,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        RadiusX="70"
-                        RadiusY="70"
-                        Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
-                        StrokeThickness="40" />
-                    <Rectangle
-                        Width="243"
-                        Height="40"
-                        Margin="134,134,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Fill="{ThemeResource ApplicationForegroundThemeBrush}"
-                        RadiusX="20"
-                        RadiusY="20" />
-                    <Rectangle
-                        Width="40"
-                        Height="244"
-                        Margin="236,154,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Fill="{ThemeResource ApplicationForegroundThemeBrush}"
-                        RadiusX="20"
-                        RadiusY="20" />
-                </Grid>
+                <controls:ApplicationLogo />
             </Viewbox>
             <TextBlock
                 x:Name="AppTitle"

@@ -3,5 +3,6 @@
         <ResourceDictionary Source="ms-appx:///Controls/TwoPaneView/TwoPaneView.xaml" />
         <ResourceDictionary Source="ms-appx:///Controls/ImageCropper/ImageCropper.xaml" />
         <ResourceDictionary Source="ms-appx:///Controls/ImageCropper/ImageCropperThumb.xaml" />
+        <ResourceDictionary Source="ms-appx:///Controls/ApplicationLogo/ApplicationLogo.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

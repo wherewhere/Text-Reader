@@ -2,12 +2,13 @@
     x:Class="TextReader.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:common="using:TextReader.Common"
     xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
-    xmlns:local="using:TextReader"
     xmlns:valueconverters="using:TextReader.Helpers.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <common:CustomResource />
                 <ResourceDictionary Source="ms-appx:///Themes/Color.xaml" />
             </ResourceDictionary.MergedDictionaries>
 

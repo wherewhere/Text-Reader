@@ -2,7 +2,7 @@
 using System.Threading;
 using Windows.UI.Xaml.Controls;
 
-namespace TextReader.Helpers
+namespace TextReader.Common
 {
     /// <summary>
     /// Wrapper around a standard synchronization context, that catches any unhandled exceptions.

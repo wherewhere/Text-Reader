@@ -19,27 +19,12 @@ namespace TextReader.Helpers
         public static bool HasTitleBar => !CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
         public static bool HasStatusBar => ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar");
 
-        private static CoreDispatcher shellDispatcher;
-        public static CoreDispatcher ShellDispatcher
-        {
-            get => shellDispatcher;
-            set
-            {
-                if (shellDispatcher == null)
-                {
-                    shellDispatcher = value;
-                }
-            }
-        }
-
         private static readonly List<string> MessageList = new List<string>();
     }
 
     internal static partial class UIHelper
     {
-        public static MainPage MainPage;
-
-        public static async void ShowProgressBar()
+        public static async void ShowProgressBar(this MainPage MainPage)
         {
             IsShowingProgressBar = true;
             if (HasStatusBar)
@@ -54,42 +39,7 @@ namespace TextReader.Helpers
             }
         }
 
-        public static async void ShowProgressBar(double value)
-        {
-            IsShowingProgressBar = true;
-            if (HasStatusBar)
-            {
-                await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.HideProgressBar());
-                StatusBar.GetForCurrentView().ProgressIndicator.ProgressValue = value * 0.01;
-                await StatusBar.GetForCurrentView().ProgressIndicator.ShowAsync();
-            }
-            else
-            {
-                await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.ShowProgressBar(value));
-            }
-        }
-
-        public static async void PausedProgressBar()
-        {
-            IsShowingProgressBar = true;
-            if (HasStatusBar)
-            {
-                await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
-            }
-            await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.PausedProgressBar());
-        }
-
-        public static async void ErrorProgressBar()
-        {
-            IsShowingProgressBar = true;
-            if (HasStatusBar)
-            {
-                await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
-            }
-            await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.ErrorProgressBar());
-        }
-
-        public static async void HideProgressBar()
+        public static async void HideProgressBar(this MainPage MainPage)
         {
             IsShowingProgressBar = false;
             if (HasStatusBar)
@@ -99,7 +49,7 @@ namespace TextReader.Helpers
             await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.HideProgressBar());
         }
 
-        public static async void ShowMessage(string message)
+        public static async void ShowMessage(this MainPage MainPage, string message)
         {
             MessageList.Add(message);
             if (!IsShowingMessage)

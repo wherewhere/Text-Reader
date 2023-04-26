@@ -39,14 +39,12 @@ namespace TextReader.Pages
         public MainPage()
         {
             InitializeComponent();
-            UIHelper.MainPage = this;
-            UIHelper.ShellDispatcher = Dispatcher;
-            AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "酷安 Lite";
+            AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
             if (!(AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop"))
             { UpdateTitleBarLayout(false); }
             if (SystemInformation.OperatingSystemVersion.Build >= 22000)
             { CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right; }
-            Provider = new MainViewModel();
+            Provider = new MainViewModel(this);
             DataContext = Provider;
         }
 
@@ -61,9 +59,7 @@ namespace TextReader.Pages
             Clipboard.ContentChanged += Clipboard_ContentChanged;
             Clipboard_ContentChanged(null, null);
             if (e.Parameter is IActivatedEventArgs args)
-            {
-                OpenActivatedEventArgs(args);
-            }
+            { OpenActivatedEventArgs(args); }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TextReader.Helpers;
+using TextReader.Pages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation.Metadata;
@@ -24,6 +25,8 @@ namespace TextReader.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        private MainPage page;
+
         public static string[] ImageTypes = new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
@@ -220,6 +223,8 @@ namespace TextReader.ViewModels
             if (name != null) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
         }
 
+        public MainViewModel(MainPage page) => this.page = page;
+
         public async Task SetIndex(string Language)
         {
             await Task.Run(async () =>
@@ -333,19 +338,19 @@ namespace TextReader.ViewModels
                 return;
             }
 
-            UIHelper.ShowProgressBar();
+            page.ShowProgressBar();
             try
             {
                 await SaveSoftwareBitmapToFile(SoftwareImage, outputFile);
-                UIHelper.ShowMessage(string.Format(loader.GetString("ImageSaved"), outputFile.Path));
+                page.ShowMessage(string.Format(loader.GetString("ImageSaved"), outputFile.Path));
             }
             catch (Exception ex)
             {
                 SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Error(ex.ExceptionToMessage(), ex);
-                UIHelper.ShowMessage(string.Format(loader.GetString("ImageSaveError"), ex.Message));
+                page.ShowMessage(string.Format(loader.GetString("ImageSaveError"), ex.Message));
                 await outputFile.DeleteAsync();
             }
-            UIHelper.HideProgressBar();
+            page.HideProgressBar();
         }
 
         private async Task SaveSoftwareBitmapToFile(SoftwareBitmap softwareBitmap, StorageFile outputFile)
@@ -477,7 +482,7 @@ namespace TextReader.ViewModels
 
         public async Task ReadText(SoftwareBitmap softwareBitmap)
         {
-            UIHelper.ShowProgressBar();
+            page.ShowProgressBar();
             StringBuilder text = new StringBuilder();
 
             OcrEngine ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
@@ -485,8 +490,8 @@ namespace TextReader.ViewModels
             if (ocrEngine == null)
             {
                 Result = string.Empty;
-                UIHelper.ShowMessage(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
-                UIHelper.HideProgressBar();
+                page.ShowMessage(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
+                page.HideProgressBar();
                 return;
             }
 
@@ -504,7 +509,7 @@ namespace TextReader.ViewModels
 
             Result = text.ToString();
             ResultGeometry = GeometryGroup;
-            UIHelper.HideProgressBar();
+            page.HideProgressBar();
         }
 
         private void SetEnable()

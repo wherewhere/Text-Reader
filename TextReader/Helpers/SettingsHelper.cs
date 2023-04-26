@@ -1,23 +1,16 @@
 ﻿using MetroLog;
 using Windows.Storage;
-using Windows.UI.Xaml;
 
 namespace TextReader.Helpers
 {
     internal static partial class SettingsHelper
     {
-        public const string SelectedAppTheme = "SelectedAppTheme";
-
         public static Type Get<Type>(string key) => (Type)LocalSettings.Values[key];
 
         public static void Set(string key, object value) => LocalSettings.Values[key] = value;
 
         public static void SetDefaultSettings()
         {
-            if (!LocalSettings.Values.ContainsKey(SelectedAppTheme))
-            {
-                LocalSettings.Values.Add(SelectedAppTheme, (int)ElementTheme.Default);
-            }
         }
     }
 
@@ -26,9 +19,6 @@ namespace TextReader.Helpers
         public static readonly ILogManager LogManager = LogManagerFactory.CreateLogManager();
         private static readonly ApplicationDataContainer LocalSettings = ApplicationData.Current.LocalSettings;
 
-        static SettingsHelper()
-        {
-            SetDefaultSettings();
-        }
+        static SettingsHelper() => SetDefaultSettings();
     }
 }

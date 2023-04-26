@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.UI.Extensions;
+using System;
+using TextReader.Common;
 using TextReader.Helpers;
 using TextReader.Pages;
 using Windows.ApplicationModel;
@@ -49,25 +51,20 @@ namespace TextReader
             EnsureWindow(e);
         }
 
-        private async void EnsureWindow(IActivatedEventArgs e)
+        private void EnsureWindow(IActivatedEventArgs e)
         {
-            if (MainWindow == null)
+            if (!isLoaded)
             {
-                AddBrushResource();
                 RegisterExceptionHandlingSynchronizationContext();
-
-                MainWindow = Window.Current;
+                isLoaded = true;
             }
 
-            if (!MainWindow.Dispatcher.HasThreadAccess)
-            {
-                Window.Current.Close();
-                await ThreadSwitcher.ResumeForegroundAsync(MainWindow.Dispatcher);
-            }
+            Window window = Window.Current;
+            WindowHelper.TrackWindow(window);
 
             // 不要在窗口已包含内容时重复应用程序初始化，
             // 只需确保窗口处于活动状态
-            if (!(MainWindow.Content is Frame rootFrame))
+            if (!(window.Content is Frame rootFrame))
             {
                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
@@ -82,9 +79,9 @@ namespace TextReader
                 }
 
                 // 将框架放在当前窗口中
-                Window.Current.Content = rootFrame;
+                window.Content = rootFrame;
 
-                ThemeHelper.Initialize();
+                ThemeHelper.Initialize(window);
             }
 
             if (e is LaunchActivatedEventArgs args)
@@ -108,11 +105,11 @@ namespace TextReader
             }
             else
             {
-                UIHelper.MainPage?.OpenActivatedEventArgs(e);
+                rootFrame.FindDescendant<MainPage>()?.OpenActivatedEventArgs(e);
             }
 
             // 确保当前窗口处于活动状态
-            MainWindow.Activate();
+            window.Activate();
         }
 
         /// <summary>
@@ -139,34 +136,6 @@ namespace TextReader
             deferral.Complete();
         }
 
-        private void AddBrushResource()
-        {
-            if (ApiInformation.IsMethodPresent("Windows.UI.Composition.Compositor", "TryCreateBlurredWallpaperBackdropBrush"))
-            {
-                ResourceDictionary MicaBrushs = new ResourceDictionary();
-                MicaBrushs.Source = new Uri("ms-appx:///Styles/Brushes/MicaBrushes.xaml");
-                Resources.MergedDictionaries.Add(MicaBrushs);
-            }
-            else if (ApiInformation.IsTypePresent("Windows.UI.Xaml.Media.AcrylicBrush"))
-            {
-                ResourceDictionary AcrylicBrushs = new ResourceDictionary();
-                AcrylicBrushs.Source = new Uri("ms-appx:///Styles/Brushes/AcrylicBrushes.xaml");
-                Resources.MergedDictionaries.Add(AcrylicBrushs);
-            }
-            else if (ApiInformation.IsTypePresent("Windows.UI.Xaml.Media.XamlCompositionBrushBase"))
-            {
-                ResourceDictionary BlurBrushs = new ResourceDictionary();
-                BlurBrushs.Source = new Uri("ms-appx:///Styles/Brushes/BlurBrushes.xaml");
-                Resources.MergedDictionaries.Add(BlurBrushs);
-            }
-            else
-            {
-                ResourceDictionary SolidBrushs = new ResourceDictionary();
-                SolidBrushs.Source = new Uri("ms-appx:///Styles/Brushes/SolidBrushes.xaml");
-                Resources.MergedDictionaries.Add(SolidBrushs);
-            }
-        }
-
         private void Application_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             SettingsHelper.LogManager.GetLogger("Unhandled Exception - Application").Error(e.Exception.ExceptionToMessage(), e.Exception);
@@ -183,12 +152,12 @@ namespace TextReader
                 .UnhandledException += SynchronizationContext_UnhandledException;
         }
 
-        private void SynchronizationContext_UnhandledException(object sender, Helpers.UnhandledExceptionEventArgs e)
+        private void SynchronizationContext_UnhandledException(object sender, Common.UnhandledExceptionEventArgs e)
         {
             SettingsHelper.LogManager.GetLogger("Unhandled Exception - SynchronizationContext").Error(e.Exception.ExceptionToMessage(), e.Exception);
             e.Handled = true;
         }
 
-        public static Window MainWindow { get; private set; }
+        private bool isLoaded;
     }
 }
