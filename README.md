@@ -3,6 +3,8 @@
 # Text Reader
 一个基于 WinRT OCR 的文本提取器
 
+[![Build Status](https://github.com/wherewhere/Text-Reader/actions/workflows/build-and-package.yml/badge.svg)](https://github.com/wherewhere/Text-Reader/actions/workflows/build-and-package.yml "Build Status")
+
 [![LICENSE](https://img.shields.io/github/license/wherewhere/Text-Reader.svg?label=License&style=flat-square)](https://github.com/wherewhere/Text-Reader/blob/master/LICENSE "LICENSE")
 [![Issues](https://img.shields.io/github/issues/wherewhere/Text-Reader.svg?label=Issues&style=flat-square)](https://github.com/wherewhere/Text-Reader/issues "Issues")
 [![Stargazers](https://img.shields.io/github/stars/wherewhere/Text-Reader.svg?label=Stars&style=flat-square)](https://github.com/wherewhere/Text-Reader/stargazers "Stargazers")
@@ -59,4 +61,4 @@
 
 ## 使用到的模块
 - [Mica For UWP](https://github.com/wherewhere/Mica-For-UWP "Mica For UWP")
-- [UWP Community Toolkit](https://github.com/Microsoft/UWPCommunityToolkit "UWP Community Toolkit")
+- [Windows Community Toolkit](https://github.com/CommunityToolkit/WindowsCommunityToolkit "Windows Community Toolkit")

@@ -4,9 +4,9 @@ using Windows.UI.Xaml;
 
 namespace TextReader.Common
 {
-    public class CustomResource : ResourceDictionary
+    public class CustomBrushResource : ResourceDictionary
     {
-        public CustomResource() => AddResource();
+        public CustomBrushResource() => AddResource();
 
         private void AddResource()
         {

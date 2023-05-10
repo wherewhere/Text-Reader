@@ -134,7 +134,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Common\CustomResource.cs" />
+    <Compile Include="Common\CustomBrushResource.cs" />
     <Compile Include="Controls\AboutFlyout.xaml.cs">
       <DependentUpon>AboutFlyout.xaml</DependentUpon>
     </Compile>
