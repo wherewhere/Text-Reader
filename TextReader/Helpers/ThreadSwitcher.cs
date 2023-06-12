@@ -18,13 +18,20 @@ namespace TextReader.Helpers
 
         public DispatcherThreadSwitcher GetAwaiter() => this;
 
-        public void OnCompleted(Action continuation) =>
-            _ = dispatcher.RunAsync(
-                CoreDispatcherPriority.Normal,
-                () => continuation());
+        public void OnCompleted(Action continuation)
+        {
+            if (IsCompleted)
+            {
+                continuation();
+            }
+            else
+            {
+                _ = dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => continuation());
+            }
+        }
     }
 
-    public struct ThreadPoolThreadSwitcher : INotifyCompletion
+    public readonly struct ThreadPoolThreadSwitcher : INotifyCompletion
     {
         public bool IsCompleted => SynchronizationContext.Current == null;
 
@@ -32,13 +39,13 @@ namespace TextReader.Helpers
 
         public ThreadPoolThreadSwitcher GetAwaiter() => this;
 
-        public void OnCompleted(Action continuation) => _ = ThreadPool.RunAsync(_ => continuation());
+        public void OnCompleted(Action continuation) => _ = ThreadPool.RunAsync(_ => continuation(), WorkItemPriority.Normal);
     }
 
-    public class ThreadSwitcher
+    public static class ThreadSwitcher
     {
-        public static DispatcherThreadSwitcher ResumeForegroundAsync(CoreDispatcher dispatcher) => new DispatcherThreadSwitcher(dispatcher);
-        
+        public static DispatcherThreadSwitcher ResumeForegroundAsync(this CoreDispatcher dispatcher) => new DispatcherThreadSwitcher(dispatcher);
+
         public static ThreadPoolThreadSwitcher ResumeBackgroundAsync() => new ThreadPoolThreadSwitcher();
     }
 }

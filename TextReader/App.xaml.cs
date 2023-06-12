@@ -1,6 +1,6 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Extensions;
-using System;
+﻿using System;
 using TextReader.Common;
+using TextReader.Extensions;
 using TextReader.Helpers;
 using TextReader.Pages;
 using Windows.ApplicationModel;

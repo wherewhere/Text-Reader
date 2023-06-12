@@ -3,8 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:common="using:TextReader.Common"
-    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
-    xmlns:valueconverters="using:TextReader.Helpers.Converters">
+    xmlns:converters="using:TextReader.Helpers.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,9 +17,9 @@
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
-            <valueconverters:IsEqualToBoolConverter x:Key="IsEqualToBoolConverter" />
-            <valueconverters:EmptyObjectToBoolConverter x:Key="EmptyObjectToBoolConverter" />
-            <valueconverters:EmptyObjectToVisibilityConverter x:Key="EmptyObjectToVisibilityConverter" />
+            <converters:IsEqualToBoolConverter x:Key="IsEqualToBoolConverter" />
+            <converters:EmptyObjectToBoolConverter x:Key="EmptyObjectToBoolConverter" />
+            <converters:EmptyObjectToVisibilityConverter x:Key="EmptyObjectToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

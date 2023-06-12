@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:media="using:MicaForUWP.Media">
+    xmlns:media="using:TextReader.Media">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="ms-appx:///Themes/Color.xaml" />
     </ResourceDictionary.MergedDictionaries>

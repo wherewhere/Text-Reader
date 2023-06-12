@@ -1,10 +1,9 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using Microsoft.Toolkit.Uwp.UI.Converters;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TextReader.Controls;
 using TextReader.Helpers;
+using TextReader.Helpers.Converters;
 using TextReader.ViewModels;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -42,7 +41,7 @@ namespace TextReader.Pages
             AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
             if (!(AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop"))
             { UpdateTitleBarLayout(false); }
-            if (SystemInformation.OperatingSystemVersion.Build >= 22000)
+            if (SettingsHelper.OperatingSystemVersion >= 22000)
             { CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right; }
             Provider = new MainViewModel(this);
             DataContext = Provider;

@@ -1,5 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using TextReader.Extensions;
 using TextReader.Helpers;
 using Windows.Foundation;
 using Windows.Foundation.Metadata;
@@ -103,7 +103,7 @@ namespace TextReader.Controls
 
                 if (Window.Current.Content is FrameworkElement fe)
                 {
-                    window = fe.FindDescendantByName("SimulatedWindow");
+                    window = fe.FindDescendant("SimulatedWindow");
                 }
 
                 return window;

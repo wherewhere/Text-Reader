@@ -1,8 +1,8 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TextReader.Helpers;
@@ -251,28 +251,33 @@ namespace TextReader.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void RaisePropertyChangedEvent([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        private async void RaisePropertyChangedEvent([CallerMemberName] string name = null)
         {
-            if (name != null) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+            if (name != null)
+            {
+                if (page?.Dispatcher.HasThreadAccess == false)
+                {
+                    await page.Dispatcher.ResumeForegroundAsync();
+                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            }
         }
 
         public MainViewModel(MainPage page) => this.page = page;
 
         public async Task SetIndex(string Language)
         {
-            await Task.Run(async () =>
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            Language LocalLanguage = new Language(Language);
+            for (int i = 0; i < Languages.Count; i++)
             {
-                Language LocalLanguage = new Language(Language);
-                for (int i = 0; i < Languages.Count; i++)
+                Language language = Languages[i];
+                if (language.DisplayName == LocalLanguage.DisplayName)
                 {
-                    Language language = Languages[i];
-                    if (language.DisplayName == LocalLanguage.DisplayName)
-                    {
-                        await DispatcherHelper.ExecuteOnUIThreadAsync(() => LanguageIndex = i);
-                        return;
-                    }
+                    LanguageIndex = i;
+                    return;
                 }
-            });
+            }
         }
 
         public async Task PickImage()
@@ -353,8 +358,10 @@ namespace TextReader.ViewModels
         {
             ResourceLoader loader = ResourceLoader.GetForCurrentView("MainPage");
 
-            FileSavePicker fileSavePicker = new FileSavePicker();
-            fileSavePicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            FileSavePicker fileSavePicker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+            };
             fileSavePicker.FileTypeChoices.Add($"JPEG {loader.GetString("Files")}", new List<string> { ".jpeg", ".jpg" });
             fileSavePicker.FileTypeChoices.Add($"PNG {loader.GetString("Files")}", new List<string> { ".png" });
             fileSavePicker.FileTypeChoices.Add($"BMP {loader.GetString("Files")}", new List<string> { ".bmp" });
@@ -477,7 +484,7 @@ namespace TextReader.ViewModels
                 await WriteableImage.SetSourceAsync(stream);
                 CropperImage = WriteableImage;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Warn(e.ExceptionToMessage(), e);
                 try

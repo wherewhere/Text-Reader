@@ -1,24 +1,13 @@
 ﻿using MetroLog;
-using Windows.Storage;
+using Windows.System.Profile;
 
 namespace TextReader.Helpers
 {
-    internal static partial class SettingsHelper
+    public static partial class SettingsHelper
     {
-        public static Type Get<Type>(string key) => (Type)LocalSettings.Values[key];
+        private static readonly ulong version = ulong.Parse(AnalyticsInfo.VersionInfo.DeviceFamilyVersion);
 
-        public static void Set(string key, object value) => LocalSettings.Values[key] = value;
-
-        public static void SetDefaultSettings()
-        {
-        }
-    }
-
-    internal static partial class SettingsHelper
-    {
-        public static readonly ILogManager LogManager = LogManagerFactory.CreateLogManager();
-        private static readonly ApplicationDataContainer LocalSettings = ApplicationData.Current.LocalSettings;
-
-        static SettingsHelper() => SetDefaultSettings();
+        public static ILogManager LogManager { get; } = LogManagerFactory.CreateLogManager();
+        public static ulong OperatingSystemVersion { get; } = (version & 0x00000000FFFF0000L) >> 16;
     }
 }

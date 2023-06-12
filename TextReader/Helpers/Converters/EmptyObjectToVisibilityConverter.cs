@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Converters;
-using Windows.UI.Xaml;
+﻿using Windows.UI.Xaml;
 
 namespace TextReader.Helpers.Converters
 {

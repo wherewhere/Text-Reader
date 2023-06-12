@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -7,7 +6,6 @@ using System.Threading.Tasks;
 using TextReader.Pages;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
-using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 
 namespace TextReader.Helpers
@@ -98,11 +96,11 @@ namespace TextReader.Helpers
         public static string ExceptionToMessage(this Exception ex)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append('\n');
-            if (!string.IsNullOrWhiteSpace(ex.Message)) { builder.AppendLine($"Message: {ex.Message}"); }
-            builder.AppendLine($"HResult: {ex.HResult} (0x{Convert.ToString(ex.HResult, 16)})");
-            if (!string.IsNullOrWhiteSpace(ex.StackTrace)) { builder.AppendLine(ex.StackTrace); }
-            if (!string.IsNullOrWhiteSpace(ex.HelpLink)) { builder.Append($"HelperLink: {ex.HelpLink}"); }
+            _ = builder.Append('\n');
+            if (!string.IsNullOrWhiteSpace(ex.Message)) { _ = builder.AppendLine($"Message: {ex.Message}"); }
+            _ = builder.AppendLine($"HResult: {ex.HResult} (0x{Convert.ToString(ex.HResult, 16).ToUpperInvariant()})");
+            if (!string.IsNullOrWhiteSpace(ex.StackTrace)) { _ = builder.AppendLine(ex.StackTrace); }
+            if (!string.IsNullOrWhiteSpace(ex.HelpLink)) { _ = builder.Append($"HelperLink: {ex.HelpLink}"); }
             return builder.ToString();
         }
 

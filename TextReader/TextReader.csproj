@@ -157,6 +157,21 @@
     <Compile Include="Controls\TwoPaneView\TwoPaneView.Enum.cs" />
     <Compile Include="Controls\TwoPaneView\TwoPaneView.Properties.cs" />
     <Compile Include="Common\ExceptionHandling.cs" />
+    <Compile Include="Extensions\DependencyObjectExtensions.cs" />
+    <Compile Include="Extensions\FrameworkElement\FrameworkElementExtensions.Mouse.cs" />
+    <Compile Include="Extensions\Predicates\Interfaces\IPredicate{T}.cs" />
+    <Compile Include="Extensions\Predicates\PredicateByAny{T}.cs" />
+    <Compile Include="Extensions\Predicates\PredicateByFunc{T,TState}.cs" />
+    <Compile Include="Extensions\Predicates\PredicateByFunc{T}.cs" />
+    <Compile Include="Extensions\Predicates\PredicateByName.cs" />
+    <Compile Include="Extensions\Predicates\PredicateByType.cs" />
+    <Compile Include="Helpers\Converters\BoolNegationConverter.cs" />
+    <Compile Include="Helpers\Converters\BoolToObjectConverter.cs" />
+    <Compile Include="Helpers\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Helpers\Converters\EmptyObjectToObjectConverter.cs" />
+    <Compile Include="Helpers\Converters\EmptyStringToObjectConverter.cs" />
+    <Compile Include="Helpers\Converters\StringVisibilityConverter.cs" />
+    <Compile Include="Helpers\DispatcherHelper.cs" />
     <Compile Include="Helpers\PointExtensions.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Helpers\SizeExtensions.cs" />
@@ -170,6 +185,9 @@
     <Compile Include="Helpers\Converters\IsEqualToBoolConverter.cs" />
     <Compile Include="Helpers\Converters\IsEqualToObjectConverter.cs" />
     <Compile Include="Helpers\WindowHelper.cs" />
+    <Compile Include="Media\BackdropBlurBrush.cs" />
+    <Compile Include="Media\BackdropMicaBrush.cs" />
+    <Compile Include="Media\BackgroundSource.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -296,14 +314,11 @@
     <PackageReference Include="MetroLog">
       <Version>1.0.1</Version>
     </PackageReference>
-    <PackageReference Include="MicaForUWP">
-      <Version>0.1.9</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
-      <Version>4.0.0</Version>
+    <PackageReference Include="Win2D.uwp">
+      <Version>1.26.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -320,6 +335,7 @@
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
