@@ -165,6 +165,7 @@
     <Compile Include="Extensions\Predicates\PredicateByFunc{T}.cs" />
     <Compile Include="Extensions\Predicates\PredicateByName.cs" />
     <Compile Include="Extensions\Predicates\PredicateByType.cs" />
+    <Compile Include="Extensions\RectExtensions.cs" />
     <Compile Include="Helpers\Converters\BoolNegationConverter.cs" />
     <Compile Include="Helpers\Converters\BoolToObjectConverter.cs" />
     <Compile Include="Helpers\Converters\BoolToVisibilityConverter.cs" />
@@ -172,11 +173,11 @@
     <Compile Include="Helpers\Converters\EmptyStringToObjectConverter.cs" />
     <Compile Include="Helpers\Converters\StringVisibilityConverter.cs" />
     <Compile Include="Helpers\DispatcherHelper.cs" />
-    <Compile Include="Helpers\PointExtensions.cs" />
+    <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
-    <Compile Include="Helpers\SizeExtensions.cs" />
+    <Compile Include="Extensions\SizeExtensions.cs" />
     <Compile Include="Helpers\ThemeHelper.cs" />
-    <Compile Include="Helpers\ThreadSwitcher.cs" />
+    <Compile Include="Common\ThreadSwitcher.cs" />
     <Compile Include="Helpers\UIElementHelper.cs" />
     <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Helpers\Converters\ConverterTools.cs" />
@@ -318,7 +319,7 @@
       <Version>6.2.14</Version>
     </PackageReference>
     <PackageReference Include="Win2D.uwp">
-      <Version>1.26.0</Version>
+      <Version>1.27.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

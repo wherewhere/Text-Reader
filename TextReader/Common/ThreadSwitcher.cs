@@ -4,7 +4,7 @@ using System.Threading;
 using Windows.System.Threading;
 using Windows.UI.Core;
 
-namespace TextReader.Helpers
+namespace TextReader.Common
 {
     public readonly struct DispatcherThreadSwitcher : INotifyCompletion
     {

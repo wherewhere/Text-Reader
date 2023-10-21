@@ -1,4 +1,5 @@
-﻿using Windows.ApplicationModel.Core;
+﻿using TextReader.Common;
+using Windows.ApplicationModel.Core;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -41,7 +42,7 @@ namespace TextReader.Helpers
             Color ForegroundColor = IsDark || IsHighContrast ? Colors.White : Colors.Black;
             Color BackgroundColor = IsHighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
 
-            foreach (Window window in WindowHelper.ActiveWindows)
+            foreach (Window window in WindowHelper.ActiveWindows.Values)
             {
                 if (window?.Dispatcher.HasThreadAccess == false)
                 {

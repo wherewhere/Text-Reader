@@ -138,6 +138,9 @@
   <data name="ImageOnlyAppBarButton.Label" xml:space="preserve">
     <value>Image Only</value>
   </data>
+  <data name="ImageOnlyMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Image Only</value>
+  </data>
   <data name="ImageSaved" xml:space="preserve">
     <value>Image saved at {0}</value>
   </data>
@@ -162,6 +165,9 @@
   <data name="ResultOnlyAppBarButton.Label" xml:space="preserve">
     <value>Result Only</value>
   </data>
+  <data name="ResultOnlyMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Result Only</value>
+  </data>
   <data name="SaveMenuFlyoutItem.Text" xml:space="preserve">
     <value>Save As</value>
   </data>
@@ -178,6 +184,9 @@
     <value>Take Photo</value>
   </data>
   <data name="TwoPanelAppBarButton.Label" xml:space="preserve">
+    <value>Two Panel</value>
+  </data>
+  <data name="TwoPanelMenuFlyoutItem.Text" xml:space="preserve">
     <value>Two Panel</value>
   </data>
 </root>

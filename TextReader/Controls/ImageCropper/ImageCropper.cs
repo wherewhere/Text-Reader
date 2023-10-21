@@ -4,7 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
-using TextReader.Helpers;
+using TextReader.Extensions;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Streams;

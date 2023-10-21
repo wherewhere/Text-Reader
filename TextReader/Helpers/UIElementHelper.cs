@@ -9,61 +9,13 @@ namespace TextReader.Helpers
 {
     public static class UIElementHelper
     {
-        #region CornerRadius
-
-        /// <summary>
-        /// Gets the radius for the corners of the control's border.
-        /// </summary>
-        /// <param name="control">The element from which to read the property value.</param>
-        /// <returns>
-        /// The degree to which the corners are rounded, expressed as values of the CornerRadius
-        /// structure.
-        /// </returns>
-        public static CornerRadius GetCornerRadius(Control control)
-        {
-            return (CornerRadius)control.GetValue(CornerRadiusProperty);
-        }
-
-        /// <summary>
-        /// Sets the radius for the corners of the control's border.
-        /// </summary>
-        /// <param name="control">The element on which to set the attached property.</param>
-        /// <param name="value">The property value to set.</param>
-        public static void SetCornerRadius(Control control, CornerRadius value)
-        {
-            control.SetValue(CornerRadiusProperty, value);
-        }
-
-        /// <summary>
-        /// Identifies the CornerRadius dependency property.
-        /// </summary>
-        public static readonly DependencyProperty CornerRadiusProperty =
-            DependencyProperty.RegisterAttached(
-                "CornerRadius",
-                typeof(CornerRadius),
-                typeof(UIElementHelper),
-                new PropertyMetadata(null, OnCornerRadiusChanged));
-
-        private static void OnCornerRadiusChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Control element = (Control)d;
-            if (e.NewValue is CornerRadius CornerRadius && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.Control", "CornerRadius"))
-            {
-                element.CornerRadius = CornerRadius;
-            }
-        }
-
-        #endregion
-
         #region ContextFlyout
 
         /// <summary>
         /// Gets the flyout associated with this element.
         /// </summary>
         /// <param name="element">The flyout associated with this element.</param>
-        /// <returns>
-        /// The flyout associated with this element, if any; otherwise, <see langword="null"/>. The default is <see langword="null"/>.
-        /// </returns>
+        /// <returns>The flyout associated with this element, if any; otherwise, <see langword="null"/>. The default is <see langword="null"/>.</returns>
         public static FlyoutBase GetContextFlyout(UIElement element)
         {
             return (FlyoutBase)element.GetValue(ContextFlyoutProperty);
@@ -94,7 +46,7 @@ namespace TextReader.Helpers
             UIElement element = (UIElement)d;
             if (ApiInformation.IsPropertyPresent("Windows.UI.Xaml.UIElement", "ContextFlyout"))
             {
-                element.ContextFlyout = e.NewValue as FlyoutBase;
+                element.ContextFlyout = GetContextFlyout(element);
             }
             else if (element is FrameworkElement frameworkElement)
             {
@@ -115,15 +67,17 @@ namespace TextReader.Helpers
 
         private static void OnKeyDown(object sender, KeyRoutedEventArgs e)
         {
+            if (e?.Handled == true) { return; }
             if (e.Key == VirtualKey.Menu)
             {
                 FlyoutBase.ShowAttachedFlyout(sender as FrameworkElement);
+                if (e != null) { e.Handled = true; }
             }
         }
 
         private static void OnHolding(object sender, HoldingRoutedEventArgs e)
         {
-            FrameworkElement element = sender as FrameworkElement;
+            if (e?.Handled == true || !(sender is FrameworkElement element)) { return; }
             FlyoutBase flyout = FlyoutBase.GetAttachedFlyout(element);
             if (flyout is MenuFlyout menu)
             {
@@ -133,11 +87,12 @@ namespace TextReader.Helpers
             {
                 FlyoutBase.ShowAttachedFlyout(sender as FrameworkElement);
             }
+            if (e != null) { e.Handled = true; }
         }
 
         private static void OnRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            FrameworkElement element = sender as FrameworkElement;
+            if (e?.Handled == true || !(sender is FrameworkElement element)) { return; }
             FlyoutBase flyout = FlyoutBase.GetAttachedFlyout(element);
             if (flyout is MenuFlyout menu)
             {
@@ -146,6 +101,52 @@ namespace TextReader.Helpers
             else
             {
                 FlyoutBase.ShowAttachedFlyout(sender as FrameworkElement);
+            }
+            if (e != null) { e.Handled = true; }
+        }
+
+        #endregion
+
+        #region ShouldConstrainToRootBounds
+
+        /// <summary>
+        /// Identifies the ShouldConstrainToRootBounds dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ShouldConstrainToRootBoundsProperty =
+            DependencyProperty.RegisterAttached(
+                "ShouldConstrainToRootBounds",
+                typeof(bool),
+                typeof(UIElementHelper),
+                new PropertyMetadata(true, OnShouldConstrainToRootBoundsChanged));
+
+        /// <summary>
+        /// Gets a value that indicates whether the flyout should be shown within the bounds of the XAML root.
+        /// </summary>
+        /// <param name="control">The element from which to read the property value.</param>
+        /// <returns>A value that indicates whether the flyout should be shown within the bounds of the XAML root.</returns>
+        public static bool GetShouldConstrainToRootBounds(FlyoutBase control)
+        {
+            return (bool)control.GetValue(ShouldConstrainToRootBoundsProperty);
+        }
+
+        /// <summary>
+        /// Sets a value that indicates whether the flyout should be shown within the bounds of the XAML root.
+        /// </summary>
+        /// <param name="control">The element on which to set the attached property.</param>
+        /// <param name="value">The property value to set.</param>
+        public static void SetShouldConstrainToRootBounds(FlyoutBase control, bool value)
+        {
+            control.SetValue(ShouldConstrainToRootBoundsProperty, value);
+        }
+
+        private static void OnShouldConstrainToRootBoundsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is FlyoutBase flyout)
+            {
+                if (e.NewValue is bool ShouldConstrainToRootBounds && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.Primitives.FlyoutBase", "ShouldConstrainToRootBounds"))
+                {
+                    flyout.ShouldConstrainToRootBounds = ShouldConstrainToRootBounds;
+                }
             }
         }
 
@@ -185,10 +186,26 @@ namespace TextReader.Helpers
 
         private static void OnIconChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MenuFlyoutItem element = (MenuFlyoutItem)d;
-            if (e.NewValue is IconElement IconElement && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.MenuFlyoutItem", "Icon"))
+            if (d is MenuFlyoutItem item)
             {
-                element.Icon = IconElement;
+                if (e.NewValue is IconElement IconElement && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.MenuFlyoutItem", "Icon"))
+                {
+                    item.Icon = IconElement;
+                }
+            }
+            else if (d is MenuFlyoutSubItem subitem)
+            {
+                if (e.NewValue is IconElement IconElement && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.MenuFlyoutSubItem", "Icon"))
+                {
+                    subitem.Icon = IconElement;
+                }
+            }
+            else if (d is ToggleMenuFlyoutItem toggle)
+            {
+                if (e.NewValue is IconElement IconElement && ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.ToggleMenuFlyoutItem", "Icon"))
+                {
+                    toggle.Icon = IconElement;
+                }
             }
         }
 

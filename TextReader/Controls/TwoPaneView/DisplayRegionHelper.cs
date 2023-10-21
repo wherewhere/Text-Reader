@@ -54,7 +54,7 @@ namespace TextReader.Controls
                     info.Regions[0] = m_simulateWide0;
                 }
             }
-            else if (ApiInformation.IsPropertyPresent("Windows.UI.ViewManagement.ApplicationView", "GetDisplayRegions"))
+            else if (ApiInformation.IsPropertyPresent("Windows.UI.ViewManagement.ApplicationView", "ViewMode"))
             {
                 // ApplicationView::GetForCurrentView throws on failure; in that case we just won't do anything.
                 ApplicationView view = null;
@@ -66,23 +66,26 @@ namespace TextReader.Controls
 
                 if (view != null && view.ViewMode == (ApplicationViewMode)c_ApplicationViewModeSpanning)
                 {
-                    IReadOnlyList<DisplayRegion> rects = view.GetDisplayRegions();
-
-                    if (rects.Count == 2)
+                    if (ApiInformation.IsPropertyPresent("Windows.UI.ViewManagement.ApplicationView", "GetDisplayRegions"))
                     {
-                        info.Regions[0] = rects[0].WorkAreaSize.ToRect(rects[0].WorkAreaOffset);
-                        info.Regions[1] = rects[1].WorkAreaSize.ToRect(rects[1].WorkAreaOffset);
+                        IReadOnlyList<DisplayRegion> rects = view.GetDisplayRegions();
 
-                        // Determine orientation. If neither of these are true, default to doing nothing.
-                        if (info.Regions[0].X < info.Regions[1].X && info.Regions[0].Y == info.Regions[1].Y)
+                        if (rects.Count == 2)
                         {
-                            // Double portrait
-                            info.Mode = TwoPaneViewMode.Wide;
-                        }
-                        else if (info.Regions[0].X == info.Regions[1].X && info.Regions[0].Y < info.Regions[1].Y)
-                        {
-                            // Double landscape
-                            info.Mode = TwoPaneViewMode.Tall;
+                            info.Regions[0] = rects[0].WorkAreaSize.ToRect(rects[0].WorkAreaOffset);
+                            info.Regions[1] = rects[1].WorkAreaSize.ToRect(rects[1].WorkAreaOffset);
+
+                            // Determine orientation. If neither of these are true, default to doing nothing.
+                            if (info.Regions[0].X < info.Regions[1].X && info.Regions[0].Y == info.Regions[1].Y)
+                            {
+                                // Double portrait
+                                info.Mode = TwoPaneViewMode.Wide;
+                            }
+                            else if (info.Regions[0].X == info.Regions[1].X && info.Regions[0].Y < info.Regions[1].Y)
+                            {
+                                // Double landscape
+                                info.Mode = TwoPaneViewMode.Tall;
+                            }
                         }
                     }
                 }
@@ -92,7 +95,7 @@ namespace TextReader.Controls
         }
 
         /* static */
-        public static UIElement WindowElement()
+        public static UIElement WindowElement(UIElement element)
         {
             DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
 
@@ -100,29 +103,30 @@ namespace TextReader.Controls
             {
                 // Instead of returning the actual window, find the SimulatedWindow element
                 UIElement window = null;
+                UIElement xamlRoot = element.GetXAMLRoot();
 
-                if (Window.Current.Content is FrameworkElement fe)
+                if (xamlRoot is FrameworkElement fe)
                 {
                     window = fe.FindDescendant("SimulatedWindow");
                 }
 
-                return window;
+                return window ?? xamlRoot;
             }
             else
             {
-                return Window.Current.Content;
+                return element.GetXAMLRoot();
             }
         }
 
         /* static */
-        public static Rect WindowRect()
+        public static Rect WindowRect(UIElement element)
         {
             DisplayRegionHelper instance = GetDisplayRegionHelperInstance();
 
             if (instance.m_simulateDisplayRegions)
             {
                 // Return the bounds of the simulated window
-                FrameworkElement window = WindowElement() as FrameworkElement;
+                FrameworkElement window = WindowElement(element) as FrameworkElement;
                 Rect rc = new Rect(
                     0, 0,
                     window.ActualWidth,

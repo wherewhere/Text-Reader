@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using TextReader.Extensions;
 using TextReader.Helpers;
 using Windows.Foundation;
 using Windows.System;

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TextReader.Common;
 using TextReader.Helpers;
-using TextReader.Pages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
@@ -18,6 +18,7 @@ using Windows.Media.Ocr;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -27,15 +28,15 @@ namespace TextReader.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private MainPage page;
-
         public static string[] ImageTypes = new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
+
+        public CoreDispatcher Dispatcher { get; }
 
         public bool IsSupportCompactOverlay { get; } = ApiInformation.IsMethodPresent("Windows.UI.ViewManagement.ApplicationView", "IsViewModeSupported")
                                                     && ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay);
 
-        public bool? IsCompactOverlay
+        public bool IsCompactOverlay
         {
             get => IsSupportCompactOverlay && ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay;
             set
@@ -67,14 +68,7 @@ namespace TextReader.ViewModels
         public string Result
         {
             get => result;
-            set
-            {
-                if (result != value)
-                {
-                    result = value;
-                    RaisePropertyChangedEvent();
-                }
-            }
+            set => SetProperty(ref result, value);
         }
 
         private ImageSource image;
@@ -133,14 +127,7 @@ namespace TextReader.ViewModels
         public WriteableBitmap CropperImage
         {
             get => cropperImage;
-            set
-            {
-                if (cropperImage != value)
-                {
-                    cropperImage = value;
-                    RaisePropertyChangedEvent();
-                }
-            }
+            set => SetProperty(ref cropperImage, value);
         }
 
         private TwoPaneViewPriority panePriority = TwoPaneViewPriority.Pane1;
@@ -211,59 +198,47 @@ namespace TextReader.ViewModels
         public bool IsImageOnlyEnable
         {
             get => isImageOnlyEnable;
-            set
-            {
-                if (isImageOnlyEnable != value)
-                {
-                    isImageOnlyEnable = value;
-                    RaisePropertyChangedEvent();
-                }
-            }
+            set => SetProperty(ref isImageOnlyEnable, value);
         }
 
         private bool isResultOnlyEnable = true;
         public bool IsResultOnlyEnable
         {
             get => isResultOnlyEnable;
-            set
-            {
-                if (isResultOnlyEnable != value)
-                {
-                    isResultOnlyEnable = value;
-                    RaisePropertyChangedEvent();
-                }
-            }
+            set => SetProperty(ref isResultOnlyEnable, value);
         }
 
         private GeometryGroup resultGeometry;
         public GeometryGroup ResultGeometry
         {
             get => resultGeometry;
-            set
-            {
-                if (resultGeometry != value)
-                {
-                    resultGeometry = value;
-                    RaisePropertyChangedEvent();
-                }
-            }
+            set => SetProperty(ref resultGeometry, value);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async void RaisePropertyChangedEvent([CallerMemberName] string name = null)
+        protected async void RaisePropertyChangedEvent([CallerMemberName] string name = null)
         {
             if (name != null)
             {
-                if (page?.Dispatcher.HasThreadAccess == false)
+                if (Dispatcher?.HasThreadAccess == false)
                 {
-                    await page.Dispatcher.ResumeForegroundAsync();
+                    await Dispatcher.ResumeForegroundAsync();
                 }
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
         }
 
-        public MainViewModel(MainPage page) => this.page = page;
+        protected void SetProperty<TProperty>(ref TProperty property, TProperty value, [CallerMemberName] string name = null)
+        {
+            if (property == null ? value != null : !property.Equals(value))
+            {
+                property = value;
+                RaisePropertyChangedEvent(name);
+            }
+        }
+
+        public MainViewModel(CoreDispatcher dispatcher) => Dispatcher = dispatcher;
 
         public async Task SetIndex(string Language)
         {
@@ -356,7 +331,7 @@ namespace TextReader.ViewModels
 
         public async Task SaveImage()
         {
-            ResourceLoader loader = ResourceLoader.GetForCurrentView("MainPage");
+            ResourceLoader loader = ResourceLoader.GetForViewIndependentUse("MainPage");
 
             FileSavePicker fileSavePicker = new FileSavePicker
             {
@@ -378,19 +353,22 @@ namespace TextReader.ViewModels
                 return;
             }
 
-            page.ShowProgressBar();
+            _ = Dispatcher.ShowProgressBarAsync();
             try
             {
                 await SaveSoftwareBitmapToFile(SoftwareImage, outputFile);
-                page.ShowMessage(string.Format(loader.GetString("ImageSaved"), outputFile.Path));
+                _ = Dispatcher.ShowMessageAsync(string.Format(loader.GetString("ImageSaved"), outputFile.Path));
             }
             catch (Exception ex)
             {
                 SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Error(ex.ExceptionToMessage(), ex);
-                page.ShowMessage(string.Format(loader.GetString("ImageSaveError"), ex.Message));
+                _ = Dispatcher.ShowMessageAsync(string.Format(loader.GetString("ImageSaveError"), ex.Message));
                 await outputFile.DeleteAsync();
             }
-            page.HideProgressBar();
+            finally
+            {
+                _ = Dispatcher.HideProgressBarAsync();
+            }
         }
 
         private async Task SaveSoftwareBitmapToFile(SoftwareBitmap softwareBitmap, StorageFile outputFile)
@@ -522,34 +500,40 @@ namespace TextReader.ViewModels
 
         public async Task ReadText(SoftwareBitmap softwareBitmap)
         {
-            page.ShowProgressBar();
-            StringBuilder text = new StringBuilder();
-
-            OcrEngine ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
-
-            if (ocrEngine == null)
+            _ = Dispatcher.ShowProgressBarAsync();
+            try
             {
-                Result = string.Empty;
-                page.ShowMessage(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
-                page.HideProgressBar();
-                return;
-            }
+                StringBuilder text = new StringBuilder();
 
-            OcrResult ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+                OcrEngine ocrEngine = ProfileLanguage ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(Languages[LanguageIndex]);
 
-            GeometryGroup GeometryGroup = new GeometryGroup();
-            foreach (OcrLine line in ocrResult.Lines)
-            {
-                text.AppendLine(line.Text);
-                foreach (OcrWord word in line.Words)
+                if (ocrEngine == null)
                 {
-                    GeometryGroup.Children.Add(new RectangleGeometry { Rect = word.BoundingRect });
+                    Result = string.Empty;
+                    _ = Dispatcher.ShowMessageAsync(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
+                    _ = Dispatcher.HideProgressBarAsync();
+                    return;
                 }
-            }
 
-            Result = text.ToString();
-            ResultGeometry = GeometryGroup;
-            page.HideProgressBar();
+                OcrResult ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+
+                GeometryGroup GeometryGroup = new GeometryGroup();
+                foreach (OcrLine line in ocrResult.Lines)
+                {
+                    text.AppendLine(line.Text);
+                    foreach (OcrWord word in line.Words)
+                    {
+                        GeometryGroup.Children.Add(new RectangleGeometry { Rect = word.BoundingRect });
+                    }
+                }
+
+                Result = text.ToString();
+                ResultGeometry = GeometryGroup;
+            }
+            finally
+            {
+                _ = Dispatcher.HideProgressBarAsync();
+            }
         }
 
         private void SetEnable()

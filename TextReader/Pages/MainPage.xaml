@@ -4,12 +4,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:TextReader.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:globalization="using:Windows.Globalization"
     xmlns:helpers="using:TextReader.Helpers"
     xmlns:local="using:TextReader.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TextReader.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Background="{ThemeResource ApplicationPageBackgroundBrush}"
+    DataContext="{x:Bind Provider}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
     <Page.Resources>
@@ -23,8 +25,7 @@
                 x:Name="Paste"
                 x:Uid="/MainPage/PasteMenuFlyoutItem"
                 Click="Button_Click"
-                Tag="Paste"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                Tag="Paste">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77F;" />
                 </helpers:UIElementHelper.Icon>
@@ -32,19 +33,17 @@
             <MenuFlyoutItem
                 x:Uid="/MainPage/SaveMenuFlyoutItem"
                 Click="Button_Click"
-                IsEnabled="{Binding Image, Converter={StaticResource EmptyObjectToBoolConverter}}"
-                Tag="Save"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                IsEnabled="{x:Bind Provider.Image, Converter={StaticResource EmptyObjectToBoolConverter}, Mode=OneWay}"
+                Tag="Save">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74E;" />
                 </helpers:UIElementHelper.Icon>
             </MenuFlyoutItem>
-            <MenuFlyoutSeparator Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}" />
+            <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="/MainPage/PickImageMenuFlyoutItem"
                 Click="Button_Click"
-                Tag="PickImage"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                Tag="PickImage">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
                 </helpers:UIElementHelper.Icon>
@@ -52,10 +51,40 @@
             <MenuFlyoutItem
                 x:Uid="/MainPage/TakePhotoMenuFlyoutItem"
                 Click="Button_Click"
-                Tag="TakePhoto"
-                Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                Tag="TakePhoto">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="/MainPage/TwoPanelMenuFlyoutItem"
+                Click="Button_Click"
+                IsEnabled="{x:Bind Provider.IsSinglePane, Mode=OneWay}"
+                Tag="TwoPanel"
+                Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA61;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                x:Uid="/MainPage/ImageOnlyMenuFlyoutItem"
+                Click="Button_Click"
+                IsEnabled="{x:Bind Provider.IsImageOnlyEnable, Mode=OneWay}"
+                Tag="ImageOnly"
+                Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB9F;" />
+                </helpers:UIElementHelper.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                x:Uid="/MainPage/ResultOnlyMenuFlyoutItem"
+                Click="Button_Click"
+                IsEnabled="{x:Bind Provider.IsResultOnlyEnable, Mode=OneWay}"
+                Tag="ResultOnly"
+                Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                <helpers:UIElementHelper.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
                 </helpers:UIElementHelper.Icon>
             </MenuFlyoutItem>
         </MenuFlyout>
@@ -64,16 +93,22 @@
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition x:Name="TopPaddingRow" Height="32" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <ReorderThemeTransition />
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
         <Grid
             x:Name="CustomTitleBar"
             Height="32"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
             Background="Transparent"
-            Canvas.ZIndex="1">
+            Canvas.ZIndex="1"
+            IsHitTestVisible="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="LeftPaddingColumn" />
                 <ColumnDefinition Width="Auto" />
@@ -111,24 +146,25 @@
                 MinWideModeWidth="NaN"
                 Pane1Length="*"
                 Pane2Length="*"
-                PanePriority="{Binding PanePriority}"
-                TallModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewTallModeConfigurationConverter}}"
-                WideModeConfiguration="{Binding IsSinglePane, Converter={StaticResource BoolToTwoPaneViewWideModeConfigurationConverter}}">
+                PanePriority="{x:Bind Provider.PanePriority, Mode=OneWay}"
+                TallModeConfiguration="{x:Bind Provider.IsSinglePane, Converter={StaticResource BoolToTwoPaneViewTallModeConfigurationConverter}, Mode=OneWay}"
+                WideModeConfiguration="{x:Bind Provider.IsSinglePane, Converter={StaticResource BoolToTwoPaneViewWideModeConfigurationConverter}, Mode=OneWay}">
                 <controls:TwoPaneView.Pane1>
                     <Grid
                         Margin="16"
-                        helpers:UIElementHelper.ContextFlyout="{StaticResource ImageMenuFlyout}"
-                        AllowDrop="{Binding ShowCropper, Converter={StaticResource BoolNegationConverter}}"
+                        AllowDrop="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
                         Background="Transparent"
                         DragOver="Grid_DragOver"
                         Drop="Grid_Drop">
                         <Grid
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
+                            helpers:UIElementHelper.ContextFlyout="{StaticResource ImageMenuFlyout}"
+                            Background="Transparent"
                             BorderBrush="{ThemeResource LayerFillColorDefaultBrush}"
                             BorderThickness="4"
                             CornerRadius="8"
-                            Visibility="{Binding Image, Converter={StaticResource EmptyObjectToVisibilityConverter}, ConverterParameter='true'}">
+                            Visibility="{x:Bind Provider.Image, Converter={StaticResource EmptyObjectToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                             <StackPanel
                                 Margin="2"
                                 HorizontalAlignment="Center"
@@ -141,40 +177,46 @@
                                     x:Uid="/MainPage/PickImageButton"
                                     Margin="0,4"
                                     HorizontalAlignment="Stretch"
-                                    helpers:UIElementHelper.CornerRadius="4"
                                     Click="Button_Click"
                                     Tag="PickImage" />
                                 <Button
                                     x:Uid="/MainPage/TakePhotoButton"
                                     Margin="0,4"
                                     HorizontalAlignment="Stretch"
-                                    helpers:UIElementHelper.CornerRadius="4"
                                     Click="Button_Click"
                                     Tag="TakePhoto" />
                             </StackPanel>
                         </Grid>
-                        <Viewbox
+                        <Border
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            Stretch="Uniform"
-                            Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
-                            <Grid>
-                                <Image CanDrag="True" Source="{Binding Image}" />
-                                <Path Data="{Binding ResultGeometry}" StrokeThickness="0">
-                                    <Path.Fill>
-                                        <SolidColorBrush Opacity="0.5" Color="{ThemeResource SystemAccentColor}" />
-                                    </Path.Fill>
-                                </Path>
-                            </Grid>
-                        </Viewbox>
+                            helpers:UIElementHelper.ContextFlyout="{StaticResource ImageMenuFlyout}"
+                            Background="Transparent">
+                            <Viewbox
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                CanDrag="True"
+                                DragStarting="Image_DragStarting"
+                                Stretch="Uniform"
+                                Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                                <Grid>
+                                    <Image Source="{x:Bind Provider.Image, Mode=OneWay}" />
+                                    <Path Data="{x:Bind Provider.ResultGeometry, Mode=OneWay}" StrokeThickness="0">
+                                        <Path.Fill>
+                                            <SolidColorBrush Opacity="0.5" Color="{ThemeResource SystemAccentColor}" />
+                                        </Path.Fill>
+                                    </Path>
+                                </Grid>
+                            </Viewbox>
+                        </Border>
                         <controls:ImageCropper
                             x:Name="ImageCropper"
                             CropShape="Rectangular"
                             MinCroppedPixelLength="0"
                             MinSelectedLength="0"
-                            Source="{Binding CropperImage}"
+                            Source="{x:Bind Provider.CropperImage, Mode=OneWay}"
                             ThumbPlacement="All"
-                            Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
                     </Grid>
                 </controls:TwoPaneView.Pane1>
                 <controls:TwoPaneView.Pane2>
@@ -196,7 +238,7 @@
                             VerticalAlignment="Center"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             TextWrapping="Wrap"
-                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true'}" />
+                            Visibility="{x:Bind Provider.Result, Converter={StaticResource StringVisibilityConverter}, ConverterParameter='true', Mode=OneWay}" />
                         <Grid Margin="8" HorizontalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -205,14 +247,13 @@
                             <ComboBox
                                 Grid.Column="0"
                                 HorizontalAlignment="Left"
-                                helpers:UIElementHelper.CornerRadius="4"
-                                IsEnabled="{Binding ProfileLanguage, Converter={StaticResource BoolNegationConverter}}"
+                                IsEnabled="{x:Bind Provider.ProfileLanguage, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
                                 ItemsSource="{Binding Languages}"
                                 Loaded="ComboBox_Loaded"
-                                SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
+                                SelectedIndex="{x:Bind Provider.LanguageIndex, Mode=TwoWay}">
                                 <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding DisplayName}" />
+                                    <DataTemplate x:DataType="globalization:Language">
+                                        <TextBlock Text="{x:Bind DisplayName}" />
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
@@ -224,7 +265,6 @@
                                 Padding="0"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Stretch"
-                                helpers:UIElementHelper.CornerRadius="4"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Click="Button_Click"
@@ -237,13 +277,12 @@
                             Padding="8"
                             HorizontalScrollBarVisibility="Disabled"
                             VerticalScrollBarVisibility="Auto"
-                            Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}">
+                            Visibility="{x:Bind Provider.Result, Converter={StaticResource StringVisibilityConverter}, Mode=OneWay}">
                             <TextBlock
-                                CanDrag="True"
                                 IsTextSelectionEnabled="True"
-                                Text="{Binding Result}"
+                                Text="{x:Bind Provider.Result, Mode=OneWay}"
                                 TextWrapping="Wrap"
-                                Visibility="{Binding Result, Converter={StaticResource StringVisibilityConverter}}" />
+                                Visibility="{x:Bind Provider.Result, Converter={StaticResource StringVisibilityConverter}, Mode=OneWay}" />
                         </ScrollViewer>
                     </Grid>
                 </controls:TwoPaneView.Pane2>
@@ -268,7 +307,7 @@
                         x:Uid="/MainPage/CompactAppBarButton"
                         IsChecked="{Binding IsCompactOverlay, Mode=TwoWay}"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding IsSupportCompactOverlay, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        Visibility="{x:Bind Provider.IsSupportCompactOverlay, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                         <AppBarToggleButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE744;" />
                         </AppBarToggleButton.Icon>
@@ -278,7 +317,7 @@
                         Click="Button_Click"
                         Tag="Finnish"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8FB;" />
                         </AppBarButton.Icon>
@@ -288,7 +327,7 @@
                         Click="Button_Click"
                         Tag="Cancel"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;" />
                         </AppBarButton.Icon>
@@ -296,10 +335,10 @@
                     <AppBarButton
                         x:Uid="/MainPage/ClipImageAppBarButton"
                         Click="Button_Click"
-                        IsEnabled="{Binding CropperImage, Converter={StaticResource EmptyObjectToBoolConverter}}"
+                        IsEnabled="{x:Bind Provider.CropperImage, Converter={StaticResource EmptyObjectToBoolConverter}, Mode=OneWay}"
                         Tag="ClipImage"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE924;" />
                         </AppBarButton.Icon>
@@ -310,7 +349,7 @@
                         Click="Button_Click"
                         Tag="PickImage"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B9;" />
                         </AppBarButton.Icon>
@@ -320,7 +359,7 @@
                         Click="Button_Click"
                         Tag="TakePhoto"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;" />
                         </AppBarButton.Icon>
@@ -330,7 +369,10 @@
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE783;" />
                         </AppBarButton.Icon>
                         <AppBarButton.Flyout>
-                            <Flyout x:Name="AboutPageFlyout" FlyoutPresenterStyle="{StaticResource AboutFlyoutPresenterStyle}">
+                            <Flyout
+                                x:Name="AboutPageFlyout"
+                                helpers:UIElementHelper.ShouldConstrainToRootBounds="False"
+                                FlyoutPresenterStyle="{StaticResource AboutFlyoutPresenterStyle}">
                                 <controls:AboutFlyout x:Name="AboutPage" />
                             </Flyout>
                         </AppBarButton.Flyout>
@@ -340,10 +382,10 @@
                     <AppBarButton
                         x:Uid="/MainPage/TwoPanelAppBarButton"
                         Click="Button_Click"
-                        IsEnabled="{Binding IsSinglePane}"
+                        IsEnabled="{x:Bind Provider.IsSinglePane, Mode=OneWay}"
                         Tag="TwoPanel"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA61;" />
                         </AppBarButton.Icon>
@@ -351,10 +393,10 @@
                     <AppBarButton
                         x:Uid="/MainPage/ImageOnlyAppBarButton"
                         Click="Button_Click"
-                        IsEnabled="{Binding IsImageOnlyEnable}"
+                        IsEnabled="{x:Bind Provider.IsImageOnlyEnable, Mode=OneWay}"
                         Tag="ImageOnly"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB9F;" />
                         </AppBarButton.Icon>
@@ -362,10 +404,10 @@
                     <AppBarButton
                         x:Uid="/MainPage/ResultOnlyAppBarButton"
                         Click="Button_Click"
-                        IsEnabled="{Binding IsResultOnlyEnable}"
+                        IsEnabled="{x:Bind Provider.IsResultOnlyEnable, Mode=OneWay}"
                         Tag="ResultOnly"
                         ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}"
-                        Visibility="{Binding ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true'}">
+                        Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
                         </AppBarButton.Icon>

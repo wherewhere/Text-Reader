@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using TextReader.Extensions;
 using TextReader.Helpers;
 using Windows.Foundation;
 using Windows.UI.Composition;

@@ -6,122 +6,175 @@ using System.Threading.Tasks;
 using TextReader.Pages;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml;
+using TextReader.Common;
+using TextReader.Extensions;
 
 namespace TextReader.Helpers
 {
-    internal static partial class UIHelper
+    public static partial class UIHelper
     {
         public const int Duration = 3000;
         public static bool IsShowingProgressBar, IsShowingMessage;
+        public static Queue<string> MessageQueue { get; } = new Queue<string>();
         public static bool HasTitleBar => !CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
         public static bool HasStatusBar => ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar");
 
-        private static readonly List<string> MessageList = new List<string>();
-    }
+        public static async Task<MainPage> GetMainPageAsync() =>
+            Window.Current is Window window ? await window.GetMainPageAsync().ConfigureAwait(false) : null;
 
-    internal static partial class UIHelper
-    {
-        public static async void ShowProgressBar(this MainPage MainPage)
+        public static async Task<MainPage> GetMainPageAsync(this Window window)
+        {
+            if (window.Dispatcher?.HasThreadAccess == false)
+            {
+                await window.Dispatcher.ResumeForegroundAsync();
+            }
+            return window.Content.FindDescendant<MainPage>();
+        }
+
+        public static async Task<MainPage> GetMainPageAsync(this CoreDispatcher dispatcher)
+        {
+            if (WindowHelper.ActiveWindows.TryGetValue(dispatcher, out Window window))
+            {
+                if (window.Dispatcher?.HasThreadAccess == false)
+                {
+                    await window.Dispatcher.ResumeForegroundAsync();
+                }
+                return window.Content.FindDescendant<MainPage>();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static async Task<MainPage> GetMainPageAsync(this DependencyObject element)
+        {
+            if (element is MainPage mainPage)
+            {
+                return mainPage;
+            }
+
+            if (element.Dispatcher?.HasThreadAccess == false)
+            {
+                await element.Dispatcher.ResumeForegroundAsync();
+            }
+
+            if (WindowHelper.IsXamlRootSupported
+                && element is UIElement uiElement
+                && uiElement.XamlRoot != null)
+            {
+                return uiElement.XamlRoot.Content.FindDescendant<MainPage>();
+            }
+
+            return element.FindAscendant<MainPage>()
+                ?? await element.Dispatcher.GetMainPageAsync().ConfigureAwait(false);
+        }
+
+        public static Task ShowProgressBarAsync(this CoreDispatcher dispatcher) => dispatcher.GetMainPageAsync().ContinueWith(x => ShowProgressBarAsync(x.Result)).Unwrap();
+
+        public static Task ShowProgressBarAsync(this DependencyObject element) => element.GetMainPageAsync().ContinueWith(x => ShowProgressBarAsync(x.Result)).Unwrap();
+
+        public static async Task ShowProgressBarAsync(MainPage mainPage)
         {
             IsShowingProgressBar = true;
+            if (mainPage.Dispatcher?.HasThreadAccess == false)
+            {
+                await mainPage.Dispatcher.ResumeForegroundAsync();
+            }
             if (HasStatusBar)
             {
-                await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.HideProgressBar());
+                await mainPage?.HideProgressBarAsync();
                 StatusBar.GetForCurrentView().ProgressIndicator.ProgressValue = null;
                 await StatusBar.GetForCurrentView().ProgressIndicator.ShowAsync();
             }
             else
             {
-                await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.ShowProgressBar());
+                await mainPage?.ShowProgressBarAsync();
             }
         }
 
-        public static async void HideProgressBar(this MainPage MainPage)
+        public static Task HideProgressBarAsync(this CoreDispatcher dispatcher) => dispatcher.GetMainPageAsync().ContinueWith(x => HideProgressBarAsync(x.Result)).Unwrap();
+
+        public static Task HideProgressBarAsync(this DependencyObject element) => element.GetMainPageAsync().ContinueWith(x => HideProgressBarAsync(x.Result)).Unwrap();
+
+        public static async Task HideProgressBarAsync(MainPage mainPage)
         {
             IsShowingProgressBar = false;
+            if (mainPage.Dispatcher?.HasThreadAccess == false)
+            {
+                await mainPage.Dispatcher.ResumeForegroundAsync();
+            }
             if (HasStatusBar)
             {
                 await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
             }
-            await MainPage?.Dispatcher.AwaitableRunAsync(() => MainPage?.HideProgressBar());
+            await mainPage?.HideProgressBarAsync();
         }
 
-        public static async void ShowMessage(this MainPage MainPage, string message)
+        public static Task ShowMessageAsync(string message) => GetMainPageAsync().ContinueWith(x => ShowMessageAsync(x.Result, message)).Unwrap();
+
+        public static Task ShowMessageAsync(this CoreDispatcher dispatcher, string message) => dispatcher.GetMainPageAsync().ContinueWith(x => ShowMessageAsync(x.Result, message)).Unwrap();
+
+        public static Task ShowMessageAsync(this DependencyObject element, string message) => element.GetMainPageAsync().ContinueWith(x => ShowMessageAsync(x.Result, message)).Unwrap();
+
+        public static async Task ShowMessageAsync(MainPage mainPage, string message)
         {
-            MessageList.Add(message);
+            if (mainPage == null) { return; }
+            MessageQueue.Enqueue(message);
             if (!IsShowingMessage)
             {
                 IsShowingMessage = true;
-                while (MessageList.Count > 0)
+                if (mainPage.Dispatcher?.HasThreadAccess == false)
                 {
-                    if (HasStatusBar)
+                    await mainPage.Dispatcher.ResumeForegroundAsync();
+                }
+                if (HasStatusBar)
+                {
+                    StatusBar statusBar = StatusBar.GetForCurrentView();
+                    while (MessageQueue.Count > 0)
                     {
-                        StatusBar statusBar = StatusBar.GetForCurrentView();
-                        if (!string.IsNullOrEmpty(MessageList[0]))
+                        message = MessageQueue.Dequeue();
+                        if (!string.IsNullOrEmpty(message))
                         {
-                            statusBar.ProgressIndicator.Text = $"[{MessageList.Count}] {MessageList[0].Replace("\n", " ")}";
+                            statusBar.ProgressIndicator.Text = $"[{MessageQueue.Count + 1}] {message.Replace("\n", " ")}";
                             statusBar.ProgressIndicator.ProgressValue = IsShowingProgressBar ? null : (double?)0;
                             await statusBar.ProgressIndicator.ShowAsync();
-                            await Task.Delay(3000);
+                            await Task.Delay(Duration);
                         }
-                        MessageList.RemoveAt(0);
-                        if (MessageList.Count == 0 && !IsShowingProgressBar) { await statusBar.ProgressIndicator.HideAsync(); }
-                        statusBar.ProgressIndicator.Text = string.Empty;
                     }
-                    else
+                    if (!IsShowingProgressBar) { await statusBar.ProgressIndicator.HideAsync(); }
+                    statusBar.ProgressIndicator.Text = string.Empty;
+                }
+                else if (mainPage != null)
+                {
+                    while (MessageQueue.Count > 0)
                     {
-                        await MainPage?.Dispatcher.AwaitableRunAsync(async () =>
+                        message = MessageQueue.Dequeue();
+                        if (!string.IsNullOrEmpty(message))
                         {
-                            if (MainPage != null)
-                            {
-                                if (!string.IsNullOrEmpty(MessageList[0]))
-                                {
-                                    string messages = $"[{MessageList.Count}] {MessageList[0].Replace("\n", " ")}";
-                                    MainPage.ShowMessage(messages);
-                                    await Task.Delay(3000);
-                                }
-                                MessageList.RemoveAt(0);
-                                if (MessageList.Count == 0)
-                                {
-                                    MainPage.ShowMessage();
-                                }
-                            }
-                        });
+                            string messages = $"[{MessageQueue.Count + 1}] {message.Replace("\n", " ")}";
+                            await mainPage.ShowMessageAsync(messages);
+                            await Task.Delay(Duration);
+                        }
                     }
+                    await mainPage.ShowMessageAsync();
                 }
                 IsShowingMessage = false;
             }
         }
+
         public static string ExceptionToMessage(this Exception ex)
         {
-            StringBuilder builder = new StringBuilder();
-            _ = builder.Append('\n');
+            StringBuilder builder = new StringBuilder().AppendLine();
             if (!string.IsNullOrWhiteSpace(ex.Message)) { _ = builder.AppendLine($"Message: {ex.Message}"); }
             _ = builder.AppendLine($"HResult: {ex.HResult} (0x{Convert.ToString(ex.HResult, 16).ToUpperInvariant()})");
             if (!string.IsNullOrWhiteSpace(ex.StackTrace)) { _ = builder.AppendLine(ex.StackTrace); }
-            if (!string.IsNullOrWhiteSpace(ex.HelpLink)) { _ = builder.Append($"HelperLink: {ex.HelpLink}"); }
+            if (!string.IsNullOrWhiteSpace(ex.HelpLink)) { _ = builder.AppendLine($"HelperLink: {ex.HelpLink}"); }
             return builder.ToString();
-        }
-
-        public static TResult AwaitByTaskCompleteSource<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken = default)
-        {
-            TaskCompletionSource<TResult> taskCompletionSource = new TaskCompletionSource<TResult>();
-            Task<TResult> task = taskCompletionSource.Task;
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    TResult result = await function.Invoke().ConfigureAwait(false);
-                    taskCompletionSource.SetResult(result);
-                }
-                catch (Exception e)
-                {
-                    taskCompletionSource.SetException(e);
-                }
-            }, cancellationToken);
-            TResult taskResult = task.Result;
-            return taskResult;
         }
     }
 }

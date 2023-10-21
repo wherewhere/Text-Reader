@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TextReader.Common;
 using TextReader.Controls;
 using TextReader.Helpers;
 using TextReader.Helpers.Converters;
 using TextReader.ViewModels;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -40,10 +42,10 @@ namespace TextReader.Pages
             InitializeComponent();
             AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
             if (!(AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop"))
-            { UpdateTitleBarLayout(false); }
+            { UpdateTitleBarVisible(false); }
             if (SettingsHelper.OperatingSystemVersion >= 22000)
             { CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right; }
-            Provider = new MainViewModel(this);
+            Provider = new MainViewModel(Dispatcher);
             DataContext = Provider;
         }
 
@@ -169,27 +171,32 @@ namespace TextReader.Pages
             Provider.ShowCropper = true;
         }
 
-        private void Grid_DragOver(object sender, DragEventArgs e)
+        private async void Grid_DragOver(object sender, DragEventArgs e)
         {
-            e.AcceptedOperation = DataPackageOperation.Copy;
+            DragOperationDeferral deferral = e.GetDeferral();
+            e.AcceptedOperation = await Provider.CheckData(e.DataView) ? DataPackageOperation.Copy : DataPackageOperation.None;
             e.Handled = true;
+            deferral.Complete();
         }
 
-        private void Grid_Drop(object sender, DragEventArgs e)
+        private async void Grid_Drop(object sender, DragEventArgs e)
         {
-            _ = Provider.DropFile(e.DataView);
+            DragOperationDeferral deferral = e.GetDeferral();
+            await Provider.DropFile(e.DataView);
             e.Handled = true;
+            deferral.Complete();
         }
 
         private void UpdateTitleBarLayout(CoreApplicationViewTitleBar TitleBar)
         {
-            CustomTitleBar.Height = TitleBar.Height;
+            CustomTitleBar.Opacity = TitleBar.SystemOverlayLeftInset > 48 ? 0 : 1;
             LeftPaddingColumn.Width = new GridLength(TitleBar.SystemOverlayLeftInset);
             RightPaddingColumn.Width = new GridLength(TitleBar.SystemOverlayRightInset);
         }
 
-        private void UpdateTitleBarLayout(bool IsVisible)
+        private void UpdateTitleBarVisible(bool IsVisible)
         {
+            TopPaddingRow.Height = IsVisible && !UIHelper.HasStatusBar && !UIHelper.HasTitleBar ? new GridLength(32) : new GridLength(0);
             CustomTitleBar.Visibility = IsVisible && !UIHelper.HasStatusBar && !UIHelper.HasTitleBar ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -214,49 +221,34 @@ namespace TextReader.Pages
             }
         }
 
+        private void Image_DragStarting(UIElement sender, DragStartingEventArgs args) => args.DragUI.SetContentFromSoftwareBitmap(Provider.SoftwareImage);
+
         private void Clipboard_ContentChanged(object sender, object e) => _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
 
-        private void TitleBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarLayout(sender.IsVisible);
+        private void TitleBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarVisible(sender.IsVisible);
 
         private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarLayout(sender);
 
         #region 进度条
 
-        public void ShowProgressBar()
+        public async Task ShowProgressBarAsync()
         {
+            if (!Dispatcher.HasThreadAccess)
+            {
+                await Dispatcher.ResumeForegroundAsync();
+            }
             ProgressBar.Visibility = Visibility.Visible;
             ProgressBar.IsIndeterminate = true;
             ProgressBar.ShowError = false;
             ProgressBar.ShowPaused = false;
         }
 
-        public void ShowProgressBar(double value)
+        public async Task HideProgressBarAsync()
         {
-            ProgressBar.Visibility = Visibility.Visible;
-            ProgressBar.IsIndeterminate = false;
-            ProgressBar.ShowError = false;
-            ProgressBar.ShowPaused = false;
-            ProgressBar.Value = value;
-        }
-
-        public void PausedProgressBar()
-        {
-            ProgressBar.Visibility = Visibility.Visible;
-            ProgressBar.IsIndeterminate = true;
-            ProgressBar.ShowError = false;
-            ProgressBar.ShowPaused = true;
-        }
-
-        public void ErrorProgressBar()
-        {
-            ProgressBar.Visibility = Visibility.Visible;
-            ProgressBar.IsIndeterminate = true;
-            ProgressBar.ShowPaused = false;
-            ProgressBar.ShowError = true;
-        }
-
-        public void HideProgressBar()
-        {
+            if (!Dispatcher.HasThreadAccess)
+            {
+                await Dispatcher.ResumeForegroundAsync();
+            }
             ProgressBar.Visibility = Visibility.Collapsed;
             ProgressBar.IsIndeterminate = false;
             ProgressBar.ShowError = false;
@@ -264,16 +256,16 @@ namespace TextReader.Pages
             ProgressBar.Value = 0;
         }
 
-        public void ShowMessage(string message = null)
+        public async Task ShowMessageAsync(string message = null)
         {
-            if (CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar)
+            if (!Dispatcher.HasThreadAccess)
             {
-                AppTitle.Text = message ?? ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
+                await Dispatcher.ResumeForegroundAsync();
             }
-            else
-            {
-                ApplicationView.GetForCurrentView().Title = message ?? string.Empty;
-            }
+
+            AppTitle.Text = message ?? ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? Package.Current.DisplayName;
+
+            ApplicationView.GetForCurrentView().Title = message ?? string.Empty;
         }
 
         #endregion

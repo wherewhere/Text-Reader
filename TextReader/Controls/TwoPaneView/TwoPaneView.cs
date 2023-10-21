@@ -1,4 +1,5 @@
-﻿using Windows.Foundation;
+﻿using TextReader.Helpers;
+using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -31,8 +32,30 @@ namespace TextReader.Controls
 
             SizeChanged -= OnSizeChanged;
             SizeChanged += OnSizeChanged;
-            Window.Current.SizeChanged -= OnWindowSizeChanged;
-            Window.Current.SizeChanged += OnWindowSizeChanged;
+            Loaded += (sender, args) =>
+            {
+                if (WindowHelper.IsXamlRootSupported && XamlRoot != null)
+                {
+                    XamlRoot.Changed -= OnXamlRootSizeChanged;
+                    XamlRoot.Changed += OnXamlRootSizeChanged;
+                }
+                else if (Window.Current is Window window)
+                {
+                    window.SizeChanged -= OnWindowSizeChanged;
+                    window.SizeChanged += OnWindowSizeChanged;
+                }
+            };
+            Unloaded += (sender, args) =>
+            {
+                if (WindowHelper.IsXamlRootSupported && XamlRoot != null)
+                {
+                    XamlRoot.Changed -= OnXamlRootSizeChanged;
+                }
+                else if (Window.Current is Window window)
+                {
+                    window.SizeChanged -= OnWindowSizeChanged;
+                }
+            };
         }
 
         /// <summary>
@@ -53,6 +76,11 @@ namespace TextReader.Controls
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateMode();
+        }
+
+        private void OnXamlRootSizeChanged(XamlRoot sender, XamlRootChangedEventArgs args)
         {
             UpdateMode();
         }
@@ -206,7 +234,7 @@ namespace TextReader.Controls
             {
                 Rect rc1 = info.Regions[0];
                 Rect rc2 = info.Regions[1];
-                Rect rcWindow = DisplayRegionHelper.WindowRect();
+                Rect rcWindow = DisplayRegionHelper.WindowRect(this);
 
                 if (info.Mode == TwoPaneViewMode.Wide)
                 {
@@ -228,7 +256,7 @@ namespace TextReader.Controls
         private Rect GetControlRect()
         {
             // Find out where this control is in the window
-            GeneralTransform transform = TransformToVisual(DisplayRegionHelper.WindowElement());
+            GeneralTransform transform = TransformToVisual(DisplayRegionHelper.WindowElement(this));
             return transform.TransformBounds(new Rect(0, 0, ActualWidth, ActualHeight));
         }
 

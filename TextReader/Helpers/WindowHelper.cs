@@ -1,30 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TextReader.Extensions;
+using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Foundation.Metadata;
-using Windows.UI.WindowManagement;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Hosting;
 
 namespace TextReader.Helpers
 {
-    // Helpers class to allow the app to find the Window that contains an
-    // arbitrary UIElement (GetWindowForElement).  To do this, we keep track
-    // of all active Windows.  The app code must call WindowHelper.CreateWindow
-    // rather than "new Window" so we can keep track of all the relevant
-    // windows.  In the future, we would like to support this in platform APIs.
+    /// <summary>
+    /// Helpers class to allow the app to find the Window that contains an
+    /// arbitrary <see cref="UIElement"/> (GetWindowForElement(UIElement)).
+    /// To do this, we keep track of all active Windows. The app code must call
+    /// <see cref="CreateWindowAsync(Action{Window})"/> rather than "new <see cref="Window"/>()"
+    /// so we can keep track of all the relevant windows.
+    /// </summary>
     public static class WindowHelper
     {
-        public static void TrackWindow(this Window window)
+        public static bool IsXamlRootSupported { get; } = ApiInformation.IsPropertyPresent("Windows.UI.Xaml.UIElement", "XamlRoot");
+
+        public static async Task<bool> CreateWindowAsync(Action<Window> launched)
         {
-            window.Closed += (sender, args) =>
+            CoreApplicationView newView = CoreApplication.CreateNewView();
+            int newViewId = await newView.Dispatcher.AwaitableRunAsync(() =>
             {
-                ActiveWindows?.Remove(window);
-            };
-            ActiveWindows?.Add(window);
+                Window newWindow = Window.Current;
+                launched(newWindow);
+                TrackWindow(newWindow);
+                Window.Current.Activate();
+                return ApplicationView.GetForCurrentView().Id;
+            });
+            return await ApplicationViewSwitcher.TryShowAsStandaloneAsync(newViewId);
         }
 
-        public static List<Window> ActiveWindows { get; } = new List<Window>();
+        public static void TrackWindow(this Window window)
+        {
+            if (!ActiveWindows.ContainsKey(window.Dispatcher))
+            {
+                window.Closed += (sender, args) =>
+                {
+                    ActiveWindows.Remove(window.Dispatcher);
+                    window = null;
+                };
+                ActiveWindows[window.Dispatcher] = window;
+            }
+        }
+
+        public static Size GetXAMLRootSize(this UIElement element) =>
+            IsXamlRootSupported && element.XamlRoot != null
+                ? element.XamlRoot.Size
+                : Window.Current is Window window
+                    ? window.Bounds.ToSize()
+                    : CoreApplication.MainView.CoreWindow.Bounds.ToSize();
+
+        public static UIElement GetXAMLRoot(this UIElement element) =>
+            IsXamlRootSupported && element.XamlRoot != null
+                ? element.XamlRoot.Content
+                : Window.Current is Window window
+                    ? window.Content : null;
+
+        public static void SetXAMLRoot(this UIElement element, UIElement target)
+        {
+            if (IsXamlRootSupported)
+            {
+                element.XamlRoot = target?.XamlRoot;
+            }
+        }
+
+        public static Dictionary<CoreDispatcher, Window> ActiveWindows { get; } = new Dictionary<CoreDispatcher, Window>();
     }
 }
