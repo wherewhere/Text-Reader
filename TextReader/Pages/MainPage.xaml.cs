@@ -233,10 +233,7 @@ namespace TextReader.Pages
 
         public async Task ShowProgressBarAsync()
         {
-            if (!Dispatcher.HasThreadAccess)
-            {
-                await Dispatcher.ResumeForegroundAsync();
-            }
+            await Dispatcher.ResumeForegroundAsync();
             ProgressBar.Visibility = Visibility.Visible;
             ProgressBar.IsIndeterminate = true;
             ProgressBar.ShowError = false;
@@ -245,10 +242,7 @@ namespace TextReader.Pages
 
         public async Task HideProgressBarAsync()
         {
-            if (!Dispatcher.HasThreadAccess)
-            {
-                await Dispatcher.ResumeForegroundAsync();
-            }
+            await Dispatcher.ResumeForegroundAsync();
             ProgressBar.Visibility = Visibility.Collapsed;
             ProgressBar.IsIndeterminate = false;
             ProgressBar.ShowError = false;
@@ -258,10 +252,7 @@ namespace TextReader.Pages
 
         public async Task ShowMessageAsync(string message = null)
         {
-            if (!Dispatcher.HasThreadAccess)
-            {
-                await Dispatcher.ResumeForegroundAsync();
-            }
+            await Dispatcher.ResumeForegroundAsync();
 
             AppTitle.Text = message ?? ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? Package.Current.DisplayName;
 

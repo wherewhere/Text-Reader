@@ -28,10 +28,7 @@ namespace TextReader.Helpers
 
         public static async Task<MainPage> GetMainPageAsync(this Window window)
         {
-            if (window.Dispatcher?.HasThreadAccess == false)
-            {
-                await window.Dispatcher.ResumeForegroundAsync();
-            }
+            await window.Dispatcher.ResumeForegroundAsync();
             return window.Content.FindDescendant<MainPage>();
         }
 
@@ -39,10 +36,7 @@ namespace TextReader.Helpers
         {
             if (WindowHelper.ActiveWindows.TryGetValue(dispatcher, out Window window))
             {
-                if (window.Dispatcher?.HasThreadAccess == false)
-                {
-                    await window.Dispatcher.ResumeForegroundAsync();
-                }
+                await window.Dispatcher.ResumeForegroundAsync();
                 return window.Content.FindDescendant<MainPage>();
             }
             else
@@ -58,10 +52,7 @@ namespace TextReader.Helpers
                 return mainPage;
             }
 
-            if (element.Dispatcher?.HasThreadAccess == false)
-            {
-                await element.Dispatcher.ResumeForegroundAsync();
-            }
+            await element.Dispatcher.ResumeForegroundAsync();
 
             if (WindowHelper.IsXamlRootSupported
                 && element is UIElement uiElement
@@ -81,10 +72,7 @@ namespace TextReader.Helpers
         public static async Task ShowProgressBarAsync(MainPage mainPage)
         {
             IsShowingProgressBar = true;
-            if (mainPage.Dispatcher?.HasThreadAccess == false)
-            {
-                await mainPage.Dispatcher.ResumeForegroundAsync();
-            }
+            await mainPage.Dispatcher.ResumeForegroundAsync();
             if (HasStatusBar)
             {
                 await mainPage?.HideProgressBarAsync();
@@ -104,10 +92,7 @@ namespace TextReader.Helpers
         public static async Task HideProgressBarAsync(MainPage mainPage)
         {
             IsShowingProgressBar = false;
-            if (mainPage.Dispatcher?.HasThreadAccess == false)
-            {
-                await mainPage.Dispatcher.ResumeForegroundAsync();
-            }
+            await mainPage.Dispatcher.ResumeForegroundAsync();
             if (HasStatusBar)
             {
                 await StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
@@ -128,10 +113,7 @@ namespace TextReader.Helpers
             if (!IsShowingMessage)
             {
                 IsShowingMessage = true;
-                if (mainPage.Dispatcher?.HasThreadAccess == false)
-                {
-                    await mainPage.Dispatcher.ResumeForegroundAsync();
-                }
+                await mainPage.Dispatcher.ResumeForegroundAsync();
                 if (HasStatusBar)
                 {
                     StatusBar statusBar = StatusBar.GetForCurrentView();
