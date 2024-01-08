@@ -5,7 +5,6 @@
 using System;
 using System.Numerics;
 using TextReader.Extensions;
-using TextReader.Helpers;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Hosting;

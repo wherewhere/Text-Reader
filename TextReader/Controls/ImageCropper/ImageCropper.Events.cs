@@ -4,7 +4,6 @@
 
 using System;
 using TextReader.Extensions;
-using TextReader.Helpers;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;

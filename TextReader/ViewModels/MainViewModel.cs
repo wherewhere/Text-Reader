@@ -28,7 +28,7 @@ namespace TextReader.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        public static string[] ImageTypes = new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
+        public static string[] ImageTypes = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
         public CoreDispatcher Dispatcher { get; }
@@ -334,12 +334,12 @@ namespace TextReader.ViewModels
             {
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary
             };
-            fileSavePicker.FileTypeChoices.Add($"JPEG {loader.GetString("Files")}", new List<string> { ".jpeg", ".jpg" });
-            fileSavePicker.FileTypeChoices.Add($"PNG {loader.GetString("Files")}", new List<string> { ".png" });
-            fileSavePicker.FileTypeChoices.Add($"BMP {loader.GetString("Files")}", new List<string> { ".bmp" });
-            fileSavePicker.FileTypeChoices.Add($"TIFF {loader.GetString("Files")}", new List<string> { ".tiff", ".tif" });
-            fileSavePicker.FileTypeChoices.Add($"GIF {loader.GetString("Files")}", new List<string> { ".gif" });
-            fileSavePicker.FileTypeChoices.Add($"HEIF {loader.GetString("Files")}", new List<string> { ".heif", ".heic" });
+            fileSavePicker.FileTypeChoices.Add($"JPEG {loader.GetString("Files")}", new[] { ".jpeg", ".jpg" });
+            fileSavePicker.FileTypeChoices.Add($"PNG {loader.GetString("Files")}", new[] { ".png" });
+            fileSavePicker.FileTypeChoices.Add($"BMP {loader.GetString("Files")}", new[] { ".bmp" });
+            fileSavePicker.FileTypeChoices.Add($"TIFF {loader.GetString("Files")}", new[] { ".tiff", ".tif" });
+            fileSavePicker.FileTypeChoices.Add($"GIF {loader.GetString("Files")}", new[] { ".gif" });
+            fileSavePicker.FileTypeChoices.Add($"HEIF {loader.GetString("Files")}", new[] { ".heif", ".heic" });
             fileSavePicker.SuggestedFileName = $"TextReader_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
 
             StorageFile outputFile = await fileSavePicker.PickSaveFileAsync();
@@ -375,25 +375,25 @@ namespace TextReader.ViewModels
                 Guid bitmapEncoderGuid;
                 switch (outputFile.FileType.ToLower())
                 {
-                    case "jpeg":
-                    case "jpg":
+                    case ".jpeg":
+                    case ".jpg":
                         bitmapEncoderGuid = BitmapEncoder.JpegEncoderId;
                         break;
-                    case "png":
+                    case ".png":
                         bitmapEncoderGuid = BitmapEncoder.PngEncoderId;
                         break;
-                    case "bmp":
+                    case ".bmp":
                         bitmapEncoderGuid = BitmapEncoder.BmpEncoderId;
                         break;
-                    case "tiff":
-                    case "tif":
+                    case ".tiff":
+                    case ".tif":
                         bitmapEncoderGuid = BitmapEncoder.TiffEncoderId;
                         break;
-                    case "gif":
+                    case ".gif":
                         bitmapEncoderGuid = BitmapEncoder.GifEncoderId;
                         break;
-                    case "heif":
-                    case "heic":
+                    case ".heif":
+                    case ".heic":
                         bitmapEncoderGuid = ApiInformation.IsPropertyPresent("Windows.Graphics.Imaging.BitmapEncoder", "HeifEncoderId")
                             ? BitmapEncoder.HeifEncoderId
                             : BitmapEncoder.JpegEncoderId;

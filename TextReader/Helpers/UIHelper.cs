@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using TextReader.Common;
+using TextReader.Extensions;
 using TextReader.Pages;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
-using TextReader.Common;
-using TextReader.Extensions;
 
 namespace TextReader.Helpers
 {
@@ -54,14 +52,11 @@ namespace TextReader.Helpers
 
             await element.Dispatcher.ResumeForegroundAsync();
 
-            if (WindowHelper.IsXamlRootSupported
+            return WindowHelper.IsXamlRootSupported
                 && element is UIElement uiElement
-                && uiElement.XamlRoot != null)
-            {
-                return uiElement.XamlRoot.Content.FindDescendant<MainPage>();
-            }
-
-            return element.FindAscendant<MainPage>()
+                && uiElement.XamlRoot != null
+                ? uiElement.XamlRoot.Content.FindDescendant<MainPage>()
+                : element.FindAscendant<MainPage>()
                 ?? await element.Dispatcher.GetMainPageAsync().ConfigureAwait(false);
         }
 

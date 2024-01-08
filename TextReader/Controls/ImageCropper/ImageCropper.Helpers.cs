@@ -10,7 +10,6 @@ using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TextReader.Extensions;
-using TextReader.Helpers;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
