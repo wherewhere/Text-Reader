@@ -10,7 +10,7 @@
   <Identity
     Name="18184wherewhere.OCRTextReader"
     Publisher="CN=2C3A37C0-35FC-4839-B08C-751C1C1AFBF5"
-    Version="0.0.4.0" />
+    Version="0.0.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="4654707c-a15c-4f40-bcfe-d9af768050d8" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -38,7 +38,10 @@
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="ms-resource:AppDescription"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square71x71Logo="Assets\SmallTile.png"
+          Square310x310Logo="Assets\LargeTile.png">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="square150x150Logo"/>
             <uap:ShowOn Tile="wide310x150Logo"/>

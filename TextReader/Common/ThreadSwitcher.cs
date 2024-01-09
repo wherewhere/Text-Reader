@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Windows.System.Threading;
 using Windows.UI.Core;
+using ThreadPool = Windows.System.Threading.ThreadPool;
 
 namespace TextReader.Common
 {
