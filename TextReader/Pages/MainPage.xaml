@@ -110,10 +110,10 @@
             Canvas.ZIndex="1"
             IsHitTestVisible="True">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="LeftPaddingColumn" />
+                <ColumnDefinition x:Name="LeftPaddingColumn" Width="0" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition x:Name="RightPaddingColumn" />
+                <ColumnDefinition x:Name="RightPaddingColumn" Width="0" />
             </Grid.ColumnDefinitions>
             <Viewbox
                 x:Name="AppTitleIcon"
@@ -121,6 +121,7 @@
                 MaxWidth="16"
                 MaxHeight="16"
                 Margin="16,0"
+                HorizontalAlignment="Center"
                 VerticalAlignment="Center">
                 <controls:ApplicationLogo />
             </Viewbox>
@@ -190,16 +191,15 @@
                         <Border
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            helpers:UIElementHelper.ContextFlyout="{StaticResource ImageMenuFlyout}"
-                            Background="Transparent">
+                            Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                             <Viewbox
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
+                                helpers:UIElementHelper.ContextFlyout="{StaticResource ImageMenuFlyout}"
                                 CanDrag="True"
                                 DragStarting="Image_DragStarting"
-                                Stretch="Uniform"
-                                Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
-                                <Grid>
+                                Stretch="Uniform">
+                                <Grid Background="Transparent">
                                     <Image Source="{x:Bind Provider.Image, Mode=OneWay}" />
                                     <Path Data="{x:Bind Provider.ResultGeometry, Mode=OneWay}" StrokeThickness="0">
                                         <Path.Fill>

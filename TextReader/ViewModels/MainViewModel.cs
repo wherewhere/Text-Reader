@@ -105,7 +105,7 @@ namespace TextReader.ViewModels
             }
         }
 
-        private int languageIndex;
+        private int languageIndex = -1;
         public int LanguageIndex
         {
             get => languageIndex;
