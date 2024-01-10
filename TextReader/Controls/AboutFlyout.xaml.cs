@@ -18,9 +18,9 @@ namespace TextReader.Controls
 
         public AboutFlyout()
         {
-            ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("AboutFlyout");
+            ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse("AboutFlyout");
 
-            this.InitializeComponent();
+            InitializeComponent();
 
             SetVersionString();
 
@@ -56,7 +56,7 @@ namespace TextReader.Controls
 
         private void InitializeContributeTextBlock()
         {
-            ResourceLoader resProvider = ResourceLoader.GetForCurrentView("AboutFlyout");
+            ResourceLoader resProvider = ResourceLoader.GetForViewIndependentUse("AboutFlyout");
             string appName = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "Text Reader";
             string contributeHyperlinkText = string.Format(resProvider.GetString("AboutFlyoutContribute"), appName);
 

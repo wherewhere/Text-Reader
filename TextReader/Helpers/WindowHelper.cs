@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TextReader.Extensions;
+using TextReader.Common;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -40,8 +39,10 @@ namespace TextReader.Helpers
         {
             if (!ActiveWindows.ContainsKey(window.Dispatcher))
             {
+                SettingsPaneRegister.Register(window);
                 window.Closed += (sender, args) =>
                 {
+                    SettingsPaneRegister.Unregister(window);
                     ActiveWindows.Remove(window.Dispatcher);
                     window = null;
                 };
@@ -49,26 +50,11 @@ namespace TextReader.Helpers
             }
         }
 
-        public static Size GetXAMLRootSize(this UIElement element) =>
-            IsXamlRootSupported && element.XamlRoot != null
-                ? element.XamlRoot.Size
-                : Window.Current is Window window
-                    ? window.Bounds.ToSize()
-                    : CoreApplication.MainView.CoreWindow.Bounds.ToSize();
-
         public static UIElement GetXAMLRoot(this UIElement element) =>
             IsXamlRootSupported && element.XamlRoot != null
                 ? element.XamlRoot.Content
                 : Window.Current is Window window
                     ? window.Content : null;
-
-        public static void SetXAMLRoot(this UIElement element, UIElement target)
-        {
-            if (IsXamlRootSupported)
-            {
-                element.XamlRoot = target?.XamlRoot;
-            }
-        }
 
         public static Dictionary<CoreDispatcher, Window> ActiveWindows { get; } = new Dictionary<CoreDispatcher, Window>();
     }

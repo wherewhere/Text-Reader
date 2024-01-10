@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TextReader.Common;
 using TextReader.Helpers;
+using TextReader.Pages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
@@ -28,13 +29,16 @@ namespace TextReader.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        public static string[] ImageTypes = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
+        private readonly MainPage _page;
+
+        public static string[] ImageTypes { get; } = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
-        public CoreDispatcher Dispatcher { get; }
+        public CoreDispatcher Dispatcher => _page.Dispatcher;
 
-        public bool IsSupportCompactOverlay { get; } = ApiInformation.IsMethodPresent("Windows.UI.ViewManagement.ApplicationView", "IsViewModeSupported")
-                                                    && ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay);
+        public bool IsSupportCompactOverlay { get; } =
+            ApiInformation.IsMethodPresent("Windows.UI.ViewManagement.ApplicationView", "IsViewModeSupported")
+            && ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay);
 
         public bool IsCompactOverlay
         {
@@ -98,8 +102,8 @@ namespace TextReader.ViewModels
                     RaisePropertyChangedEvent();
                     if (value != null)
                     {
-                        _ = SetImage(value);
-                        _ = ReadText(value);
+                        _ = SetImageAsync(value);
+                        _ = ReadTextAsync(value);
                     }
                 }
             }
@@ -117,7 +121,7 @@ namespace TextReader.ViewModels
                     RaisePropertyChangedEvent();
                     if (SoftwareImage != null)
                     {
-                        _ = ReadText(SoftwareImage);
+                        _ = ReadTextAsync(SoftwareImage);
                     }
                 }
             }
@@ -157,7 +161,7 @@ namespace TextReader.ViewModels
                     RaisePropertyChangedEvent();
                     if (SoftwareImage != null)
                     {
-                        _ = ReadText(SoftwareImage);
+                        _ = ReadTextAsync(SoftwareImage);
                     }
                 }
             }
@@ -235,9 +239,9 @@ namespace TextReader.ViewModels
             }
         }
 
-        public MainViewModel(CoreDispatcher dispatcher) => Dispatcher = dispatcher;
+        public MainViewModel(MainPage page) => _page = page;
 
-        public async Task SetIndex(string Language)
+        public async Task SetIndexAsync(string Language)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
             Language LocalLanguage = new Language(Language);
@@ -262,7 +266,7 @@ namespace TextReader.ViewModels
             FileOpen.SuggestedStartLocation = PickerLocationId.ComputerFolder;
 
             StorageFile file = await FileOpen.PickSingleFileAsync();
-            if (file != null) { await ReadFile(file); }
+            if (file != null) { await ReadFileAsync(file); }
         }
 
         public async Task TakePhoto()
@@ -270,38 +274,39 @@ namespace TextReader.ViewModels
             CameraCaptureUI captureUI = new CameraCaptureUI();
             captureUI.PhotoSettings.Format = CameraCaptureUIPhotoFormat.Png;
             StorageFile file = await captureUI.CaptureFileAsync(CameraCaptureUIMode.Photo);
-            if (file != null) { await ReadFile(file); }
+            if (file != null) { await ReadFileAsync(file).ConfigureAwait(false); }
         }
 
-        public async Task DropFile(DataPackageView data)
+        public async Task DropFileAsync(DataPackageView data)
         {
             if (data.Contains(StandardDataFormats.Bitmap))
             {
                 RandomAccessStreamReference bitmap = await data.GetBitmapAsync();
                 using (IRandomAccessStreamWithContentType random = await bitmap.OpenReadAsync())
                 {
-                    await ReadStream(random);
+                    await ReadStreamAsync(random).ConfigureAwait(false);
                 }
             }
             else if (data.Contains(StandardDataFormats.StorageItems))
             {
                 IReadOnlyList<IStorageItem> items = await data.GetStorageItemsAsync();
-                IEnumerable<IStorageItem> images = items.Where(i => i is StorageFile).Where(i =>
-                {
-                    foreach (string type in ImageTypes)
-                    {
-                        if (i.Name.EndsWith(type, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-                if (images.Any()) { await ReadFile(images.FirstOrDefault() as StorageFile); }
+                await DropFileAsync(items).ConfigureAwait(false);
             }
         }
 
-        public async Task<bool> CheckData(DataPackageView data)
+        public Task DropFileAsync(IReadOnlyList<IStorageItem> files)
+        {
+            foreach (StorageFile file in files.OfType<StorageFile>())
+            {
+                if (Array.Exists(ImageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return ReadFileAsync(file);
+                }
+            }
+            return Task.CompletedTask;
+        }
+
+        public async Task<bool> CheckDataAsync(DataPackageView data)
         {
             if (data.Contains(StandardDataFormats.Bitmap))
             {
@@ -310,23 +315,12 @@ namespace TextReader.ViewModels
             else if (data.Contains(StandardDataFormats.StorageItems))
             {
                 IReadOnlyList<IStorageItem> items = await data.GetStorageItemsAsync();
-                IEnumerable<IStorageItem> images = items.Where(i => i is StorageFile).Where(i =>
-                {
-                    foreach (string type in ImageTypes)
-                    {
-                        if (i.Name.EndsWith(type, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-                if (images.Any()) { return true; }
+                return items.OfType<StorageFile>().Any(file => Array.Exists(ImageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)));
             }
             return false;
         }
 
-        public async Task SaveImage()
+        public async Task SaveImageAsync()
         {
             ResourceLoader loader = ResourceLoader.GetForViewIndependentUse("MainPage");
 
@@ -350,25 +344,25 @@ namespace TextReader.ViewModels
                 return;
             }
 
-            _ = Dispatcher.ShowProgressBarAsync();
+            _ = UIHelper.ShowProgressBarAsync(_page);
             try
             {
-                await SaveSoftwareBitmapToFile(SoftwareImage, outputFile);
-                _ = Dispatcher.ShowMessageAsync(string.Format(loader.GetString("ImageSaved"), outputFile.Path));
+                await SaveSoftwareBitmapToFileAsync(SoftwareImage, outputFile).ConfigureAwait(false);
+                _ = UIHelper.ShowMessageAsync(_page, string.Format(loader.GetString("ImageSaved"), outputFile.Path));
             }
             catch (Exception ex)
             {
                 SettingsHelper.LogManager.GetLogger(nameof(MainViewModel)).Error(ex.ExceptionToMessage(), ex);
-                _ = Dispatcher.ShowMessageAsync(string.Format(loader.GetString("ImageSaveError"), ex.Message));
+                _ = UIHelper.ShowMessageAsync(_page, string.Format(loader.GetString("ImageSaveError"), ex.Message));
                 await outputFile.DeleteAsync();
             }
             finally
             {
-                _ = Dispatcher.HideProgressBarAsync();
+                _ = UIHelper.HideProgressBarAsync(_page);
             }
         }
 
-        private async Task SaveSoftwareBitmapToFile(SoftwareBitmap softwareBitmap, StorageFile outputFile)
+        private async Task SaveSoftwareBitmapToFileAsync(SoftwareBitmap softwareBitmap, StorageFile outputFile)
         {
             using (IRandomAccessStream stream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
             {
@@ -409,7 +403,6 @@ namespace TextReader.ViewModels
                 // Set the software bitmap
                 encoder.SetSoftwareBitmap(softwareBitmap);
 
-
                 // Set additional encoding parameters, if needed
                 encoder.IsThumbnailGenerated = true;
 
@@ -440,15 +433,15 @@ namespace TextReader.ViewModels
             }
         }
 
-        public async Task ReadFile(IStorageFile file)
+        public async Task ReadFileAsync(IStorageFile file)
         {
             using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
             {
-                await ReadStream(stream);
+                await ReadStreamAsync(stream).ConfigureAwait(false);
             }
         }
 
-        public async Task ReadStream(IRandomAccessStream stream)
+        public async Task ReadStreamAsync(IRandomAccessStream stream)
         {
             BitmapDecoder ImageDecoder = await BitmapDecoder.CreateAsync(stream);
             SoftwareImage = await ImageDecoder.GetSoftwareBitmapAsync();
@@ -482,7 +475,7 @@ namespace TextReader.ViewModels
             }
         }
 
-        public async Task SetImage(SoftwareBitmap softwareBitmap)
+        public async Task SetImageAsync(SoftwareBitmap softwareBitmap)
         {
             if (softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
                 softwareBitmap.BitmapAlphaMode == BitmapAlphaMode.Straight)
@@ -495,9 +488,9 @@ namespace TextReader.ViewModels
             Image = source;
         }
 
-        public async Task ReadText(SoftwareBitmap softwareBitmap)
+        public async Task ReadTextAsync(SoftwareBitmap softwareBitmap)
         {
-            _ = Dispatcher.ShowProgressBarAsync();
+            _ = UIHelper.ShowProgressBarAsync(_page);
             try
             {
                 StringBuilder text = new StringBuilder();
@@ -507,8 +500,8 @@ namespace TextReader.ViewModels
                 if (ocrEngine == null)
                 {
                     Result = string.Empty;
-                    _ = Dispatcher.ShowMessageAsync(ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
-                    _ = Dispatcher.HideProgressBarAsync();
+                    _ = UIHelper.ShowMessageAsync(_page, ResourceLoader.GetForViewIndependentUse().GetString("LanguageError"));
+                    _ = UIHelper.HideProgressBarAsync(_page);
                     return;
                 }
 
@@ -529,7 +522,7 @@ namespace TextReader.ViewModels
             }
             finally
             {
-                _ = Dispatcher.HideProgressBarAsync();
+                _ = UIHelper.HideProgressBarAsync(_page);
             }
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using TextReader.Common;
 using TextReader.Controls;
@@ -12,7 +11,6 @@ using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
 using Windows.Graphics.Imaging;
-using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
@@ -20,6 +18,7 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 using TwoPaneViewTallModeConfiguration = TextReader.Controls.TwoPaneViewTallModeConfiguration;
@@ -45,8 +44,7 @@ namespace TextReader.Pages
             { UpdateTitleBarVisible(false); }
             if (SettingsHelper.OperatingSystemVersion >= 22000)
             { CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right; }
-            Provider = new MainViewModel(Dispatcher);
-            DataContext = Provider;
+            Provider = new MainViewModel(this);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -78,40 +76,29 @@ namespace TextReader.Pages
         {
             switch (args?.Kind)
             {
-                case ActivationKind.File:
-                    IFileActivatedEventArgs FileEventArgs = args as IFileActivatedEventArgs;
-                    foreach (IStorageItem file in FileEventArgs.Files)
-                    {
-                        if (file is IStorageFile storageFile && MainViewModel.ImageTypes.Contains($".{storageFile.FileType.ToLowerInvariant()}"))
-                        {
-                            _ = Provider.ReadFile(storageFile);
-                            break;
-                        }
-                    }
+                case ActivationKind.File when args is IFileActivatedEventArgs fileEventArgs:
+                    _ = Provider.DropFileAsync(fileEventArgs.Files);
                     break;
-                case ActivationKind.ShareTarget:
-                    IShareTargetActivatedEventArgs ShareTargetEventArgs = args as IShareTargetActivatedEventArgs;
-                    _ = Provider.DropFile(ShareTargetEventArgs.ShareOperation.Data);
+                case ActivationKind.ShareTarget when args is IShareTargetActivatedEventArgs shareTargetEventArgs:
+                    _ = Provider.DropFileAsync(shareTargetEventArgs.ShareOperation.Data);
                     break;
                 default:
                     break;
             }
         }
 
-        private void ComboBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            _ = Provider.SetIndex(Language);
-        }
+        private void ComboBox_Loaded(object sender, RoutedEventArgs e) => _ = Provider.SetIndexAsync(Language);
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            switch ((sender as FrameworkElement).Tag.ToString())
+            if (!(sender is FrameworkElement element)) { return; }
+            switch (element.Tag?.ToString())
             {
                 case "Save":
-                    _ = Provider.SaveImage();
+                    _ = Provider.SaveImageAsync();
                     break;
                 case "Paste":
-                    _ = Provider.DropFile(Clipboard.GetContent());
+                    _ = Provider.DropFileAsync(Clipboard.GetContent());
                     break;
                 case "Finnish":
                     _ = ClipFinnish();
@@ -129,11 +116,21 @@ namespace TextReader.Pages
                     _ = Provider?.TakePhoto();
                     break;
                 case "Refresh":
-                    _ = Provider.ReadText(Provider.SoftwareImage);
+                    _ = Provider.ReadTextAsync(Provider.SoftwareImage);
                     break;
                 case "TwoPanel":
                     Provider.IsSinglePane = false;
                     Provider.PanePriority = TwoPaneViewPriority.Pane1;
+                    break;
+                case "NewWindow":
+                    _ = WindowHelper.CreateWindowAsync(window =>
+                    {
+                        CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                        Frame _frame = new Frame();
+                        window.Content = _frame;
+                        ThemeHelper.Initialize(window);
+                        _ = _frame.Navigate(typeof(MainPage), null, new DrillInNavigationTransitionInfo());
+                    });
                     break;
                 case "ImageOnly":
                     Provider.IsSinglePane = true;
@@ -174,7 +171,7 @@ namespace TextReader.Pages
         private async void Grid_DragOver(object sender, DragEventArgs e)
         {
             DragOperationDeferral deferral = e.GetDeferral();
-            e.AcceptedOperation = await Provider.CheckData(e.DataView) ? DataPackageOperation.Copy : DataPackageOperation.None;
+            e.AcceptedOperation = await Provider.CheckDataAsync(e.DataView) ? DataPackageOperation.Copy : DataPackageOperation.None;
             e.Handled = true;
             deferral.Complete();
         }
@@ -182,7 +179,7 @@ namespace TextReader.Pages
         private async void Grid_Drop(object sender, DragEventArgs e)
         {
             DragOperationDeferral deferral = e.GetDeferral();
-            await Provider.DropFile(e.DataView);
+            await Provider.DropFileAsync(e.DataView);
             e.Handled = true;
             deferral.Complete();
         }
@@ -212,7 +209,7 @@ namespace TextReader.Pages
                         case VirtualKey.V:
                             if (Paste.IsEnabled)
                             {
-                                _ = Provider.DropFile(Clipboard.GetContent());
+                                _ = Provider.DropFileAsync(Clipboard.GetContent());
                                 args.Handled = true;
                             }
                             break;
@@ -223,7 +220,7 @@ namespace TextReader.Pages
 
         private void Image_DragStarting(UIElement sender, DragStartingEventArgs args) => args.DragUI.SetContentFromSoftwareBitmap(Provider.SoftwareImage);
 
-        private void Clipboard_ContentChanged(object sender, object e) => _ = Dispatcher.AwaitableRunAsync(async () => Paste.IsEnabled = await Provider.CheckData(Clipboard.GetContent()));
+        private void Clipboard_ContentChanged(object sender, object e) => _ = Provider.CheckDataAsync(Clipboard.GetContent()).ContinueWith(x => Paste.SetValueAsync(IsEnabledProperty, x.Result)).Unwrap();
 
         private void TitleBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarVisible(sender.IsVisible);
 

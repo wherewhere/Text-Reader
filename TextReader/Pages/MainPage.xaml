@@ -211,6 +211,7 @@
                         </Border>
                         <controls:ImageCropper
                             x:Name="ImageCropper"
+                            Padding="10"
                             CropShape="Rectangular"
                             MinCroppedPixelLength="0"
                             MinSelectedLength="0"
@@ -226,6 +227,40 @@
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
+                        <helpers:UIElementHelper.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem
+                                    x:Uid="/MainPage/TwoPanelMenuFlyoutItem"
+                                    Click="Button_Click"
+                                    IsEnabled="{x:Bind Provider.IsSinglePane, Mode=OneWay}"
+                                    Tag="TwoPanel"
+                                    Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                                    <helpers:UIElementHelper.Icon>
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA61;" />
+                                    </helpers:UIElementHelper.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem
+                                    x:Uid="/MainPage/ImageOnlyMenuFlyoutItem"
+                                    Click="Button_Click"
+                                    IsEnabled="{x:Bind Provider.IsImageOnlyEnable, Mode=OneWay}"
+                                    Tag="ImageOnly"
+                                    Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                                    <helpers:UIElementHelper.Icon>
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB9F;" />
+                                    </helpers:UIElementHelper.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem
+                                    x:Uid="/MainPage/ResultOnlyMenuFlyoutItem"
+                                    Click="Button_Click"
+                                    IsEnabled="{x:Bind Provider.IsResultOnlyEnable, Mode=OneWay}"
+                                    Tag="ResultOnly"
+                                    Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
+                                    <helpers:UIElementHelper.Icon>
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
+                                    </helpers:UIElementHelper.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </helpers:UIElementHelper.ContextFlyout>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -279,6 +314,7 @@
                             VerticalScrollBarVisibility="Auto"
                             Visibility="{x:Bind Provider.Result, Converter={StaticResource StringVisibilityConverter}, Mode=OneWay}">
                             <TextBlock
+                                HorizontalAlignment="Stretch"
                                 IsTextSelectionEnabled="True"
                                 Text="{x:Bind Provider.Result, Mode=OneWay}"
                                 TextWrapping="Wrap"
@@ -410,6 +446,16 @@
                         Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A4;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarSeparator Visibility="{x:Bind Provider.ShowCropper, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='true', Mode=OneWay}" />
+                    <AppBarButton
+                        x:Uid="/MainPage/NewWindowAppBarButton"
+                        Click="Button_Click"
+                        Tag="NewWindow"
+                        ToolTipService.ToolTip="{Binding Label, RelativeSource={RelativeSource Mode=Self}}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                 </CommandBar.SecondaryCommands>

@@ -126,13 +126,10 @@
   <data name="ExceptionThrown" xml:space="preserve">
     <value>程序出现了错误……</value>
   </data>
-  <data name="ImageLoadError" xml:space="preserve">
-    <value>图片加载失败</value>
-  </data>
   <data name="LanguageError" xml:space="preserve">
     <value>不支持的语言</value>
   </data>
-  <data name="NetworkError" xml:space="preserve">
-    <value>无法连接到网络</value>
+  <data name="ShareDescription" xml:space="preserve">
+    <value>提取图片文本</value>
   </data>
 </root>

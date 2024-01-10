@@ -150,6 +150,9 @@
   <data name="ImageSaveError" xml:space="preserve">
     <value>图片保存失败 ({0})</value>
   </data>
+  <data name="NewWindowAppBarButton.Label" xml:space="preserve">
+    <value>新建窗口</value>
+  </data>
   <data name="NoResultsTextBlock.Text" xml:space="preserve">
     <value>没有结果</value>
   </data>

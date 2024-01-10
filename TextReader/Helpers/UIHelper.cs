@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using TextReader.Common;
-using TextReader.Extensions;
 using TextReader.Pages;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
-using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
@@ -20,49 +18,6 @@ namespace TextReader.Helpers
         public static Queue<string> MessageQueue { get; } = new Queue<string>();
         public static bool HasTitleBar => !CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
         public static bool HasStatusBar => ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar");
-
-        public static async Task<MainPage> GetMainPageAsync() =>
-            Window.Current is Window window ? await window.GetMainPageAsync().ConfigureAwait(false) : null;
-
-        public static async Task<MainPage> GetMainPageAsync(this Window window)
-        {
-            await window.Dispatcher.ResumeForegroundAsync();
-            return window.Content.FindDescendant<MainPage>();
-        }
-
-        public static async Task<MainPage> GetMainPageAsync(this CoreDispatcher dispatcher)
-        {
-            if (WindowHelper.ActiveWindows.TryGetValue(dispatcher, out Window window))
-            {
-                await window.Dispatcher.ResumeForegroundAsync();
-                return window.Content.FindDescendant<MainPage>();
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public static async Task<MainPage> GetMainPageAsync(this DependencyObject element)
-        {
-            if (element is MainPage mainPage)
-            {
-                return mainPage;
-            }
-
-            await element.Dispatcher.ResumeForegroundAsync();
-
-            return WindowHelper.IsXamlRootSupported
-                && element is UIElement uiElement
-                && uiElement.XamlRoot != null
-                ? uiElement.XamlRoot.Content.FindDescendant<MainPage>()
-                : element.FindAscendant<MainPage>()
-                ?? await element.Dispatcher.GetMainPageAsync().ConfigureAwait(false);
-        }
-
-        public static Task ShowProgressBarAsync(this CoreDispatcher dispatcher) => dispatcher.GetMainPageAsync().ContinueWith(x => ShowProgressBarAsync(x.Result)).Unwrap();
-
-        public static Task ShowProgressBarAsync(this DependencyObject element) => element.GetMainPageAsync().ContinueWith(x => ShowProgressBarAsync(x.Result)).Unwrap();
 
         public static async Task ShowProgressBarAsync(MainPage mainPage)
         {
@@ -80,10 +35,6 @@ namespace TextReader.Helpers
             }
         }
 
-        public static Task HideProgressBarAsync(this CoreDispatcher dispatcher) => dispatcher.GetMainPageAsync().ContinueWith(x => HideProgressBarAsync(x.Result)).Unwrap();
-
-        public static Task HideProgressBarAsync(this DependencyObject element) => element.GetMainPageAsync().ContinueWith(x => HideProgressBarAsync(x.Result)).Unwrap();
-
         public static async Task HideProgressBarAsync(MainPage mainPage)
         {
             IsShowingProgressBar = false;
@@ -94,12 +45,6 @@ namespace TextReader.Helpers
             }
             await mainPage?.HideProgressBarAsync();
         }
-
-        public static Task ShowMessageAsync(string message) => GetMainPageAsync().ContinueWith(x => ShowMessageAsync(x.Result, message)).Unwrap();
-
-        public static Task ShowMessageAsync(this CoreDispatcher dispatcher, string message) => dispatcher.GetMainPageAsync().ContinueWith(x => ShowMessageAsync(x.Result, message)).Unwrap();
-
-        public static Task ShowMessageAsync(this DependencyObject element, string message) => element.GetMainPageAsync().ContinueWith(x => ShowMessageAsync(x.Result, message)).Unwrap();
 
         public static async Task ShowMessageAsync(MainPage mainPage, string message)
         {
@@ -142,6 +87,12 @@ namespace TextReader.Helpers
                 }
                 IsShowingMessage = false;
             }
+        }
+
+        public static async Task SetValueAsync<T>(this DependencyObject element, DependencyProperty dp, T value)
+        {
+            await element.Dispatcher.ResumeForegroundAsync();
+            element.SetValue(dp, value);
         }
 
         public static string ExceptionToMessage(this Exception ex)

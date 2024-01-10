@@ -147,6 +147,9 @@
   <data name="ImageSaveError" xml:space="preserve">
     <value>Image save failed ({0})</value>
   </data>
+  <data name="NewWindowAppBarButton.Label" xml:space="preserve">
+    <value>New Window</value>
+  </data>
   <data name="NoResultsTextBlock.Text" xml:space="preserve">
     <value>No Results</value>
   </data>
