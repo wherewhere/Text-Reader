@@ -35,7 +35,6 @@ namespace TextReader.ViewModels
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
         public CoreDispatcher Dispatcher => _page.Dispatcher;
-
         public bool IsSupportCompactOverlay { get; } =
             ApiInformation.IsMethodPresent("Windows.UI.ViewManagement.ApplicationView", "IsViewModeSupported")
             && ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay);
@@ -212,6 +211,13 @@ namespace TextReader.ViewModels
             set => SetProperty(ref isResultOnlyEnable, value);
         }
 
+        private bool isPasteEnabled = false;
+        public bool IsPasteEnabled
+        {
+            get => isPasteEnabled;
+            set => SetProperty(ref isPasteEnabled, value);
+        }
+
         private GeometryGroup resultGeometry;
         public GeometryGroup ResultGeometry
         {
@@ -308,6 +314,7 @@ namespace TextReader.ViewModels
 
         public async Task<bool> CheckDataAsync(DataPackageView data)
         {
+            if (data == null) { return false; }
             if (data.Contains(StandardDataFormats.Bitmap))
             {
                 return true;
@@ -319,6 +326,8 @@ namespace TextReader.ViewModels
             }
             return false;
         }
+
+        public async Task UpdatePasteEnabledAsync() => IsPasteEnabled = await CheckDataAsync(Clipboard.GetContent()).ConfigureAwait(false);
 
         public async Task SaveImageAsync()
         {

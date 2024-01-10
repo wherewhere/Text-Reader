@@ -9,7 +9,6 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 namespace TextReader
@@ -136,7 +135,7 @@ namespace TextReader
                 // 当导航堆栈尚未还原时，导航到第一页，
                 // 并通过将所需信息作为导航参数传入来配置
                 // 参数
-                rootFrame.Navigate(typeof(MainPage), e, new DrillInNavigationTransitionInfo());
+                rootFrame.Navigate(typeof(MainPage), e);
             }
             else
             {

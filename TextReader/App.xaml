@@ -20,16 +20,6 @@
             <converters:IsEqualToBoolConverter x:Key="IsEqualToBoolConverter" />
             <converters:EmptyObjectToBoolConverter x:Key="EmptyObjectToBoolConverter" />
             <converters:EmptyObjectToVisibilityConverter x:Key="EmptyObjectToVisibilityConverter" />
-            
-            <Style TargetType="Frame">
-                <Setter Property="ContentTransitions">
-                    <Setter.Value>
-                        <TransitionCollection>
-                            <NavigationThemeTransition />
-                        </TransitionCollection>
-                    </Setter.Value>
-                </Setter>
-            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

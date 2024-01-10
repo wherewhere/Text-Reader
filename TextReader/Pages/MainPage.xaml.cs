@@ -18,7 +18,6 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using TwoPaneViewPriority = TextReader.Controls.TwoPaneViewPriority;
 using TwoPaneViewTallModeConfiguration = TextReader.Controls.TwoPaneViewTallModeConfiguration;
@@ -34,6 +33,7 @@ namespace TextReader.Pages
     public sealed partial class MainPage : Page
     {
         private readonly MainViewModel Provider;
+
         public Frame MainFrame => Frame;
 
         public MainPage()
@@ -56,7 +56,6 @@ namespace TextReader.Pages
             TitleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
             TitleBar.IsVisibleChanged += TitleBar_IsVisibleChanged;
             Clipboard.ContentChanged += Clipboard_ContentChanged;
-            Clipboard_ContentChanged(null, null);
             if (e.Parameter is IActivatedEventArgs args)
             { OpenActivatedEventArgs(args); }
         }
@@ -87,7 +86,11 @@ namespace TextReader.Pages
             }
         }
 
-        private void ComboBox_Loaded(object sender, RoutedEventArgs e) => _ = Provider.SetIndexAsync(Language);
+        private void ComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            _ = Provider.SetIndexAsync(Language);
+            _ = Provider.UpdatePasteEnabledAsync();
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -129,7 +132,7 @@ namespace TextReader.Pages
                         Frame _frame = new Frame();
                         window.Content = _frame;
                         ThemeHelper.Initialize(window);
-                        _ = _frame.Navigate(typeof(MainPage), null, new DrillInNavigationTransitionInfo());
+                        _ = _frame.Navigate(typeof(MainPage));
                     });
                     break;
                 case "ImageOnly":
@@ -157,10 +160,7 @@ namespace TextReader.Pages
             Provider.ShowCropper = false;
         }
 
-        public void ClipCancel()
-        {
-            Provider.ShowCropper = false;
-        }
+        public void ClipCancel() => Provider.ShowCropper = false;
 
         public void ClipImage()
         {
@@ -218,9 +218,9 @@ namespace TextReader.Pages
             }
         }
 
-        private void Image_DragStarting(UIElement sender, DragStartingEventArgs args) => args.DragUI.SetContentFromSoftwareBitmap(Provider.SoftwareImage);
+        private void Clipboard_ContentChanged(object sender, object e) => _ = Provider.UpdatePasteEnabledAsync();
 
-        private void Clipboard_ContentChanged(object sender, object e) => _ = Provider.CheckDataAsync(Clipboard.GetContent()).ContinueWith(x => Paste.SetValueAsync(IsEnabledProperty, x.Result)).Unwrap();
+        private void Image_DragStarting(UIElement sender, DragStartingEventArgs args) => args.DragUI.SetContentFromSoftwareBitmap(Provider.SoftwareImage);
 
         private void TitleBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args) => UpdateTitleBarVisible(sender.IsVisible);
 

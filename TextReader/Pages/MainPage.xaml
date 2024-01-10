@@ -25,6 +25,7 @@
                 x:Name="Paste"
                 x:Uid="/MainPage/PasteMenuFlyoutItem"
                 Click="Button_Click"
+                IsEnabled="{x:Bind Provider.IsPasteEnabled, Mode=OneWay}"
                 Tag="Paste">
                 <helpers:UIElementHelper.Icon>
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77F;" />

@@ -42,22 +42,22 @@ namespace TextReader.Common
                 new SettingsCommand(
                     "Feedback",
                     loader.GetString("Feedback"),
-                    (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/wherewhere/Text-Reader/issues"))));
+                    handler => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/wherewhere/Text-Reader/issues"))));
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand(
                     "LogFolder",
                     loader.GetString("LogFolder"),
-                    async (handler) => _ = Launcher.LaunchFolderAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("MetroLogs", CreationCollisionOption.OpenIfExists))));
+                    async handler => _ = Launcher.LaunchFolderAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("MetroLogs", CreationCollisionOption.OpenIfExists))));
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand(
                     "Repository",
                     loader.GetString("Repository"),
-                    (handler) => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/wherewhere/Text-Reader"))));
+                    handler => _ = Launcher.LaunchUriAsync(new Uri("https://github.com/wherewhere/Text-Reader"))));
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand(
                     "StoreReview",
                     loader.GetString("StoreReview"),
-                    (handler) => _ = Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?ProductId=9P8NKQW6NCNC"))));
+                    handler => _ = Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?ProductId=9P8NKQW6NCNC"))));
         }
 
         private static void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)

@@ -1,4 +1,6 @@
-﻿using TextReader.Common;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using TextReader.Common;
 using Windows.ApplicationModel.Core;
 using Windows.UI;
 using Windows.UI.ViewManagement;
@@ -43,7 +45,7 @@ namespace TextReader.Helpers
             Color ForegroundColor = IsDark || IsHighContrast ? Colors.White : Colors.Black;
             Color BackgroundColor = IsHighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
 
-            foreach (Window window in WindowHelper.ActiveWindows.Values)
+            await Task.WhenAll(WindowHelper.ActiveWindows.Values.Select(async window =>
             {
                 await window.Dispatcher.ResumeForegroundAsync();
                 if (UIHelper.HasStatusBar)
@@ -61,7 +63,7 @@ namespace TextReader.Helpers
                     TitleBar.BackgroundColor = TitleBar.InactiveBackgroundColor = BackgroundColor;
                     TitleBar.ButtonBackgroundColor = TitleBar.ButtonInactiveBackgroundColor = ExtendViewIntoTitleBar ? Colors.Transparent : BackgroundColor;
                 }
-            }
+            })).ConfigureAwait(false);
         }
 
         public static async void UpdateSystemCaptionButtonColors(Window window)
