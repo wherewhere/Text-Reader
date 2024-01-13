@@ -315,7 +315,7 @@ namespace TextReader.ViewModels
         public async Task<bool> CheckDataAsync(DataPackageView data)
         {
             if (data == null) { return false; }
-            if (data.Contains(StandardDataFormats.Bitmap))
+            else if (data.Contains(StandardDataFormats.Bitmap))
             {
                 return true;
             }
@@ -324,7 +324,7 @@ namespace TextReader.ViewModels
                 IReadOnlyList<IStorageItem> items = await data.GetStorageItemsAsync();
                 return items.OfType<StorageFile>().Any(file => Array.Exists(ImageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)));
             }
-            return false;
+            else { return false; }
         }
 
         public async Task UpdatePasteEnabledAsync() => IsPasteEnabled = await CheckDataAsync(Clipboard.GetContent()).ConfigureAwait(false);

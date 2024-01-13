@@ -32,6 +32,7 @@ namespace TextReader.Pages
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private bool isClipboardChanged = true;
         private readonly MainViewModel Provider;
 
         public Frame MainFrame => Frame;
@@ -86,11 +87,7 @@ namespace TextReader.Pages
             }
         }
 
-        private void ComboBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            _ = Provider.SetIndexAsync(Language);
-            _ = Provider.UpdatePasteEnabledAsync();
-        }
+        private void ComboBox_Loaded(object sender, RoutedEventArgs e) => _ = Provider.SetIndexAsync(Language);
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -164,8 +161,10 @@ namespace TextReader.Pages
 
         public void ClipImage()
         {
-            if (Provider.CropperImage == null) { return; }
-            Provider.ShowCropper = true;
+            if (Provider.CropperImage != null)
+            {
+                Provider.ShowCropper = true;
+            }
         }
 
         private async void Grid_DragOver(object sender, DragEventArgs e)
@@ -199,26 +198,43 @@ namespace TextReader.Pages
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
-            if (args.EventType.ToString().Contains("Down"))
+            if (args.EventType.HasFlag(CoreAcceleratorKeyEventType.KeyDown) || args.EventType.HasFlag(CoreAcceleratorKeyEventType.SystemKeyUp))
             {
                 CoreVirtualKeyStates ctrl = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
                 if (ctrl.HasFlag(CoreVirtualKeyStates.Down))
                 {
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.V:
-                            if (Paste.IsEnabled)
-                            {
-                                _ = Provider.DropFileAsync(Clipboard.GetContent());
-                                args.Handled = true;
-                            }
+                        case VirtualKey.V when Provider.IsPasteEnabled:
+                            _ = Provider.DropFileAsync(Clipboard.GetContent());
+                            args.Handled = true;
                             break;
                     }
                 }
             }
         }
 
-        private void Clipboard_ContentChanged(object sender, object e) => _ = Provider.UpdatePasteEnabledAsync();
+        private void Page_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (isClipboardChanged)
+            {
+                _ = Provider.UpdatePasteEnabledAsync();
+            }
+            isClipboardChanged = false;
+        }
+
+        private void Clipboard_ContentChanged(object sender, object e)
+        {
+            if (FocusState == FocusState.Unfocused)
+            {
+                isClipboardChanged = true;
+            }
+            else
+            {
+                _ = Provider.UpdatePasteEnabledAsync();
+                isClipboardChanged = false;
+            }
+        }
 
         private void Image_DragStarting(UIElement sender, DragStartingEventArgs args) => args.DragUI.SetContentFromSoftwareBitmap(Provider.SoftwareImage);
 
@@ -250,9 +266,7 @@ namespace TextReader.Pages
         public async Task ShowMessageAsync(string message = null)
         {
             await Dispatcher.ResumeForegroundAsync();
-
             AppTitle.Text = message ?? ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? Package.Current.DisplayName;
-
             ApplicationView.GetForCurrentView().Title = message ?? string.Empty;
         }
 

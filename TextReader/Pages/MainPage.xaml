@@ -12,6 +12,7 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Background="{ThemeResource ApplicationPageBackgroundBrush}"
     DataContext="{x:Bind Provider}"
+    GotFocus="Page_GotFocus"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
     <Page.Resources>
