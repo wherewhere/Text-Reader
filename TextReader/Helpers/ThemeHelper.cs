@@ -23,15 +23,9 @@ namespace TextReader.Helpers
             UISettings.ColorValuesChanged += UISettings_ColorValuesChanged;
         }
 
-        public static void Initialize(Window window)
-        {
-            UpdateSystemCaptionButtonColors(window);
-        }
+        public static void Initialize(Window window) => UpdateSystemCaptionButtonColors(window);
 
-        private static void UISettings_ColorValuesChanged(UISettings sender, object args)
-        {
-            UpdateSystemCaptionButtonColors();
-        }
+        private static void UISettings_ColorValuesChanged(UISettings sender, object args) => UpdateSystemCaptionButtonColors();
 
         public static bool IsDarkTheme() => UISettings.GetColorValue(UIColorType.Foreground).IsColorLight();
 
