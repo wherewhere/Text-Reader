@@ -14,22 +14,22 @@ namespace TextReader.Controls
     {
         // CSHARP_MIGRATION: TODO:
         // BUILD_YEAR was a C++/CX macro and may update the value from the pipeline
-        private const string BUILD_YEAR = "2023";
+        private const string BUILD_YEAR = "2024";
 
         public AboutFlyout()
         {
-            ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse("AboutFlyout");
+            ResourceLoader _loader = ResourceLoader.GetForViewIndependentUse("AboutFlyout");
 
             InitializeComponent();
 
             SetVersionString();
 
-            Header.Text = resourceLoader.GetString("AboutButton/Content");
+            Header.Text = _loader.GetString("AboutButton/Content");
 
-            string copyrightText = string.Format(resourceLoader.GetString("AboutControlCopyright"), BUILD_YEAR);
+            string copyrightText = string.Format(_loader.GetString("AboutControlCopyright"), BUILD_YEAR);
             AboutControlCopyrightRun.Text = copyrightText;
 
-            InitializeContributeTextBlock();
+            InitializeContributeTextBlock(_loader);
         }
 
         private void FeedbackButton_Click(object sender, RoutedEventArgs e)
@@ -49,16 +49,10 @@ namespace TextReader.Controls
             AboutFlyoutVersion.Text = appName + " " + version.Major + "." + version.Minor + "." + version.Build + "." + version.Revision;
         }
 
-        private void SetDefaultFocus()
+        private void InitializeContributeTextBlock(ResourceLoader _loader)
         {
-            AboutFlyoutEULA.Focus(FocusState.Programmatic);
-        }
-
-        private void InitializeContributeTextBlock()
-        {
-            ResourceLoader resProvider = ResourceLoader.GetForViewIndependentUse("AboutFlyout");
             string appName = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "Text Reader";
-            string contributeHyperlinkText = string.Format(resProvider.GetString("AboutFlyoutContribute"), appName);
+            string contributeHyperlinkText = string.Format(_loader.GetString("AboutFlyoutContribute"), appName);
 
             // The resource string has the 'GitHub' hyperlink wrapped with '%HL%'.
             // Break the string and assign pieces appropriately.

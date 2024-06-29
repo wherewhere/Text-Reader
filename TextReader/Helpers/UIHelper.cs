@@ -99,7 +99,7 @@ namespace TextReader.Helpers
         {
             StringBuilder builder = new StringBuilder().AppendLine();
             if (!string.IsNullOrWhiteSpace(ex.Message)) { _ = builder.AppendLine($"Message: {ex.Message}"); }
-            _ = builder.AppendLine($"HResult: {ex.HResult} (0x{Convert.ToString(ex.HResult, 16).ToUpperInvariant()})");
+            _ = builder.AppendLine($"HResult: {ex.HResult} (0x{ex.HResult:X})");
             if (!string.IsNullOrWhiteSpace(ex.StackTrace)) { _ = builder.AppendLine(ex.StackTrace); }
             if (!string.IsNullOrWhiteSpace(ex.HelpLink)) { _ = builder.AppendLine($"HelperLink: {ex.HelpLink}"); }
             return builder.ToString();
