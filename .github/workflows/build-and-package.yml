@@ -44,7 +44,7 @@ jobs:
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:IsUseNetCore463=True /p:Configuration=$env:Configuration
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: Release
 
@@ -52,7 +52,6 @@ jobs:
     - name: Create the app package
       run: msbuild $env:Solution_Name `
         /p:LangVersion=latest `
-        /p:IsUseNetCore463=True `
         /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms" `
         /p:Configuration=$env:Configuration `
         /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode `
