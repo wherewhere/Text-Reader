@@ -22,26 +22,62 @@ namespace TextReader.Controls
     {
         private static void AnimateUIElementOffset(Point to, TimeSpan duration, UIElement target)
         {
-            Visual targetVisual = ElementCompositionPreview.GetElementVisual(target);
-            Compositor compositor = targetVisual.Compositor;
-            LinearEasingFunction linear = compositor.CreateLinearEasingFunction();
-            Vector3KeyFrameAnimation offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
-            offsetAnimation.Duration = duration;
-            offsetAnimation.Target = nameof(Visual.Offset);
-            offsetAnimation.InsertKeyFrame(1.0f, new Vector3((float)to.X, (float)to.Y, 0), linear);
-            targetVisual.StartAnimation(nameof(Visual.Offset), offsetAnimation);
+            if (IsCompositionSupported)
+            {
+                Visual targetVisual = ElementCompositionPreview.GetElementVisual(target);
+                Compositor compositor = targetVisual.Compositor;
+                LinearEasingFunction linear = compositor.CreateLinearEasingFunction();
+                Vector3KeyFrameAnimation offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
+                offsetAnimation.Duration = duration;
+                offsetAnimation.Target = nameof(Visual.Offset);
+                offsetAnimation.InsertKeyFrame(1.0f, new Vector3((float)to.X, (float)to.Y, 0), linear);
+                targetVisual.StartAnimation(nameof(Visual.Offset), offsetAnimation);
+            }
+            else
+            {
+                if (!(target.RenderTransform is CompositeTransform))
+                {
+                    target.RenderTransform = new CompositeTransform
+                    {
+                        CenterX = 0.5,
+                        CenterY = 0.5
+                    };
+                }
+                Storyboard storyboard = new Storyboard();
+                storyboard.Children.Add(CreateDoubleAnimation(to.X, duration, target, s_translateXPath, false));
+                storyboard.Children.Add(CreateDoubleAnimation(to.Y, duration, target, s_translateYPath, false));
+                storyboard.Begin();
+            }
         }
 
         private static void AnimateUIElementScale(double to, TimeSpan duration, UIElement target)
         {
-            Visual targetVisual = ElementCompositionPreview.GetElementVisual(target);
-            Compositor compositor = targetVisual.Compositor;
-            LinearEasingFunction linear = compositor.CreateLinearEasingFunction();
-            Vector3KeyFrameAnimation scaleAnimation = compositor.CreateVector3KeyFrameAnimation();
-            scaleAnimation.Duration = duration;
-            scaleAnimation.Target = nameof(Visual.Scale);
-            scaleAnimation.InsertKeyFrame(1.0f, new Vector3((float)to), linear);
-            targetVisual.StartAnimation(nameof(Visual.Scale), scaleAnimation);
+            if (IsCompositionSupported)
+            {
+                Visual targetVisual = ElementCompositionPreview.GetElementVisual(target);
+                Compositor compositor = targetVisual.Compositor;
+                LinearEasingFunction linear = compositor.CreateLinearEasingFunction();
+                Vector3KeyFrameAnimation scaleAnimation = compositor.CreateVector3KeyFrameAnimation();
+                scaleAnimation.Duration = duration;
+                scaleAnimation.Target = nameof(Visual.Scale);
+                scaleAnimation.InsertKeyFrame(1.0f, new Vector3((float)to), linear);
+                targetVisual.StartAnimation(nameof(Visual.Scale), scaleAnimation);
+            }
+            else
+            {
+                if (!(target.RenderTransform is CompositeTransform))
+                {
+                    target.RenderTransform = new CompositeTransform
+                    {
+                        CenterX = 0.5,
+                        CenterY = 0.5
+                    };
+                }
+                Storyboard storyboard = new Storyboard();
+                storyboard.Children.Add(CreateDoubleAnimation(to, duration, target, s_scaleXPath, false));
+                storyboard.Children.Add(CreateDoubleAnimation(to, duration, target, s_scaleYPath, false));
+                storyboard.Begin();
+            }
         }
 
         private static DoubleAnimation CreateDoubleAnimation(double to, TimeSpan duration, DependencyObject target, string propertyName, bool enableDependentAnimation)
@@ -129,5 +165,12 @@ namespace TextReader.Controls
             });
             return rectKeyframes;
         }
+
+        private const string s_centerXPath = "(UIElement.RenderTransform).(CompositeTransform.CenterX)";
+        private const string s_centerYPath = "(UIElement.RenderTransform).(CompositeTransform.CenterY)";
+        private const string s_scaleXPath = "(UIElement.RenderTransform).(CompositeTransform.ScaleX)";
+        private const string s_scaleYPath = "(UIElement.RenderTransform).(CompositeTransform.ScaleY)";
+        private const string s_translateXPath = "(UIElement.RenderTransform).(CompositeTransform.TranslateX)";
+        private const string s_translateYPath = "(UIElement.RenderTransform).(CompositeTransform.TranslateY)";
     }
 }

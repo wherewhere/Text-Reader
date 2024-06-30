@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using TextReader.Extensions;
 using Windows.Foundation;
+using Windows.Foundation.Metadata;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
@@ -34,6 +35,11 @@ namespace TextReader.Controls
     [TemplatePart(Name = LowerRightThumbPartName, Type = typeof(ImageCropperThumb))]
     public partial class ImageCropper : Control
     {
+        /// <summary>
+        /// Gets is <see cref="Windows.UI.Xaml.Hosting.ElementCompositionPreview.GetElementVisual(UIElement)"/> supported.
+        /// </summary>
+        private static readonly bool IsCompositionSupported = ApiInformation.IsMethodPresent("Windows.UI.Xaml.Hosting.ElementCompositionPreview", "GetElementVisual");
+
         private readonly CompositeTransform _imageTransform = new CompositeTransform();
         private readonly CompositeTransform _inverseImageTransform = new CompositeTransform();
         private readonly GeometryGroup _maskAreaGeometryGroup = new GeometryGroup { FillRule = FillRule.EvenOdd };

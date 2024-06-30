@@ -83,9 +83,24 @@ namespace TextReader.Controls
             }
             else
             {
-                Windows.UI.Composition.Visual targetVisual = ElementCompositionPreview.GetElementVisual(_sourceImage);
-                targetVisual.Offset = new Vector3((float)_imageTransform.TranslateX, (float)_imageTransform.TranslateY, 0);
-                targetVisual.Scale = new Vector3((float)imageScale);
+                if (IsCompositionSupported)
+                {
+                    Windows.UI.Composition.Visual targetVisual = ElementCompositionPreview.GetElementVisual(_sourceImage);
+                    targetVisual.Offset = new Vector3((float)_imageTransform.TranslateX, (float)_imageTransform.TranslateY, 0);
+                    targetVisual.Scale = new Vector3((float)imageScale);
+                }
+                else
+                {
+                    _sourceImage.RenderTransform = new CompositeTransform
+                    {
+                        CenterX = 0.5,
+                        CenterY = 0.5,
+                        TranslateX = _imageTransform.TranslateX,
+                        TranslateY = _imageTransform.TranslateY,
+                        ScaleX = imageScale,
+                        ScaleY = imageScale
+                    };
+                }
             }
 
             UpdateSelectedRect(startPoint, endPoint, animate);
