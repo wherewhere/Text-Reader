@@ -9,7 +9,7 @@
 [![Issues](https://img.shields.io/github/issues/wherewhere/Text-Reader.svg?label=Issues&style=flat-square)](https://github.com/wherewhere/Text-Reader/issues "Issues")
 [![Stargazers](https://img.shields.io/github/stars/wherewhere/Text-Reader.svg?label=Stars&style=flat-square)](https://github.com/wherewhere/Text-Reader/stargazers "Stargazers")
 
-[![Microsoft Store](https://img.shields.io/badge/download-%e4%b8%8b%e8%bd%bd-magenta.svg?label=Microsoft%20Store&logo=Microsoft&style=for-the-badge&color=11a2f8)](https://www.microsoft.com/store/apps/9P8NKQW6NCNC "Microsoft Store")
+[![Microsoft Store](https://img.shields.io/badge/download-下载-magenta.svg?label=Microsoft%20Store&logo=Microsoft&style=for-the-badge&color=11a2f8)](https://www.microsoft.com/store/apps/9P8NKQW6NCNC "Microsoft Store")
 [![GitHub All Releases](https://img.shields.io/github/downloads/wherewhere/Text-Reader/total.svg?label=DOWNLOAD&logo=github&style=for-the-badge)](https://github.com/wherewhere/Text-Reader/releases/latest "GitHub All Releases")
 
 ## 目录

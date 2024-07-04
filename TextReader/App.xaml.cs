@@ -31,9 +31,9 @@ namespace TextReader
 #if NETCORE463
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 #endif
-            if (ApiInformation.IsEnumNamedValuePresent("Windows.UI.Xaml.FocusVisualKind", "Reveal"))
+            if (ApiInformation.IsEnumNamedValuePresent("Windows.UI.Xaml.FocusVisualKind", "Reveal") && AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
             {
-                FocusVisualKind = AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" ? FocusVisualKind.Reveal : FocusVisualKind.HighVisibility;
+                FocusVisualKind = FocusVisualKind.Reveal;
             }
         }
 

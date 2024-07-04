@@ -30,8 +30,8 @@ namespace TextReader.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly MainPage _page;
-
-        public static string[] ImageTypes { get; } = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
+        private static readonly string[] imageTypes = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
+        
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
         public CoreDispatcher Dispatcher => _page.Dispatcher;
@@ -46,7 +46,7 @@ namespace TextReader.ViewModels
             {
                 if (IsSupportCompactOverlay)
                 {
-                    if (value == true)
+                    if (value)
                     {
                         if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
                         {
@@ -250,11 +250,11 @@ namespace TextReader.ViewModels
         public async Task SetIndexAsync(string Language)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            Language LocalLanguage = new Language(Language);
+            Language localLanguage = new Language(Language);
             for (int i = 0; i < Languages.Count; i++)
             {
                 Language language = Languages[i];
-                if (language.DisplayName == LocalLanguage.DisplayName)
+                if (language.DisplayName == localLanguage.DisplayName)
                 {
                     LanguageIndex = i;
                     return;
@@ -264,15 +264,15 @@ namespace TextReader.ViewModels
 
         public async Task PickImage()
         {
-            FileOpenPicker FileOpen = new FileOpenPicker();
-            FileOpen.FileTypeFilter.Add(".jpg");
-            FileOpen.FileTypeFilter.Add(".jpeg");
-            FileOpen.FileTypeFilter.Add(".png");
-            FileOpen.FileTypeFilter.Add(".bmp");
-            FileOpen.SuggestedStartLocation = PickerLocationId.ComputerFolder;
+            FileOpenPicker fileOpen = new FileOpenPicker();
+            foreach (string type in imageTypes)
+            {
+                fileOpen.FileTypeFilter.Add(type);
+            }
+            fileOpen.SuggestedStartLocation = PickerLocationId.ComputerFolder;
 
-            StorageFile file = await FileOpen.PickSingleFileAsync();
-            if (file != null) { await ReadFileAsync(file); }
+            StorageFile file = await fileOpen.PickSingleFileAsync();
+            if (file != null) { await ReadFileAsync(file).ConfigureAwait(false); }
         }
 
         public async Task TakePhoto()
@@ -304,7 +304,7 @@ namespace TextReader.ViewModels
         {
             foreach (StorageFile file in files.OfType<StorageFile>())
             {
-                if (Array.Exists(ImageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)))
+                if (Array.Exists(imageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)))
                 {
                     return ReadFileAsync(file);
                 }
@@ -322,7 +322,7 @@ namespace TextReader.ViewModels
             else if (data.Contains(StandardDataFormats.StorageItems))
             {
                 IReadOnlyList<IStorageItem> items = await data.GetStorageItemsAsync();
-                return items.OfType<StorageFile>().Any(file => Array.Exists(ImageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)));
+                return items.OfType<StorageFile>().Any(file => Array.Exists(imageTypes, x => file.Name.EndsWith(x, StringComparison.OrdinalIgnoreCase)));
             }
             else { return false; }
         }
@@ -452,14 +452,14 @@ namespace TextReader.ViewModels
 
         public async Task ReadStreamAsync(IRandomAccessStream stream)
         {
-            BitmapDecoder ImageDecoder = await BitmapDecoder.CreateAsync(stream);
-            SoftwareImage = await ImageDecoder.GetSoftwareBitmapAsync();
+            BitmapDecoder imageDecoder = await BitmapDecoder.CreateAsync(stream);
+            SoftwareImage = await imageDecoder.GetSoftwareBitmapAsync();
             CropperImage = null;
             try
             {
-                WriteableBitmap WriteableImage = new WriteableBitmap((int)ImageDecoder.PixelWidth, (int)ImageDecoder.PixelHeight);
-                await WriteableImage.SetSourceAsync(stream);
-                CropperImage = WriteableImage;
+                WriteableBitmap writeableImage = new WriteableBitmap((int)imageDecoder.PixelWidth, (int)imageDecoder.PixelHeight);
+                await writeableImage.SetSourceAsync(stream);
+                CropperImage = writeableImage;
             }
             catch (Exception e)
             {
@@ -471,9 +471,9 @@ namespace TextReader.ViewModels
                         BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, random);
                         encoder.SetSoftwareBitmap(SoftwareImage);
                         await encoder.FlushAsync();
-                        WriteableBitmap WriteableImage = new WriteableBitmap((int)ImageDecoder.PixelWidth, (int)ImageDecoder.PixelHeight);
-                        await WriteableImage.SetSourceAsync(random);
-                        CropperImage = WriteableImage;
+                        WriteableBitmap writeableImage = new WriteableBitmap((int)imageDecoder.PixelWidth, (int)imageDecoder.PixelHeight);
+                        await writeableImage.SetSourceAsync(random);
+                        CropperImage = writeableImage;
                     }
                 }
                 catch (Exception ex)
@@ -516,18 +516,18 @@ namespace TextReader.ViewModels
 
                 OcrResult ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
-                GeometryGroup GeometryGroup = new GeometryGroup();
+                GeometryGroup geometryGroup = new GeometryGroup();
                 foreach (OcrLine line in ocrResult.Lines)
                 {
                     text.AppendLine(line.Text);
                     foreach (OcrWord word in line.Words)
                     {
-                        GeometryGroup.Children.Add(new RectangleGeometry { Rect = word.BoundingRect });
+                        geometryGroup.Children.Add(new RectangleGeometry { Rect = word.BoundingRect });
                     }
                 }
 
                 Result = text.ToString();
-                ResultGeometry = GeometryGroup;
+                ResultGeometry = geometryGroup;
             }
             finally
             {

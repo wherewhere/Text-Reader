@@ -14,7 +14,7 @@ namespace TextReader.Helpers
         /// <summary>
         /// Gets the flyout associated with this element.
         /// </summary>
-        /// <param name="element">The flyout associated with this element.</param>
+        /// <param name="element">The element from which to read the property value.</param>
         /// <returns>The flyout associated with this element, if any; otherwise, <see langword="null"/>. The default is <see langword="null"/>.</returns>
         public static FlyoutBase GetContextFlyout(UIElement element)
         {
@@ -159,7 +159,7 @@ namespace TextReader.Helpers
         /// </summary>
         /// <param name="control">The element from which to read the property value.</param>
         /// <returns>The graphic content of the menu flyout item.</returns>
-        public static IconElement GetIcon(MenuFlyoutItem control)
+        public static IconElement GetIcon(MenuFlyoutItemBase control)
         {
             return (IconElement)control.GetValue(IconProperty);
         }
@@ -169,7 +169,7 @@ namespace TextReader.Helpers
         /// </summary>
         /// <param name="control">The element on which to set the attached property.</param>
         /// <param name="value">The property value to set.</param>
-        public static void SetIcon(MenuFlyoutItem control, IconElement value)
+        public static void SetIcon(MenuFlyoutItemBase control, IconElement value)
         {
             control.SetValue(IconProperty, value);
         }
