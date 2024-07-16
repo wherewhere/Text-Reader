@@ -10,6 +10,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.Resources;
+using Windows.Foundation.Metadata;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.System;
@@ -43,7 +44,7 @@ namespace TextReader.Pages
             AppTitle.Text = ResourceLoader.GetForViewIndependentUse().GetString("AppName") ?? "文字识别";
             if (!(AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop"))
             { UpdateTitleBarVisible(false); }
-            if (SettingsHelper.OperatingSystemVersion >= 22000)
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 14))
             { CommandBar.DefaultLabelPosition = CommandBarDefaultLabelPosition.Right; }
             Provider = new MainViewModel(this);
         }
