@@ -337,20 +337,20 @@ namespace TextReader.Media
                             Source1 = new CompositeEffect
                             {
                                 Sources =
-                            {
-                                new ColorSourceEffect
                                 {
-                                    Color = Colors.Black
-                                },
-                                new GaussianBlurEffect
-                                {
-                                    Name = "Blur",
-                                    BlurAmount = (float)Amount,
-                                    BorderMode = EffectBorderMode.Hard,
-                                    Optimization = EffectOptimization.Balanced,
-                                    Source = new CompositionEffectSourceParameter("backdrop")
+                                    new ColorSourceEffect
+                                    {
+                                        Color = Colors.Black
+                                    },
+                                    new GaussianBlurEffect
+                                    {
+                                        Name = "Blur",
+                                        BlurAmount = (float)Amount,
+                                        BorderMode = EffectBorderMode.Hard,
+                                        Optimization = EffectOptimization.Balanced,
+                                        Source = new CompositionEffectSourceParameter("backdrop")
+                                    }
                                 }
-                            }
                             },
                             Source2 = new ColorSourceEffect
                             {

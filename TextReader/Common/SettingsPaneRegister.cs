@@ -1,4 +1,5 @@
 ﻿using System;
+using TextReader.Helpers;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation.Metadata;
 using Windows.Storage;
@@ -16,22 +17,36 @@ namespace TextReader.Common
 
         public static void Register(Window window)
         {
-            if (IsSettingsPaneSupported)
+            try
             {
-                SettingsPane searchPane = SettingsPane.GetForCurrentView();
-                searchPane.CommandsRequested -= OnCommandsRequested;
-                searchPane.CommandsRequested += OnCommandsRequested;
-                window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
-                window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+                if (IsSettingsPaneSupported)
+                {
+                    SettingsPane searchPane = SettingsPane.GetForCurrentView();
+                    searchPane.CommandsRequested -= OnCommandsRequested;
+                    searchPane.CommandsRequested += OnCommandsRequested;
+                    window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+                    window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+                }
+            }
+            catch (Exception ex)
+            {
+                SettingsHelper.LogManager.GetLogger(nameof(SettingsPaneRegister)).Error(ex.ExceptionToMessage(), ex);
             }
         }
 
         public static void Unregister(Window window)
         {
-            if (IsSettingsPaneSupported)
+            try
             {
-                SettingsPane.GetForCurrentView().CommandsRequested -= OnCommandsRequested;
-                window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+                if (IsSettingsPaneSupported)
+                {
+                    SettingsPane.GetForCurrentView().CommandsRequested -= OnCommandsRequested;
+                    window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+                }
+            }
+            catch (Exception ex)
+            {
+                SettingsHelper.LogManager.GetLogger(nameof(SettingsPaneRegister)).Error(ex.ExceptionToMessage(), ex);
             }
         }
 

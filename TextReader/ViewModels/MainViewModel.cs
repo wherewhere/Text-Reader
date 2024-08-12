@@ -31,7 +31,7 @@ namespace TextReader.ViewModels
     {
         private readonly MainPage _page;
         private static readonly string[] imageTypes = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heif", ".heic" };
-        
+
         public static IReadOnlyList<Language> Languages => OcrEngine.AvailableRecognizerLanguages;
 
         public CoreDispatcher Dispatcher => _page.Dispatcher;

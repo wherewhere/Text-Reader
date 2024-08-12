@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using TextReader.Common;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -13,6 +14,8 @@ namespace TextReader.Helpers
     /// </summary>
     public static class ThemeHelper
     {
+        public static bool IsStatusBarSupported { get; } = ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar");
+
         // Keep reference so it does not get optimized/garbage collected
         public static UISettings UISettings { get; } = new UISettings();
         public static AccessibilitySettings AccessibilitySettings { get; } = new AccessibilitySettings();
@@ -42,7 +45,7 @@ namespace TextReader.Helpers
             await Task.WhenAll(WindowHelper.ActiveWindows.Values.Select(async window =>
             {
                 await window.Dispatcher.ResumeForegroundAsync();
-                if (UIHelper.HasStatusBar)
+                if (IsStatusBarSupported)
                 {
                     StatusBar StatusBar = StatusBar.GetForCurrentView();
                     StatusBar.ForegroundColor = ForegroundColor;
@@ -70,7 +73,7 @@ namespace TextReader.Helpers
             Color ForegroundColor = IsDark || IsHighContrast ? Colors.White : Colors.Black;
             Color BackgroundColor = IsHighContrast ? Color.FromArgb(255, 0, 0, 0) : IsDark ? Color.FromArgb(255, 32, 32, 32) : Color.FromArgb(255, 243, 243, 243);
 
-            if (UIHelper.HasStatusBar)
+            if (IsStatusBarSupported)
             {
                 StatusBar StatusBar = StatusBar.GetForCurrentView();
                 StatusBar.ForegroundColor = ForegroundColor;

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using TextReader.Common;
 using TextReader.Pages;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation.Metadata;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
@@ -17,7 +16,7 @@ namespace TextReader.Helpers
         public static bool IsShowingProgressBar, IsShowingMessage;
         public static Queue<string> MessageQueue { get; } = new Queue<string>();
         public static bool HasTitleBar => !CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar;
-        public static bool HasStatusBar => ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar");
+        public static bool HasStatusBar => ThemeHelper.IsStatusBarSupported;
 
         public static async Task ShowProgressBarAsync(MainPage mainPage)
         {
