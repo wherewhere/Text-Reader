@@ -195,7 +195,7 @@ namespace TextReader
 #endif
 
         /// <summary>
-        /// Should be called from OnActivated and OnLaunched
+        /// Should be called from OnActivated and OnLaunched.
         /// </summary>
         private void RegisterExceptionHandlingSynchronizationContext()
         {
