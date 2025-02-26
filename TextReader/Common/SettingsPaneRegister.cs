@@ -10,7 +10,6 @@ using Windows.UI.Xaml;
 
 namespace TextReader.Common
 {
-#pragma warning disable CS0618
     public static class SettingsPaneRegister
     {
         public static bool IsSettingsPaneSupported { get; } = ApiInformation.IsTypePresent("Windows.UI.ApplicationSettings.SettingsPane");
@@ -79,10 +78,11 @@ namespace TextReader.Common
         {
             if (args.EventType.HasFlag(CoreAcceleratorKeyEventType.KeyDown) || args.EventType.HasFlag(CoreAcceleratorKeyEventType.SystemKeyUp))
             {
-                CoreVirtualKeyStates ctrl = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
+                CoreWindow window = CoreWindow.GetForCurrentThread();
+                CoreVirtualKeyStates ctrl = window.GetKeyState(VirtualKey.Control);
                 if (ctrl.HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    CoreVirtualKeyStates shift = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
+                    CoreVirtualKeyStates shift = window.GetKeyState(VirtualKey.Shift);
                     if (shift.HasFlag(CoreVirtualKeyStates.Down))
                     {
                         switch (args.VirtualKey)

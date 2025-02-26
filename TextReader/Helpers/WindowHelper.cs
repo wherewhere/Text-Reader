@@ -26,10 +26,10 @@ namespace TextReader.Helpers
             CoreApplicationView newView = CoreApplication.CreateNewView();
             int newViewId = await newView.Dispatcher.AwaitableRunAsync(() =>
             {
-                Window newWindow = Window.Current;
-                launched(newWindow);
-                TrackWindow(newWindow);
-                Window.Current.Activate();
+                Window window = Window.Current;
+                launched(window);
+                TrackWindow(window);
+                window.Activate();
                 return ApplicationView.GetForCurrentView().Id;
             });
             return await ApplicationViewSwitcher.TryShowAsStandaloneAsync(newViewId);

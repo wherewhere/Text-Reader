@@ -83,7 +83,7 @@ namespace TextReader.Common
         IThreadSwitcher IThreadSwitcher.GetAwaiter() => this;
 
         /// <inheritdoc/>
-        public void OnCompleted(Action continuation) => _ = dispatcher.RunAsync(priority, () => continuation());
+        public void OnCompleted(Action continuation) => _ = dispatcher.RunAsync(priority, continuation.Invoke);
     }
 
     /// <summary>
