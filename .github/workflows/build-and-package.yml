@@ -62,7 +62,7 @@ jobs:
           /p:PackageCertificatePassword=$env:Password
         env:
           Appx_Bundle: Always
-          Appx_Bundle_Platforms: x86|x64|ARM
+          Appx_Bundle_Platforms: x86|x64|ARM|ARM64
           Appx_Package_Build_Mode: SideloadOnly
           Appx_Package_Dir: AppxPackages\
           Configuration: Release
