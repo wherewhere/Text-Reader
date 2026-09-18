@@ -12,7 +12,7 @@ namespace TextReader.Controls
     /// <summary>
     /// The <see cref="ImageCropperThumb"/> control is used for <see cref="ImageCropper"/>.
     /// </summary>
-    public class ImageCropperThumb : Control
+    public sealed class ImageCropperThumb : Control
     {
         private readonly TranslateTransform _layoutTransform = new TranslateTransform();
 

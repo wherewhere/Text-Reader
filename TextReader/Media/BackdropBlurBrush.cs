@@ -16,7 +16,7 @@ namespace TextReader.Media
     /// The <see cref="BackdropBlurBrush"/> is a <see cref="Brush"/> that blurs whatever is behind it in the application.
     /// </summary>
     [ContractVersion(typeof(UniversalApiContract), 262144)]
-    public class BackdropBlurBrush : XamlCompositionBrushBase
+    public sealed class BackdropBlurBrush : XamlCompositionBrushBase
     {
         private bool _isForce = true;
 

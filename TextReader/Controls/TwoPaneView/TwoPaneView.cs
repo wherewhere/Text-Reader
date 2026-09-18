@@ -15,7 +15,7 @@ namespace TextReader.Controls
     [TemplatePart(Name = "PART_RowTop", Type = typeof(RowDefinition))]
     [TemplatePart(Name = "PART_RowMiddle", Type = typeof(RowDefinition))]
     [TemplatePart(Name = "PART_RowBottom", Type = typeof(RowDefinition))]
-    public partial class TwoPaneView : Control
+    public sealed partial class TwoPaneView : Control
     {
         private bool m_loaded = false;
         private ViewMode m_currentMode = ViewMode.None;

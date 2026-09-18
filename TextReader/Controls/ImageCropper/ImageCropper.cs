@@ -33,7 +33,7 @@ namespace TextReader.Controls
     [TemplatePart(Name = UpperRightThumbPartName, Type = typeof(ImageCropperThumb))]
     [TemplatePart(Name = LowerLeftThumbPartName, Type = typeof(ImageCropperThumb))]
     [TemplatePart(Name = LowerRightThumbPartName, Type = typeof(ImageCropperThumb))]
-    public partial class ImageCropper : Control
+    public sealed partial class ImageCropper : Control
     {
         /// <summary>
         /// Gets is <see cref="Windows.UI.Xaml.Hosting.ElementCompositionPreview.GetElementVisual(UIElement)"/> supported.

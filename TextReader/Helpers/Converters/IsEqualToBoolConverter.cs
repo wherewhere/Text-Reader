@@ -3,7 +3,7 @@
     /// <summary>
     /// This class converts a value is equal to another value into a Boolean value
     /// </summary>
-    public class IsEqualToBoolConverter : IsEqualToObjectConverter
+    public sealed class IsEqualToBoolConverter : IsEqualToObjectConverter
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="IsEqualToBoolConverter"/> class.

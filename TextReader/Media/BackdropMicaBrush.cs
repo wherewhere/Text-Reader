@@ -16,7 +16,7 @@ namespace TextReader.Media
     /// The <see cref="BackdropMicaBrush"/> is a <see cref="Brush"/> that blurs whatever is behind it in the application.
     /// </summary>
     [ContractVersion(typeof(UniversalApiContract), 262144)]
-    public class BackdropMicaBrush : XamlCompositionBrushBase
+    public sealed class BackdropMicaBrush : XamlCompositionBrushBase
     {
         private bool _isForce = true;
 

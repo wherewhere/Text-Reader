@@ -274,7 +274,7 @@ namespace TextReader.Pages
         #endregion
     }
 
-    public class BoolToTwoPaneViewTallModeConfigurationConverter : BoolToObjectConverter
+    public sealed class BoolToTwoPaneViewTallModeConfigurationConverter : BoolToObjectConverter
     {
         public BoolToTwoPaneViewTallModeConfigurationConverter()
         {
@@ -283,7 +283,7 @@ namespace TextReader.Pages
         }
     }
 
-    public class BoolToTwoPaneViewWideModeConfigurationConverter : BoolToObjectConverter
+    public sealed class BoolToTwoPaneViewWideModeConfigurationConverter : BoolToObjectConverter
     {
         public BoolToTwoPaneViewWideModeConfigurationConverter()
         {

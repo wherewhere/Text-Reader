@@ -9,7 +9,7 @@ using Windows.UI.Xaml;
 
 namespace TextReader.Controls
 {
-    public class DisplayRegionHelper
+    public sealed class DisplayRegionHelper
     {
         private static DisplayRegionHelper Instance;
 

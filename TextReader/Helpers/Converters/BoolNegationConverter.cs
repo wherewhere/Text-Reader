@@ -10,7 +10,7 @@ namespace TextReader.Helpers.Converters
     /// <summary>
     /// Value converter that applies NOT operator to a <see cref="bool"/> value.
     /// </summary>
-    public class BoolNegationConverter : IValueConverter
+    public sealed class BoolNegationConverter : IValueConverter
     {
         /// <summary>
         /// Convert a boolean value to its negation.

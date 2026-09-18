@@ -4,7 +4,7 @@ using Windows.UI.Xaml;
 
 namespace TextReader.Common
 {
-    public class CustomBrushResource : ResourceDictionary
+    public sealed class CustomBrushResource : ResourceDictionary
     {
         public CustomBrushResource() => AddResource();
 
